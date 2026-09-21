@@ -1,0 +1,91 @@
+{
+  "@@locale": "en",
+
+  "appName": "bizPOS",
+
+  "signInTitle": "Sign in",
+  "signInSubtitle": "Use the account your store owner gave you.",
+  "email": "Email",
+  "password": "Password",
+  "signIn": "Sign in",
+  "signingIn": "Signing in…",
+  "signOut": "Sign out",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "serverLabel": "Server",
+
+  "dashboard": "Dashboard",
+  "sell": "Sell",
+  "invoices": "Invoices",
+  "customers": "Customers",
+  "products": "Products",
+  "packages": "Packages",
+  "catalogue": "Catalogue",
+  "suggestions": "Suggestions",
+  "purchase": "Purchase",
+  "accounts": "Accounts",
+  "reports": "Reports",
+  "team": "Team",
+  "platform": "Platform",
+  "more": "More",
+  "profile": "Profile",
+
+  "comingSoonTitle": "Not built yet",
+  "comingSoonBody": "{screen} arrives in a later phase. Your role already has access to it.",
+  "@comingSoonBody": {
+    "placeholders": { "screen": { "type": "String" } }
+  },
+
+  "noStoreTitle": "No store assigned",
+  "noStoreBody": "This account does not belong to an active store yet, or it has been suspended. Ask your store owner to add you.",
+  "notAllowedTitle": "Not allowed",
+  "notAllowedBody": "Your role does not include this screen.",
+
+  "store": "Store",
+  "branch": "Branch",
+  "role": "Role",
+  "switchStore": "Switch store",
+  "switchBranch": "Switch branch",
+
+  "appearance": "Appearance",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "language": "Language",
+  "languageEnglish": "English",
+  "languageBangla": "বাংলা",
+
+  "devices": "Signed-in devices",
+  "devicesBody": "Sign out a phone you no longer have.",
+  "thisDevice": "This device",
+  "lastUsed": "Last used {when}",
+  "@lastUsed": {
+    "placeholders": { "when": { "type": "String" } }
+  },
+  "revokeDevice": "Sign out",
+  "revokeDeviceConfirm": "Sign {name} out? Whoever holds it will need the password again.",
+  "@revokeDeviceConfirm": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "supportMode": "Support mode — you are inside this store as platform staff",
+  "sessionExpiresSoon": "This device will be signed out on {date}.",
+  "@sessionExpiresSoon": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+
+  "permissionsHeading": "What you may do",
+  "permissionCount": "{count, plural, =0{No permissions} =1{1 permission} other{{count} permissions}}",
+  "@permissionCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "retry": "Try again",
+  "cancel": "Cancel",
+  "close": "Close",
+  "confirm": "Confirm",
+  "emptyTitle": "Nothing here yet",
+  "genericError": "Something went wrong.",
+  "offline": "No connection",
+  "requiredField": "This is required",
+  "invalidEmail": "Enter a valid email"
+}

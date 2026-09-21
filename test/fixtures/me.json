@@ -1,0 +1,12 @@
+{
+  "data": {
+    "user":   { "id": 4, "name": "Karim", "email": "cashier@rahman.test", "locale": "bn", "theme": "daylight", "is_super_admin": false },
+    "store":  { "id": 1, "name": "Rahman Pharmacy", "slug": "rahman-pharmacy", "currency": "BDT", "store_type_id": 1, "store_type_name": "Pharmacy" },
+    "branch": { "id": 1, "name": "Main Branch", "code": "MAIN" },
+    "stores":   [ { "id": 1, "name": "Rahman Pharmacy", "slug": "rahman-pharmacy" } ],
+    "branches": [ { "id": 1, "name": "Main Branch", "code": "MAIN" }, { "id": 2, "name": "Mirpur", "code": "MRP" } ],
+    "role": { "id": 4, "name": "cashier", "label": "Cashier", "label_bn": "ক্যাশিয়ার" },
+    "permissions": [ "pos.sale.create", "pos.sale.print", "pos.sale.hold" ],
+    "impersonating": false
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "@@locale": "bn",
+
+  "appName": "বিজপস",
+
+  "signInTitle": "সাইন ইন",
+  "signInSubtitle": "দোকান মালিকের দেওয়া অ্যাকাউন্ট ব্যবহার করুন।",
+  "email": "ইমেইল",
+  "password": "পাসওয়ার্ড",
+  "signIn": "সাইন ইন",
+  "signingIn": "সাইন ইন হচ্ছে…",
+  "signOut": "সাইন আউট",
+  "showPassword": "পাসওয়ার্ড দেখান",
+  "hidePassword": "পাসওয়ার্ড লুকান",
+  "serverLabel": "সার্ভার",
+
+  "dashboard": "ড্যাশবোর্ড",
+  "sell": "বিক্রি",
+  "invoices": "ইনভয়েস",
+  "customers": "কাস্টমার",
+  "products": "পণ্য",
+  "packages": "প্যাকেজ",
+  "catalogue": "ক্যাটালগ",
+  "suggestions": "প্রস্তাবনা",
+  "purchase": "ক্রয়",
+  "accounts": "হিসাব",
+  "reports": "রিপোর্ট",
+  "team": "টিম",
+  "platform": "প্ল্যাটফর্ম",
+  "more": "আরও",
+  "profile": "প্রোফাইল",
+
+  "comingSoonTitle": "এখনও তৈরি হয়নি",
+  "comingSoonBody": "{screen} পরের ধাপে আসছে। আপনার রোলে এটির অনুমতি আছে।",
+  "@comingSoonBody": {
+    "placeholders": { "screen": { "type": "String" } }
+  },
+
+  "noStoreTitle": "কোনো দোকান নেই",
+  "noStoreBody": "এই অ্যাকাউন্ট এখনও কোনো সক্রিয় দোকানের সঙ্গে যুক্ত নয়, বা স্থগিত করা হয়েছে। দোকান মালিককে যুক্ত করতে বলুন।",
+  "notAllowedTitle": "অনুমতি নেই",
+  "notAllowedBody": "আপনার রোলে এই স্ক্রিনটি নেই।",
+
+  "store": "দোকান",
+  "branch": "শাখা",
+  "role": "রোল",
+  "switchStore": "দোকান বদলান",
+  "switchBranch": "শাখা বদলান",
+
+  "appearance": "থিম",
+  "themeLight": "দিনের আলো",
+  "themeDark": "রাতের আঁধার",
+  "language": "ভাষা",
+  "languageEnglish": "English",
+  "languageBangla": "বাংলা",
+
+  "devices": "সাইন ইন করা ডিভাইস",
+  "devicesBody": "হারিয়ে যাওয়া ফোন সাইন আউট করে দিন।",
+  "thisDevice": "এই ডিভাইস",
+  "lastUsed": "সর্বশেষ ব্যবহার {when}",
+  "@lastUsed": {
+    "placeholders": { "when": { "type": "String" } }
+  },
+  "revokeDevice": "সাইন আউট",
+  "revokeDeviceConfirm": "{name} সাইন আউট করবেন? যার কাছে আছে তাকে আবার পাসওয়ার্ড দিতে হবে।",
+  "@revokeDeviceConfirm": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "supportMode": "সাপোর্ট মোড — আপনি প্ল্যাটফর্ম স্টাফ হিসেবে এই দোকানে আছেন",
+  "sessionExpiresSoon": "এই ডিভাইস {date} তারিখে সাইন আউট হয়ে যাবে।",
+  "@sessionExpiresSoon": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+
+  "permissionsHeading": "আপনি যা করতে পারেন",
+  "permissionCount": "{count, plural, =0{কোনো অনুমতি নেই} =1{১টি অনুমতি} other{{count}টি অনুমতি}}",
+  "@permissionCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "retry": "আবার চেষ্টা করুন",
+  "cancel": "বাতিল",
+  "close": "বন্ধ",
+  "confirm": "নিশ্চিত করুন",
+  "emptyTitle": "এখানে এখনও কিছু নেই",
+  "genericError": "কিছু একটা সমস্যা হয়েছে।",
+  "offline": "সংযোগ নেই",
+  "requiredField": "এটি দিতে হবে",
+  "invalidEmail": "সঠিক ইমেইল দিন"
+}
