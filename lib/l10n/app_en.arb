@@ -1,8 +1,6 @@
 {
   "@@locale": "en",
-
   "appName": "bizPOS",
-
   "signInTitle": "Sign in",
   "signInSubtitle": "Use the account your store owner gave you.",
   "email": "Email",
@@ -13,7 +11,6 @@
   "showPassword": "Show password",
   "hidePassword": "Hide password",
   "serverLabel": "Server",
-
   "dashboard": "Dashboard",
   "sell": "Sell",
   "invoices": "Invoices",
@@ -29,56 +26,68 @@
   "platform": "Platform",
   "more": "More",
   "profile": "Profile",
-
   "comingSoonTitle": "Not built yet",
   "comingSoonBody": "{screen} arrives in a later phase. Your role already has access to it.",
   "@comingSoonBody": {
-    "placeholders": { "screen": { "type": "String" } }
+    "placeholders": {
+      "screen": {
+        "type": "String"
+      }
+    }
   },
-
   "noStoreTitle": "No store assigned",
   "noStoreBody": "This account does not belong to an active store yet, or it has been suspended. Ask your store owner to add you.",
   "notAllowedTitle": "Not allowed",
   "notAllowedBody": "Your role does not include this screen.",
-
   "store": "Store",
   "branch": "Branch",
   "role": "Role",
   "switchStore": "Switch store",
   "switchBranch": "Switch branch",
-
   "appearance": "Appearance",
   "themeLight": "Light",
   "themeDark": "Dark",
   "language": "Language",
   "languageEnglish": "English",
   "languageBangla": "বাংলা",
-
   "devices": "Signed-in devices",
   "devicesBody": "Sign out a phone you no longer have.",
   "thisDevice": "This device",
   "lastUsed": "Last used {when}",
   "@lastUsed": {
-    "placeholders": { "when": { "type": "String" } }
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
   },
   "revokeDevice": "Sign out",
   "revokeDeviceConfirm": "Sign {name} out? Whoever holds it will need the password again.",
   "@revokeDeviceConfirm": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
-
   "supportMode": "Support mode — you are inside this store as platform staff",
   "sessionExpiresSoon": "This device will be signed out on {date}.",
   "@sessionExpiresSoon": {
-    "placeholders": { "date": { "type": "String" } }
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
-
   "permissionsHeading": "What you may do",
   "permissionCount": "{count, plural, =0{No permissions} =1{1 permission} other{{count} permissions}}",
   "@permissionCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "retry": "Try again",
   "cancel": "Cancel",
   "close": "Close",
@@ -87,5 +96,421 @@
   "genericError": "Something went wrong.",
   "offline": "No connection",
   "requiredField": "This is required",
-  "invalidEmail": "Enter a valid email"
+  "invalidEmail": "Enter a valid email",
+  "posTitle": "Sell",
+  "posSearchHint": "Scan or search by name, barcode",
+  "posScan": "Scan a barcode",
+  "posTabProducts": "Products",
+  "posTabPackages": "Packages",
+  "posNoResults": "Nothing matched",
+  "posNoResultsBody": "Try part of the name, or the barcode.",
+  "posStartTitle": "Ring it up",
+  "posStartBody": "Scan a barcode or search for the first item.",
+  "inStock": "{count} in stock",
+  "@inStock": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "outOfStock": "Out of stock",
+  "lowStock": "Low stock",
+  "addedToCart": "{name} added",
+  "@addedToCart": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "packageBadge": "Bundle",
+  "buildable": "{count} can be made",
+  "@buildable": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cart": "Cart",
+  "cartEmpty": "The cart is empty",
+  "cartEmptyBody": "Scanned items show up here.",
+  "cartItems": "{count, plural, =1{1 item} other{{count} items}}",
+  "@cartItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subtotal": "Subtotal",
+  "orderDiscount": "Discount on the bill",
+  "estimatedTotal": "Estimated total",
+  "estimatedNote": "The server works out VAT and the final total.",
+  "lineDiscount": "Line discount",
+  "unitPrice": "Unit price",
+  "editLine": "Edit {name}",
+  "@editLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "removeLine": "Remove",
+  "overStockWarning": "Only {count} left in this branch. The server will refuse more.",
+  "@overStockWarning": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "clearCart": "Empty the cart",
+  "clearCartConfirm": "Remove every item and start again?",
+  "noteOnSale": "Note on this sale",
+  "customer": "Customer",
+  "walkInCustomer": "Walk-in customer",
+  "chooseCustomer": "Choose a customer",
+  "customerSearchHint": "Phone or name (2+ characters)",
+  "customerSearchShort": "Type at least two characters",
+  "addCustomer": "Add a customer",
+  "quickAddCustomer": "New customer",
+  "customerName": "Name",
+  "customerPhone": "Phone",
+  "customerEmail": "Email",
+  "customerAddress": "Address",
+  "creditLimit": "Credit limit",
+  "creditLimitHelp": "How much this customer may owe at once.",
+  "customerExists": "{name} was already on file with that phone.",
+  "@customerExists": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerAdded": "{name} added",
+  "@customerAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customerSaved": "Saved",
+  "clearCustomer": "Remove customer",
+  "walkInNoCredit": "Walk-in customers cannot buy on credit.",
+  "dueLabel": "Due",
+  "points": "Points",
+  "pointsBalance": "{count} points",
+  "@pointsBalance": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "noPhone": "No phone",
+  "charge": "Charge",
+  "payment": "Payment",
+  "payments": "Payments",
+  "addPayment": "Add another payment",
+  "payMethodCash": "Cash",
+  "payMethodCard": "Card",
+  "payMethodBkash": "bKash",
+  "payMethodNagad": "Nagad",
+  "payMethodRocket": "Rocket",
+  "payMethodBank": "Bank",
+  "account": "Account",
+  "reference": "Reference",
+  "amountReceived": "Amount received",
+  "exactAmount": "Exact",
+  "changeDue": "Change to give back",
+  "remainingDue": "Left as due",
+  "dueNeedsCustomer": "Leaving a due needs a named customer.",
+  "creditOff": "This store does not allow credit sales.",
+  "redeemPoints": "Redeem points",
+  "redeemPointsHelp": "{count} points available, worth {worth}.",
+  "@redeemPointsHelp": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "worth": {
+        "type": "String"
+      }
+    }
+  },
+  "redeemMax": "Use the most allowed",
+  "redeemCapNote": "The server caps this, so the receipt may show fewer.",
+  "completeSale": "Complete the sale",
+  "payFull": "Pay in full",
+  "saleComplete": "Sale complete",
+  "invoiceNumber": "Invoice {no}",
+  "@invoiceNumber": {
+    "placeholders": {
+      "no": {
+        "type": "String"
+      }
+    }
+  },
+  "totalCharged": "Total",
+  "paidLabel": "Paid",
+  "pointsEarned": "{count} points earned",
+  "@pointsEarned": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "pointsRedeemed": "{count} points redeemed",
+  "@pointsRedeemed": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "newSale": "Next sale",
+  "viewReceipt": "View receipt",
+  "holdCart": "Hold this cart",
+  "heldCarts": "Held carts",
+  "heldCartsCount": "{count, plural, =0{No held carts} =1{1 held cart} other{{count} held carts}}",
+  "@heldCartsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "holdLabel": "A name to find it by",
+  "holdLabelHint": "Blue shirt man",
+  "holdSaved": "Held as “{label}”",
+  "@holdSaved": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "resume": "Resume",
+  "discard": "Discard",
+  "discardHoldConfirm": "Throw away “{label}”? The cart cannot be brought back.",
+  "@discardHoldConfirm": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "resumeOverwrites": "Resuming replaces what is in the cart now.",
+  "noHeldCarts": "Nothing is on hold",
+  "cashDrawer": "Cash drawer",
+  "openDrawer": "Open the drawer",
+  "closeDrawer": "Close the drawer",
+  "drawerOpen": "Drawer open",
+  "drawerClosed": "Drawer closed",
+  "drawerClosedBody": "Sales still go through, but none of them are counted in a drawer.",
+  "openingCash": "Cash in the drawer now",
+  "countedCash": "Cash counted",
+  "openedAt": "Opened {when}",
+  "@openedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "expectedCash": "Expected",
+  "countedLabel": "Counted",
+  "difference": "Difference",
+  "shortBy": "Short by {amount}",
+  "@shortBy": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "overBy": "Over by {amount}",
+  "@overBy": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "balanced": "It balances",
+  "drawerOpened": "The drawer is open",
+  "closingNote": "Note",
+  "done": "Done",
+  "invoiceSearchHint": "Invoice no, customer or phone",
+  "filterToday": "Today",
+  "filterWeek": "7 days",
+  "filterAll": "All",
+  "invoiceCount": "{count} invoices",
+  "@invoiceCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "invoiceTotal": "Total",
+  "invoiceDue": "Due",
+  "statusPaid": "Paid",
+  "statusPartial": "Partial",
+  "statusUnpaid": "Unpaid",
+  "statusCompleted": "Completed",
+  "statusReturned": "Returned",
+  "statusVoid": "Void",
+  "noInvoices": "No invoices yet",
+  "noInvoicesBody": "Sales made at this counter show up here.",
+  "ownInvoicesOnly": "Your own sales",
+  "soldBy": "Sold by {name}",
+  "@soldBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "itemsCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "@itemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loadMore": "Load more",
+  "invoice": "Invoice",
+  "receipt": "Receipt",
+  "items": "Items",
+  "vat": "VAT",
+  "discount": "Discount",
+  "grandTotal": "Total",
+  "collectDue": "Collect due",
+  "acceptReturn": "Accept a return",
+  "voidInvoice": "Cancel this sale",
+  "printReceipt": "Print",
+  "printingSoon": "Bluetooth printing arrives in a later phase.",
+  "share": "Share",
+  "collectTitle": "Collect a due",
+  "outstanding": "Outstanding",
+  "collectAmount": "Amount collected",
+  "collectAll": "Collect it all",
+  "collected": "{amount} collected",
+  "@collected": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "overPayment": "That is more than is owed.",
+  "returnTitle": "Accept a return",
+  "returnBody": "Choose what is coming back. Stock goes up and the customer's balance comes down.",
+  "returnQty": "Returning",
+  "returnReason": "Reason",
+  "returnReasonHint": "Damaged pack",
+  "returnNothing": "Nothing is selected to return.",
+  "returnDone": "Return {no} recorded",
+  "@returnDone": {
+    "placeholders": {
+      "no": {
+        "type": "String"
+      }
+    }
+  },
+  "returnOf": "of {count}",
+  "@returnOf": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "voidTitle": "Cancel this sale",
+  "voidBody": "A return brings goods back and the invoice stands. Cancelling says the sale should not have happened: stock goes back, the money is reversed out of its account, the customer's debt is credited and points are undone. The invoice stays on the list marked void.",
+  "voidReason": "Why is it being cancelled?",
+  "voidReasonHint": "Rung up on the wrong customer",
+  "voidConfirm": "Cancel the sale",
+  "voidDone": "{no} cancelled. {count} units went back on the shelf.",
+  "@voidDone": {
+    "placeholders": {
+      "no": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "voidNotAllowed": "Only a completed invoice can be cancelled.",
+  "customersTitle": "Customers",
+  "customerSearchListHint": "Name or phone",
+  "noCustomers": "No customers yet",
+  "noCustomersBody": "Add one at the till, or with the button below.",
+  "editCustomer": "Edit customer",
+  "newCustomer": "New customer",
+  "ledger": "Ledger",
+  "ledgerEmpty": "Nothing on this ledger yet",
+  "debit": "Owed",
+  "credit": "Paid",
+  "balance": "Balance",
+  "pointsTitle": "Loyalty points",
+  "pointsWorth": "Worth {amount}",
+  "@pointsWorth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "adjustPoints": "Adjust points",
+  "adjustPointsHelp": "A positive number adds, a negative number takes away.",
+  "pointsNote": "Why",
+  "pointsAdjusted": "Balance is now {count}",
+  "@pointsAdjusted": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "pointsNegative": "That would take the balance below zero.",
+  "salesCount": "{count, plural, =0{No sales} =1{1 sale} other{{count} sales}}",
+  "@salesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customerSince": "Added by {name}",
+  "@customerSince": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "viewInvoices": "Their invoices",
+  "save": "Save",
+  "add": "Add",
+  "apply": "Apply",
+  "remove": "Remove",
+  "search": "Search",
+  "all": "All",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "notAllowedAction": "Your role does not include this.",
+  "cameraDenied": "The camera is not available. Type the barcode instead.",
+  "typeBarcode": "Type a barcode",
+  "scanning": "Point the camera at the barcode",
+  "torch": "Torch"
 }

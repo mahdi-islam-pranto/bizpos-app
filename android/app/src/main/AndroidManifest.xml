@@ -1,6 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- Barcode scanning at the till. The camera is optional hardware: a phone
+         without one still runs the POS, which falls back to typing the barcode.
+         Declaring it required would hide the app from those devices in the
+         Play Store for no reason. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+
     <!-- allowBackup is off deliberately: the session token lives in the
          keystore, and auto-backup would carry it to a restored device, where it
          would become a second signed-in phone nobody chose to create. One

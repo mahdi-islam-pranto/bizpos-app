@@ -19,6 +19,11 @@ class Roles {
     P.posShiftManage,
     P.posSaleRedeemPoints,
     P.posSalePrint,
+    // `pos.sale.void` got its endpoint in docs/MOBILE-API-UPDATED.md. The
+    // permission matrix has no row for it, but section 3 defines a manager as
+    // the owner minus "voiding invoices" — so it belongs to the owner, and the
+    // derived manager list below takes it away.
+    P.posSaleVoid,
     // Catalogue
     P.catalogProductSearch,
     P.catalogProductImport,
@@ -70,10 +75,13 @@ class Roles {
     P.settingsActivityView,
   ];
 
-  /// "Owner minus profit report and role management" — the doc's own wording,
-  /// expressed as exactly that so the two cannot drift apart.
+  /// "Owner minus profit report, role management and voiding invoices" — the
+  /// doc's own wording, expressed as exactly that so the two cannot drift apart.
   static final manager = owner
-      .where((p) => p != P.reportProfitView && p != P.settingsRoleManage)
+      .where((p) =>
+          p != P.reportProfitView &&
+          p != P.settingsRoleManage &&
+          p != P.posSaleVoid)
       .toList();
 
   static const cashier = <String>[

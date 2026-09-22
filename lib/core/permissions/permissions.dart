@@ -79,6 +79,24 @@ class P {
   static const adminStoreImpersonate = 'admin.store.impersonate';
   static const adminSuggestionReview = 'admin.suggestion.review';
 
+  /// The updated spec (`docs/MOBILE-API-UPDATED.md`) gave the platform direct
+  /// control of the shared catalogue: `GET/POST/PATCH/DELETE /admin/catalog`.
+  static const adminCatalogManage = 'admin.catalog.manage';
+
+  // ---------------------------------------------------------------------------
+  // Added by docs/MOBILE-API-UPDATED.md — these used to be section 7 stubs and
+  // now have real endpoints.
+  // ---------------------------------------------------------------------------
+
+  /// `POST /sales/{id}/void` — undoes a whole sale, where a return only brings
+  /// goods back. Always paired with the detail response's `meta.mayVoid`.
+  static const posSaleVoid = 'pos.sale.void';
+
+  /// `POST /products`, `DELETE /products/{id}` (soft) and
+  /// `POST /products/{id}/restore`. Phase 2 builds the screens.
+  static const inventoryProductCreate = 'inventory.product.create';
+  static const inventoryProductDelete = 'inventory.product.delete';
+
   // ---------------------------------------------------------------------------
   // NO ENDPOINT — docs/MOBILE-API.md section 7.
   //
@@ -87,12 +105,9 @@ class P {
   // they are missing. Do not build a screen or a nav entry for one: ask for the
   // endpoint first.
   // ---------------------------------------------------------------------------
-  static const inventoryProductCreate = 'inventory.product.create'; // §7
-  static const inventoryProductDelete = 'inventory.product.delete'; // §7
   static const inventoryTransferCreate = 'inventory.transfer.create'; // §7
   static const inventoryTransferApprove = 'inventory.transfer.approve'; // §7
   static const inventoryAdjustApprove = 'inventory.adjust.approve'; // §7
-  static const posSaleVoid = 'pos.sale.void'; // §7
   static const purchaseBillUpdate = 'purchase.bill.update'; // §7
   static const purchaseBillDelete = 'purchase.bill.delete'; // §7
   static const purchasePaymentCreate = 'purchase.payment.create'; // §7
@@ -103,6 +118,5 @@ class P {
   static const reportExport = 'report.export'; // §7
   static const settingsTemplateManage = 'settings.template.manage'; // §7
   static const settingsApikeyManage = 'settings.apikey.manage'; // §7
-  static const adminCatalogManage = 'admin.catalog.manage'; // §7
   static const adminPlanManage = 'admin.plan.manage'; // §7
 }

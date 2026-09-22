@@ -298,3 +298,14 @@ class SessionController extends AsyncNotifier<SessionState> {
     return null;
   }
 }
+
+/// The scope as a plain string — `s3.b7 e0`.
+///
+/// Anything that only needs to *notice* a store or branch change (the cart, a
+/// cache key, a list's scroll position) watches this rather than the scope
+/// object, so it does not have to import the session state types to say
+/// "start again".
+final scopeKeyProvider = Provider<String>((ref) {
+  final scope = ref.watch(sessionScopeProvider);
+  return scope == null ? 'none' : '${scope.cacheKey} e${scope.epoch}';
+});

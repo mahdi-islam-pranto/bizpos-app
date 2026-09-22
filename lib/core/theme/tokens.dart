@@ -22,8 +22,11 @@ class Radii {
   static const double pill = 999;
 }
 
-class Durations {
-  const Durations._();
+/// Named `AppDurations`, not `Durations`: Flutter's material library exports a
+/// class of that name, and an unprefixed clash makes every import of both
+/// ambiguous.
+class AppDurations {
+  const AppDurations._();
 
   static const Duration fast = Duration(milliseconds: 120);
   static const Duration normal = Duration(milliseconds: 220);

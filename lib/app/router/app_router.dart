@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,8 +8,13 @@ import '../../core/session/session_state.dart';
 import '../../features/auth/login_screen.dart';
 import '../../features/auth/no_store_screen.dart';
 import '../../features/auth/splash_screen.dart';
+import '../../features/customers/ui/customer_detail_screen.dart';
+import '../../features/customers/ui/customers_screen.dart';
 import '../../features/home/not_allowed_screen.dart';
 import '../../features/home/placeholder_screen.dart';
+import '../../features/pos/ui/pos_screen.dart';
+import '../../features/sales/ui/invoice_detail_screen.dart';
+import '../../features/sales/ui/invoices_screen.dart';
 import '../../features/settings/devices_screen.dart';
 import '../../features/settings/profile_screen.dart';
 import 'app_shell.dart';
@@ -80,11 +86,31 @@ final routerProvider = Provider<GoRouter>((ref) {
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
+          // Every screen the gate table names gets a route, whether or not
+          // its phase has been built: the table is what both the nav bar and
+          // the redirect read, so a gap here would be a menu entry with
+          // nowhere to go. [screenFor] decides which of them is real yet.
           for (final gate in screenGates)
             GoRoute(
               path: gate.path,
-              builder: (_, _) => PlaceholderScreen(gate: gate),
+              builder: (_, _) => screenFor(gate),
             ),
+          // Detail routes sit outside the gate table because they are not
+          // menu entries. They inherit their parent's gate: /invoices/12 is
+          // only reachable by someone who may open /invoices at all, which
+          // `_redirectActive` enforces by prefix.
+          GoRoute(
+            path: '/invoices/:id',
+            builder: (_, state) => InvoiceDetailScreen(
+              saleId: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+            ),
+          ),
+          GoRoute(
+            path: '/customers/:id',
+            builder: (_, state) => CustomerDetailScreen(
+              customerId: int.tryParse(state.pathParameters['id'] ?? '') ?? 0,
+            ),
+          ),
           GoRoute(
             path: Routes.profile,
             builder: (_, _) => const ProfileScreen(),
@@ -125,3 +151,16 @@ String? _redirectActive(Ref ref, dynamic me, String where) {
 
   return null;
 }
+
+
+/// The screen behind a gate, or a placeholder when its phase has not arrived.
+///
+/// Phase 1 is the counter: Sell, Invoices and Customers. The rest still say so
+/// plainly rather than looking broken, and swapping one in later is a line
+/// here — the gate table, the nav bar and the route guard need no edit.
+Widget screenFor(ScreenGate gate) => switch (gate.screen) {
+      AppScreen.pos => const PosScreen(),
+      AppScreen.invoices => const InvoicesScreen(),
+      AppScreen.customers => const CustomersScreen(),
+      _ => PlaceholderScreen(gate: gate),
+    };

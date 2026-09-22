@@ -4,6 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../session/session_controller.dart';
 import 'permission_set.dart';
 
+/// Screens that reach for [PermissionGate] almost always want `ref.watch` on
+/// the set too, so the two travel together rather than making every widget
+/// import the session layer to ask what someone may do.
+export '../session/session_controller.dart' show permissionsProvider;
+
 /// Shows [child] only if the person holds [perm].
 ///
 /// [alsoRequire] takes a list response's `may*` flag. The flag can only take an

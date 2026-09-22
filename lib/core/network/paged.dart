@@ -2,12 +2,13 @@ import 'envelope.dart';
 
 /// A paginated list.
 ///
-/// **Only `GET /sales` and `GET /products` paginate.** Every other list returns
-/// a fixed recent window (the latest 50 purchases, 100 customers, ...) and
-/// accepts `?q=` to search instead. Wiring an infinite scroll to one of those
-/// would silently re-request the same window forever, so the two cases are
-/// deliberately different types: [Paged] for those two endpoints, and a plain
-/// list with a "search to narrow" footer everywhere else.
+/// **Only `GET /sales`, `GET /products`, `GET /catalog` and `GET /admin/catalog`
+/// paginate.** Every other list returns a fixed recent window (the latest 50
+/// purchases, 100 customers, ...) and accepts `?q=` to search instead. Wiring an
+/// infinite scroll to one of those would silently re-request the same window
+/// forever, so the two cases are deliberately different types: [Paged] for the
+/// paginated endpoints, and a plain list with a "search to narrow" footer
+/// everywhere else.
 class Paged<T> {
   const Paged({
     required this.items,
