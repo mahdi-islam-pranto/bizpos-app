@@ -1,5 +1,6 @@
 import 'package:bizpos_app/app/router/app_router.dart';
 import 'package:bizpos_app/core/session/session_state.dart';
+import 'package:bizpos_app/features/home/placeholder_screen.dart';
 import 'package:bizpos_app/core/theme/app_theme.dart';
 import 'package:bizpos_app/core/theme/theme_controller.dart';
 import 'package:bizpos_app/core/theme/theme_variant.dart';
@@ -51,38 +52,50 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// A label in the navigation bar, not the same word wherever else it appears
+  /// — the landing screen's own app bar carries its name too.
+  Finder tab(String label) => find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text(label),
+      );
+
   group('the navigation bar is built from permissions', () {
     testWidgets('a cashier opens on the counter and never sees Accounts',
         (tester) async {
       await pumpApp(tester, session: activeSession(Roles.cashier));
 
-      expect(find.text('Sell'), findsOneWidget);
-      expect(find.text('Invoices'), findsOneWidget);
-      expect(find.text('Accounts'), findsNothing);
-      expect(find.text('Team'), findsNothing);
+      expect(tab('Sell'), findsOneWidget);
+      expect(tab('Invoices'), findsOneWidget);
+      expect(tab('Accounts'), findsNothing);
+      expect(tab('Team'), findsNothing);
     });
 
     testWidgets('a stock keeper gets no Sell tab', (tester) async {
       await pumpApp(tester, session: activeSession(Roles.stockKeeper));
 
-      expect(find.text('Products'), findsOneWidget);
-      expect(find.text('Sell'), findsNothing);
-      expect(find.text('Customers'), findsNothing);
+      expect(tab('Products'), findsOneWidget);
+      expect(tab('Sell'), findsNothing);
+      expect(tab('Customers'), findsNothing);
     });
 
     testWidgets('an accountant gets no Sell tab but does get Invoices',
         (tester) async {
       await pumpApp(tester, session: activeSession(Roles.accountant));
 
-      expect(find.text('Invoices'), findsOneWidget);
-      expect(find.text('Sell'), findsNothing);
+      expect(tab('Invoices'), findsOneWidget);
+      expect(tab('Sell'), findsNothing);
     });
 
-    testWidgets('an owner lands on the dashboard', (tester) async {
+    testWidgets('an owner gets the dashboard tab, and lands on a built screen',
+        (tester) async {
       await pumpApp(tester, session: activeSession(Roles.owner));
 
-      expect(find.text('Dashboard'), findsWidgets);
-      expect(find.text('Sell'), findsOneWidget);
+      expect(tab('Dashboard'), findsOneWidget);
+      expect(tab('Sell'), findsOneWidget);
+      // Nobody opens the app on a placeholder. The Dashboard's phase has not
+      // landed, so the first tab that exists is where signing in goes; when the
+      // dashboard is built it takes the landing back with no change here.
+      expect(find.byType(PlaceholderScreen), findsNothing);
     });
 
     testWidgets('a person with no permissions is sent to their profile',
@@ -100,7 +113,7 @@ void main() {
 
       // Navigating straight to a path is what a saved link or a notification
       // would do, and it must not get past the gate.
-      tester.element(find.text('Sell')).go('/accounts');
+      tester.element(tab('Sell')).go('/accounts');
       await tester.pumpAndSettle();
 
       expect(find.text('Not allowed'), findsWidgets);

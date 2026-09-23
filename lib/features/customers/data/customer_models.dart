@@ -38,6 +38,8 @@ class Customer {
     required this.isWalkIn,
     required this.saleCount,
     required this.due,
+    this.openingBalance,
+    this.invoiceDue,
     this.phone,
     this.email,
     this.address,
@@ -56,7 +58,20 @@ class Customer {
   final bool isWalkIn;
 
   final int saleCount;
+
+  /// Everything this person owes: [openingBalance] + [invoiceDue]. "What does
+  /// this person owe" is one question, so it is one figure.
   final num due;
+
+  /// What they already owed before this shop's invoices started here — the
+  /// figure carried over from the old notebook. A real due from the moment it
+  /// is typed: it opens the ledger, counts against the credit limit and puts
+  /// the customer on the dues report. It has no invoice behind it, which is
+  /// worth knowing for whoever goes to collect it.
+  final num? openingBalance;
+
+  /// The part of [due] that has invoices behind it.
+  final num? invoiceDue;
   final String? phone;
   final String? email;
   final String? address;
@@ -72,6 +87,8 @@ class Customer {
         isWalkIn: _bool(json['isWalkIn']),
         saleCount: _int(json['saleCount']),
         due: _num(json['due']),
+        openingBalance: _numOrNull(json['openingBalance']),
+        invoiceDue: _numOrNull(json['invoiceDue']),
         phone: _strOrNull(json['phone']),
         email: _strOrNull(json['email']),
         address: _strOrNull(json['address']),

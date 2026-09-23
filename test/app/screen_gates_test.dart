@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/role_fixtures.dart';
 
-/// The role-wise app map from `docs/MOBILE-API.md` section 4, made executable.
+/// The role-wise app map from `docs/MOBILE-API-NEW.md` section 4, made executable.
 ///
 /// One build serves seven roles, and the only thing deciding what each one sees
 /// is the permission list. If anyone ever reaches for `role.name` instead, a

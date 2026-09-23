@@ -51,7 +51,9 @@ class CustomerPickerSheet extends ConsumerStatefulWidget {
 class _CustomerPickerSheetState extends ConsumerState<CustomerPickerSheet> {
   final _search = TextEditingController();
   Timer? _debounce;
-  AsyncValue<List<PosCustomer>>? _results;
+
+  /// Empty means "show the recent list"; two characters or more is a search.
+  String _query = '';
 
   @override
   void dispose() {
@@ -67,21 +69,51 @@ class _CustomerPickerSheetState extends ConsumerState<CustomerPickerSheet> {
     final query = value.trim();
 
     if (query.length < 2) {
-      setState(() => _results = null);
+      if (_query.isNotEmpty) setState(() => _query = '');
       return;
     }
 
-    _debounce = Timer(const Duration(milliseconds: 300), () => _run(query));
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      if (mounted && query != _query) setState(() => _query = query);
+    });
   }
 
-  Future<void> _run(String query) async {
-    setState(() => _results = const AsyncValue.loading());
-    try {
-      final found = await ref.read(posRepositoryProvider).searchCustomers(query);
-      if (mounted) setState(() => _results = AsyncValue.data(found));
-    } catch (e, stack) {
-      if (mounted) setState(() => _results = AsyncValue.error(e, stack));
+  /// Hands the chosen customer back, with their points filled in.
+  ///
+  /// The recent list comes from `GET /pos/lookups`, which does not carry
+  /// `loyaltyPoints`; only `GET /customers/search` does. Without this, picking
+  /// a regular off the recent list quietly hid the redemption that the very
+  /// same person, found by typing their phone, would have been offered.
+  Future<void> _pick(PosCustomer customer) async {
+    if (customer.isWalkIn ||
+        customer.loyaltyPoints != null ||
+        !ref.read(permissionsProvider).has(P.customersPointsView)) {
+      Navigator.of(context).pop(customer);
+      return;
     }
+
+    final navigator = Navigator.of(context);
+    num? balance;
+    try {
+      balance = await ref.read(posRepositoryProvider).pointsBalance(customer.id);
+    } catch (_) {
+      // Not knowing the balance is not a reason to refuse the sale: the picker
+      // returns the customer as it found them and the redeem row stays away.
+    }
+    if (!mounted) return;
+    navigator.pop(
+      balance == null
+          ? customer
+          : PosCustomer(
+              id: customer.id,
+              name: customer.name,
+              phone: customer.phone,
+              isWalkIn: customer.isWalkIn,
+              creditLimit: customer.creditLimit,
+              loyaltyPoints: balance,
+              due: customer.due,
+            ),
+    );
   }
 
   Future<void> _quickAdd() async {
@@ -99,6 +131,8 @@ class _CustomerPickerSheetState extends ConsumerState<CustomerPickerSheet> {
     final palette = context.palette;
     final money = ref.watch(moneyProvider);
     final recent = widget.lookups.customers;
+    final results =
+        _query.isEmpty ? null : ref.watch(posCustomerSearchProvider(_query));
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -113,19 +147,21 @@ class _CustomerPickerSheetState extends ConsumerState<CustomerPickerSheet> {
           ),
         ),
         Flexible(
-          child: _results == null
+          child: results == null
               ? _RecentList(
                   customers: recent,
                   selected: widget.selected,
                   money: money,
+                  onPick: _pick,
                 )
               : AsyncView<List<PosCustomer>>(
-                  value: _results!,
+                  value: results,
                   loading: const Padding(
                     padding: EdgeInsets.all(Insets.s32),
                     child: Center(child: CircularProgressIndicator()),
                   ),
-                  onRetry: () => _run(_search.text.trim()),
+                  onRetry: () =>
+                      ref.invalidate(posCustomerSearchProvider(_query)),
                   builder: (context, found) => found.isEmpty
                       ? EmptyState(
                           title: l10n.posNoResults,
@@ -135,6 +171,7 @@ class _CustomerPickerSheetState extends ConsumerState<CustomerPickerSheet> {
                           customers: found,
                           selected: widget.selected,
                           money: money,
+                          onPick: _pick,
                         ),
                 ),
         ),
@@ -185,11 +222,13 @@ class _RecentList extends StatelessWidget {
     required this.customers,
     required this.selected,
     required this.money,
+    required this.onPick,
   });
 
   final List<PosCustomer> customers;
   final PosCustomer? selected;
   final Money money;
+  final ValueChanged<PosCustomer> onPick;
 
   @override
   Widget build(BuildContext context) {
@@ -249,7 +288,7 @@ class _RecentList extends StatelessWidget {
               ],
             ],
           ),
-          onTap: () => Navigator.of(context).pop(customer),
+          onTap: () => onPick(customer),
         );
       },
     );

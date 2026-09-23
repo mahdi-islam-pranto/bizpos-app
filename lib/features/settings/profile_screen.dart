@@ -14,6 +14,7 @@ import '../../core/theme/theme_variant.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/states.dart';
 import '../../l10n/app_localizations.dart';
+import 'open_store_sheet.dart';
 
 /// Who you are, where you are, and what you may do.
 ///
@@ -91,6 +92,16 @@ class ProfileScreen extends ConsumerWidget {
                         child: Text(l10n.switchBranch),
                       )
                     : null,
+              ),
+              Divider(height: 1, color: palette.hairline),
+              // One account may own several shops. Opening one is not an
+              // action inside this shop, so no permission gates it.
+              ListTile(
+                leading: const Icon(Icons.add_business_outlined),
+                title: Text(l10n.openAnotherShop),
+                subtitle: _lockedNote(ref),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => OpenStoreSheet.show(context),
               ),
             ],
           ),
@@ -210,6 +221,22 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: Insets.s32),
         ],
+      ),
+    );
+  }
+
+  /// `meta.locked` on `GET /stores`: a shop the platform has closed is not in
+  /// the list, and this says why the list is shorter than remembered.
+  Widget? _lockedNote(WidgetRef ref) {
+    final locked = ref.watch(ownedStoresProvider).value?.lockedName;
+    if (locked == null) return null;
+    return Builder(
+      builder: (context) => Text(
+        AppL10n.of(context).shopLocked(locked),
+        style: Theme.of(context)
+            .textTheme
+            .bodySmall
+            ?.copyWith(color: context.palette.warning),
       ),
     );
   }

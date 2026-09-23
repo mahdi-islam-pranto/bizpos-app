@@ -4,12 +4,17 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// The rules the till has to get right before anything is sent.
 ///
-/// These are the invariants from `docs/MOBILE-API-UPDATED.md` sections 5.1 and
+/// These are the invariants from `docs/MOBILE-API-NEW.md` sections 5.1 and
 /// 6 that produce no error when broken — the server simply ignores a field, or
 /// charges a different number — which is exactly the kind of bug a test has to
 /// catch because a person at a counter will not.
 void main() {
-  SellableItem product(int id, {num price = 1.2, num? stock = 100}) =>
+  SellableItem product(
+    int id, {
+    num price = 1.2,
+    num? stock = 100,
+    num? cost,
+  }) =>
       SellableItem(
         id: id,
         name: 'Napa 500mg',
@@ -17,6 +22,7 @@ void main() {
         isPackage: false,
         barcode: '894110050001$id',
         stock: stock,
+        purchasePrice: cost,
       );
 
   SellableItem package(int id, {num price = 250}) => SellableItem(
@@ -53,13 +59,110 @@ void main() {
       expect(cart.linesTotal.toDouble(), 0);
     });
 
-    test('an order discount larger than the bill floors at zero', () {
+    test('the bill rate comes off the goods after line discounts', () {
+      // 2 x 100 less 30 off the line is 170; ten percent of that is 17. The
+      // server works the taka out the same way, so the preview matches.
       final cart = Cart(
-        lines: [CartLine(item: product(42, price: 10), qty: 1)],
-        orderDiscount: 500,
+        lines: [
+          CartLine(item: product(42, price: 100), qty: 2, lineDiscount: 30),
+        ],
+        orderDiscountPercent: 10,
       );
 
-      expect(cart.estimatedTotal.toDouble(), 0);
+      expect(cart.orderDiscountAmount.toDouble(), 17);
+      expect(cart.estimatedTotal.toDouble(), 153);
+    });
+
+    test('a rate survives the basket changing under it', () {
+      final controller = Cart(
+        lines: [CartLine(item: product(42, price: 100), qty: 1)],
+        orderDiscountPercent: 10,
+      );
+      final bigger = controller.copyWith(
+        lines: [CartLine(item: product(42, price: 100), qty: 3)],
+      );
+
+      expect(controller.orderDiscountAmount.toDouble(), 10);
+      expect(bigger.orderDiscountAmount.toDouble(), 30);
+    });
+
+    test('the rate is rounded to the paisa', () {
+      final cart = Cart(
+        lines: [CartLine(item: product(42, price: 33.33), qty: 1)],
+        orderDiscountPercent: 7,
+      );
+
+      // 7% of 33.33 is 2.3331.
+      expect(cart.orderDiscountAmount.toString(), '2.33');
+    });
+  });
+
+  group('nothing goes out below what it cost', () {
+    test('a line discounted under its cost is caught', () {
+      final cart = Cart(
+        lines: [
+          CartLine(
+            item: product(42, price: 10, cost: 8),
+            qty: 2,
+            lineDiscount: 5,
+          ),
+        ],
+      );
+
+      // 20 less 5 is 7.50 each, under the 8 it cost.
+      expect(cart.lines.single.belowCost, isTrue);
+      expect(cart.belowCost, isTrue);
+    });
+
+    test('a price typed over the shelf price is judged too', () {
+      final cart = Cart(
+        lines: [
+          CartLine(item: product(42, price: 10, cost: 8), qty: 1, unitPrice: 7),
+        ],
+      );
+
+      expect(cart.belowCost, isTrue);
+    });
+
+    test('a bill discount that takes the basket under cost is caught', () {
+      final cart = Cart(
+        lines: [CartLine(item: product(42, price: 10, cost: 9), qty: 10)],
+        orderDiscountPercent: 15,
+      );
+
+      // No single line is under cost; the bill as a whole is (85 < 90).
+      expect(cart.hasBelowCostLine, isFalse);
+      expect(cart.discountBelowCost, isTrue);
+    });
+
+    test('a hidden cost is left to the server', () {
+      // A cashier's search result carries no cost. There is nothing to compare
+      // against, and blocking on a guess would stop honest sales.
+      final cart = Cart(
+        lines: [CartLine(item: product(42, price: 10), qty: 1, unitPrice: 1)],
+        orderDiscountPercent: 90,
+      );
+
+      expect(cart.belowCost, isFalse);
+    });
+
+    test('a package is never judged line by line', () {
+      final cart = Cart(
+        lines: [
+          CartLine(
+            item: const SellableItem(
+              id: 3,
+              name: 'Cold pack',
+              salePrice: 100,
+              isPackage: true,
+              purchasePrice: 500,
+            ),
+            qty: 1,
+          ),
+        ],
+      );
+
+      expect(cart.belowCost, isFalse);
     });
   });
 
@@ -125,7 +228,7 @@ void main() {
         CartLine(item: package(3), qty: 1),
       ],
       customer: const PosCustomer(id: 12, name: 'Rahim', phone: '01711'),
-      orderDiscount: 10,
+      orderDiscountPercent: 10,
       redeemPoints: 50,
       note: 'Delivered',
     );
@@ -142,7 +245,7 @@ void main() {
           ],
         );
 
-    test('a cashier sends no unitPrice, no discount, no orderDiscount', () {
+    test('a cashier sends no unitPrice, no discount, no bill rate', () {
       // The server ignores all three without the permission. Sending them is
       // worse than useless: the response comes back without them and nothing
       // in it says why.
@@ -151,6 +254,7 @@ void main() {
 
       expect((lines.first as Map).containsKey('unitPrice'), isFalse);
       expect((lines.first as Map).containsKey('discount'), isFalse);
+      expect(sent.containsKey('orderDiscountPercent'), isFalse);
       expect(sent.containsKey('orderDiscount'), isFalse);
     });
 
@@ -160,7 +264,42 @@ void main() {
 
       expect((lines.first as Map)['unitPrice'], 95);
       expect((lines.first as Map)['discount'], 5);
-      expect(sent['orderDiscount'], 10);
+      // The till sends the rate. A flat `orderDiscount` is for imports and
+      // bills settled by hand, and the rate wins if both arrive.
+      expect(sent['orderDiscountPercent'], 10);
+      expect(sent.containsKey('orderDiscount'), isFalse);
+    });
+
+    test('collectPrevious travels only with a named customer', () {
+      final named = cart.toCheckoutBody(
+        mayChangePrice: false,
+        mayDiscount: false,
+        payments: const [],
+        collectPrevious: true,
+      );
+      expect(named['collectPrevious'], isTrue);
+
+      final walkIn = Cart(lines: cart.lines).toCheckoutBody(
+        mayChangePrice: false,
+        mayDiscount: false,
+        payments: const [],
+        collectPrevious: true,
+      );
+      expect(walkIn.containsKey('collectPrevious'), isFalse);
+
+      expect(body(mayChangePrice: false, mayDiscount: false)
+          .containsKey('collectPrevious'), isFalse);
+    });
+
+    test('nothing paid is an empty payments list, for the khata', () {
+      final sent = cart.toCheckoutBody(
+        mayChangePrice: false,
+        mayDiscount: false,
+        payments: const [CartPayment(method: PayMethod.cash, amount: 0)],
+      );
+
+      expect(sent['payments'], isEmpty);
+      expect(sent['customerId'], 12);
     });
 
     test('a line carries storeProductId or packageId, never both', () {
@@ -236,7 +375,7 @@ void main() {
           CartLine(item: package(3), qty: 1),
         ],
         customer: const PosCustomer(id: 12, name: 'Rahim', phone: '01711'),
-        orderDiscount: 10,
+        orderDiscountPercent: 10,
         redeemPoints: 50,
         note: 'Delivered',
       );
@@ -251,7 +390,7 @@ void main() {
       expect(restored.lines.first.item.isPackage, isFalse);
       expect(restored.lines.last.item.isPackage, isTrue);
       expect(restored.customer?.id, 12);
-      expect(restored.orderDiscount, 10);
+      expect(restored.orderDiscountPercent, 10);
       expect(restored.redeemPoints, 50);
       expect(restored.note, 'Delivered');
       expect(restored.linesTotal.toDouble(), original.linesTotal.toDouble());
@@ -270,6 +409,29 @@ void main() {
 
       expect(restored.lineCount, 1);
       expect(restored.lines.single.item.id, 42);
+    });
+
+    test('a flat discount from an older hold comes back as its rate', () {
+      final restored = Cart.fromHoldJson({
+        'v': 1,
+        'lines': [
+          {'id': 42, 'name': 'Napa', 'salePrice': 100, 'qty': 2},
+        ],
+        'orderDiscount': 20,
+      });
+
+      // 20 off 200 was ten percent.
+      expect(restored.orderDiscountPercent, 10);
+      expect(restored.estimatedTotal.toDouble(), 180);
+    });
+
+    test('the cost rides along, so a resumed cart is still checked', () {
+      final original = Cart(
+        lines: [CartLine(item: product(42, price: 10, cost: 8), qty: 1)],
+      );
+
+      final restored = Cart.fromHoldJson(original.toHoldJson());
+      expect(restored.lines.single.item.purchasePrice, 8);
     });
   });
 

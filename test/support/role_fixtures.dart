@@ -2,7 +2,7 @@ import 'package:bizpos_app/core/permissions/permission_set.dart';
 import 'package:bizpos_app/core/permissions/permissions.dart';
 
 /// The default permissions of each preset role, transcribed from the matrix in
-/// `docs/MOBILE-API.md` section 3.
+/// `docs/MOBILE-API-NEW.md` section 3.
 ///
 /// Keeping them here rather than inside one test means the same six roles can
 /// be reused by any test that needs to ask "what does this person's app look
@@ -19,7 +19,7 @@ class Roles {
     P.posShiftManage,
     P.posSaleRedeemPoints,
     P.posSalePrint,
-    // `pos.sale.void` got its endpoint in docs/MOBILE-API-UPDATED.md. The
+    // `pos.sale.void` got its endpoint in docs/MOBILE-API-NEW.md. The
     // permission matrix has no row for it, but section 3 defines a manager as
     // the owner minus "voiding invoices" — so it belongs to the owner, and the
     // derived manager list below takes it away.
@@ -29,12 +29,19 @@ class Roles {
     P.catalogProductImport,
     P.catalogProductSuggest,
     P.catalogSuggestionReview,
-    // Products and stock
+    // Products and stock. Create and delete were added to the API by
+    // docs/MOBILE-API-NEW.md and are held by the owner on the running
+    // backend — checked against the seeded `owner@rahman.test`.
     P.inventoryProductView,
+    P.inventoryProductCreate,
     P.inventoryProductUpdate,
+    P.inventoryProductDelete,
     P.inventoryProductViewCost,
     P.inventoryStockView,
     P.inventoryAdjustCreate,
+    P.inventoryAdjustApprove,
+    P.inventoryTransferCreate,
+    P.inventoryTransferApprove,
     P.inventoryPackageView,
     P.inventoryPackageManage,
     // Sales
@@ -77,11 +84,15 @@ class Roles {
 
   /// "Owner minus profit report, role management and voiding invoices" — the
   /// doc's own wording, expressed as exactly that so the two cannot drift apart.
+  /// The owner minus the four things section 3 takes away: the profit report,
+  /// changing roles, voiding an invoice, and the deletes the API offers today —
+  /// which since docs/MOBILE-API-NEW.md means deleting a product.
   static final manager = owner
       .where((p) =>
           p != P.reportProfitView &&
           p != P.settingsRoleManage &&
-          p != P.posSaleVoid)
+          p != P.posSaleVoid &&
+          p != P.inventoryProductDelete)
       .toList();
 
   static const cashier = <String>[
@@ -106,10 +117,16 @@ class Roles {
     P.catalogProductImport,
     P.catalogProductSuggest,
     P.inventoryProductView,
+    // Verified against the seeded `stock@rahman.test` on the running backend:
+    // a stock keeper may create products but may **not** delete one, so the
+    // trashed list and the delete button belong to the owner and the manager.
+    P.inventoryProductCreate,
     P.inventoryProductUpdate,
     P.inventoryProductViewCost,
     P.inventoryStockView,
     P.inventoryAdjustCreate,
+    P.inventoryTransferCreate,
+    P.inventoryTransferApprove,
     P.inventoryPackageView,
     P.inventoryPackageManage,
     P.purchaseBillView,

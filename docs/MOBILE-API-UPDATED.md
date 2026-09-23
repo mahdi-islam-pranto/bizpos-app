@@ -34,12 +34,12 @@ Local development: `http://127.0.0.1:8000/api/v1`.
 
 ### Headers on every call
 
-| Header | Value | When |
-|---|---|---|
-| `Accept` | `application/json` | always |
-| `Content-Type` | `application/json` | when sending a body |
-| `Authorization` | `Bearer <token>` | every call except `auth/login` and `public/permissions` |
-| `X-HTTP-Method-Override` | `PUT`, `PATCH` or `DELETE` | see below |
+| Header                     | Value                            | When                                                       |
+| -------------------------- | -------------------------------- | ---------------------------------------------------------- |
+| `Accept`                 | `application/json`             | always                                                     |
+| `Content-Type`           | `application/json`             | when sending a body                                        |
+| `Authorization`          | `Bearer <token>`               | every call except`auth/login` and `public/permissions` |
+| `X-HTTP-Method-Override` | `PUT`, `PATCH` or `DELETE` | see below                                                  |
 
 No cookie and no CSRF token are needed.
 
@@ -107,16 +107,16 @@ optional — `meta.pages` says how many there are.
 }
 ```
 
-| HTTP | `code` | Meaning | What the app should do |
-|---|---|---|---|
-| 401 | `unauthenticated` | Token missing, wrong, expired or revoked, or the user was deactivated | Delete the stored token and go to the login screen |
-| 403 | `forbidden` | This user lacks the permission. `error.permission` names it | Show "not allowed" and hide that action |
-| 422 | `validation` | Input failed validation. `error.fields` maps each field to its messages | Show the messages beside the fields |
-| 422 | a business code (`insufficient_stock`, `sale`, `shift_open`, `plan_limit`, ...) | A rule refused the action. `message` says why | Show `message` |
-| 409 | `already_in_catalog` | Product suggestion duplicates the catalogue | See [Catalogue](#catalogue) |
-| 404 | `not_found` | No such record **in the current store**, or no such route | |
-| 400 | `bad_request` | No store or branch selected (user belongs to no active store) | Show a "no store" screen |
-| 429 | `too_many_requests` | Login tried more than 10 times a minute | Wait and retry |
+| HTTP | `code`                                                                                | Meaning                                                                  | What the app should do                             |
+| ---- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------- |
+| 401  | `unauthenticated`                                                                     | Token missing, wrong, expired or revoked, or the user was deactivated    | Delete the stored token and go to the login screen |
+| 403  | `forbidden`                                                                           | This user lacks the permission.`error.permission` names it             | Show "not allowed" and hide that action            |
+| 422  | `validation`                                                                          | Input failed validation.`error.fields` maps each field to its messages | Show the messages beside the fields                |
+| 422  | a business code (`insufficient_stock`, `sale`, `shift_open`, `plan_limit`, ...) | A rule refused the action.`message` says why                           | Show`message`                                    |
+| 409  | `already_in_catalog`                                                                  | Product suggestion duplicates the catalogue                              | See[Catalogue](#catalogue)                          |
+| 404  | `not_found`                                                                           | No such record**in the current store**, or no such route           |                                                    |
+| 400  | `bad_request`                                                                         | No store or branch selected (user belongs to no active store)            | Show a "no store" screen                           |
+| 429  | `too_many_requests`                                                                   | Login tried more than 10 times a minute                                  | Wait and retry                                     |
 
 Example 403:
 
@@ -290,15 +290,15 @@ Every store starts with these roles. An owner may assign them, and single
 permissions can be taken away from single people, so always read `permissions`
 from `/me`.
 
-| Key | Role | বাংলা | Who it is for |
-|---|---|---|---|
-| `super_admin` | Super Admin | সুপার অ্যাডমিন | Platform staff. Everything in every store, plus the admin endpoints |
-| `store_owner` | Store Owner | দোকান মালিক | Everything in their own store |
-| `manager` | Manager | ম্যানেজার | Owner minus profit report, role management, deleting products, purchases or customers, voiding invoices and API keys |
-| `cashier` | Cashier | ক্যাশিয়ার | Counter: sell, hold, cash drawer, customers, collect dues. Sees only their own invoices, and no costs |
-| `stock_keeper` | Stock Keeper | স্টক কিপার | Products, catalogue, stock adjustments, packages, purchases, suppliers, stock report |
-| `accountant` | Accountant | হিসাবরক্ষক | Accounts, expenses, all invoices, dues, every report |
-| `auditor` | Auditor | নিরীক্ষক | Read-only view of everything (no create, edit, delete or approve) |
+| Key              | Role         | বাংলা                  | Who it is for                                                                                                        |
+| ---------------- | ------------ | --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `super_admin`  | Super Admin  | সুপার অ্যাডমিন | Platform staff. Everything in every store, plus the admin endpoints                                                  |
+| `store_owner`  | Store Owner  | দোকান মালিক       | Everything in their own store                                                                                        |
+| `manager`      | Manager      | ম্যানেজার          | Owner minus profit report, role management, deleting products, purchases or customers, voiding invoices and API keys |
+| `cashier`      | Cashier      | ক্যাশিয়ার        | Counter: sell, hold, cash drawer, customers, collect dues. Sees only their own invoices, and no costs                |
+| `stock_keeper` | Stock Keeper | স্টক কিপার         | Products, catalogue, stock adjustments, packages, purchases, suppliers, stock report                                 |
+| `accountant`   | Accountant   | হিসাবরক্ষক        | Accounts, expenses, all invoices, dues, every report                                                                 |
+| `auditor`      | Auditor      | নিরীক্ষক            | Read-only view of everything (no create, edit, delete or approve)                                                    |
 
 ### Permission × role matrix (what the API actually checks)
 
@@ -308,66 +308,66 @@ table.
 Abbreviations: **OW** Owner · **MG** Manager · **CA** Cashier · **SK** Stock
 Keeper · **AC** Accountant · **AU** Auditor
 
-| Permission | OW | MG | CA | SK | AC | AU |
-|---|:-:|:-:|:-:|:-:|:-:|:-:|
-| **POS** | | | | | | |
-| `pos.sale.create` — open POS and sell | ✅ | ✅ | ✅ | | | |
-| `pos.sale.change_price` — edit unit price in cart | ✅ | ✅ | | | | |
-| `pos.sale.give_discount` — line and order discount | ✅ | ✅ | | | | |
-| `pos.sale.hold` — hold and resume carts | ✅ | ✅ | ✅ | | | |
-| `pos.shift.manage` — open and close cash drawer | ✅ | ✅ | ✅ | | | |
-| `pos.sale.redeem_points` — redeem loyalty points | ✅ | ✅ | ✅ | | | |
-| `pos.sale.print` — print receipt | ✅ | ✅ | ✅ | | | |
-| **Catalogue** | | | | | | |
-| `catalog.product.search` | ✅ | ✅ | ✅ | ✅ | | ✅ |
-| `catalog.product.import` — add catalogue product to store | ✅ | ✅ | | ✅ | | |
-| `catalog.product.suggest` — suggest a new product | ✅ | ✅ | | ✅ | | |
-| `catalog.suggestion.review` — approve own store's suggestions | ✅ | ✅ | | | | |
-| **Products and stock** | | | | | | |
-| `inventory.product.view` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `inventory.product.update` — change prices | ✅ | ✅ | | ✅ | | |
-| `inventory.product.view_cost` — see purchase cost | ✅ | ✅ | | ✅ | ✅ | ✅ |
-| `inventory.stock.view` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `inventory.adjust.create` — stock adjustment or damage | ✅ | ✅ | | ✅ | | |
-| `inventory.package.view` | ✅ | ✅ | ✅ | ✅ | | ✅ |
-| `inventory.package.manage` | ✅ | ✅ | | ✅ | | |
-| **Sales** | | | | | | |
-| `sales.invoice.view` — own invoices | ✅ | ✅ | ✅ | | | ✅ |
-| `sales.invoice.view_all` — everyone's invoices | ✅ | ✅ | | | ✅ | ✅ |
-| `sales.return.create` — accept a return | ✅ | ✅ | | | | |
-| `sales.payment.collect` — collect a due | ✅ | ✅ | ✅ | | ✅ | |
-| **Customers** | | | | | | |
-| `customers.customer.view` | ✅ | ✅ | ✅ | | ✅ | ✅ |
-| `customers.customer.create` | ✅ | ✅ | ✅ | | | |
-| `customers.customer.update` | ✅ | ✅ | | | | |
-| `customers.credit.manage` — set credit limit | ✅ | ✅ | | | | |
-| `customers.ledger.view` | ✅ | ✅ | | | ✅ | ✅ |
-| `customers.points.view` | ✅ | ✅ | ✅ | | ✅ | ✅ |
-| `customers.points.adjust` | ✅ | ✅ | | | | |
-| **Purchase** | | | | | | |
-| `purchase.bill.view` | ✅ | ✅ | | ✅ | ✅ | ✅ |
-| `purchase.bill.create` | ✅ | ✅ | | ✅ | | |
-| `purchase.supplier.manage` | ✅ | ✅ | | ✅ | | |
-| **Accounts** | | | | | | |
-| `accounts.account.view` | ✅ | ✅ | | | ✅ | ✅ |
-| `accounts.account.manage` — create accounts | ✅ | ✅ | | | ✅ | |
-| `accounts.transfer.create` | ✅ | ✅ | | | ✅ | |
-| `accounts.expense.create` | ✅ | ✅ | | | ✅ | |
-| `accounts.expense.delete` | ✅ | ✅ | | | ✅ | |
-| `accounts.category.manage` — expense types | ✅ | ✅ | | | ✅ | |
-| **Reports** | | | | | | |
-| `report.sales.view` | ✅ | ✅ | | | ✅ | ✅ |
-| `report.profit.view` | ✅ | | | | ✅ | ✅ |
-| `report.stock.view` | ✅ | ✅ | | ✅ | ✅ | ✅ |
-| `report.due.view` | ✅ | ✅ | | | ✅ | ✅ |
-| **Settings** | | | | | | |
-| `settings.store.view` | ✅ | ✅ | | | | ✅ |
-| `settings.store.update` — store info, VAT, loyalty | ✅ | ✅ | | | | |
-| `settings.branch.manage` | ✅ | ✅ | | | | |
-| `settings.user.manage` — add, suspend team members | ✅ | ✅ | | | | |
-| `settings.role.manage` — change a member's role | ✅ | | | | | |
-| `settings.activity.view` — activity log | ✅ | ✅ | | | | ✅ |
-| **Super admin** (`admin.*`) | only Super Admin | | | | | |
+| Permission                                                       |        OW        | MG | CA | SK | AC | AU |
+| ---------------------------------------------------------------- | :--------------: | :-: | :-: | :-: | :-: | :-: |
+| **POS**                                                    |                  |    |    |    |    |    |
+| `pos.sale.create` — open POS and sell                         |        ✅        | ✅ | ✅ |    |    |    |
+| `pos.sale.change_price` — edit unit price in cart             |        ✅        | ✅ |    |    |    |    |
+| `pos.sale.give_discount` — line and order discount            |        ✅        | ✅ |    |    |    |    |
+| `pos.sale.hold` — hold and resume carts                       |        ✅        | ✅ | ✅ |    |    |    |
+| `pos.shift.manage` — open and close cash drawer               |        ✅        | ✅ | ✅ |    |    |    |
+| `pos.sale.redeem_points` — redeem loyalty points              |        ✅        | ✅ | ✅ |    |    |    |
+| `pos.sale.print` — print receipt                              |        ✅        | ✅ | ✅ |    |    |    |
+| **Catalogue**                                              |                  |    |    |    |    |    |
+| `catalog.product.search`                                       |        ✅        | ✅ | ✅ | ✅ |    | ✅ |
+| `catalog.product.import` — add catalogue product to store     |        ✅        | ✅ |    | ✅ |    |    |
+| `catalog.product.suggest` — suggest a new product             |        ✅        | ✅ |    | ✅ |    |    |
+| `catalog.suggestion.review` — approve own store's suggestions |        ✅        | ✅ |    |    |    |    |
+| **Products and stock**                                     |                  |    |    |    |    |    |
+| `inventory.product.view`                                       |        ✅        | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `inventory.product.update` — change prices                    |        ✅        | ✅ |    | ✅ |    |    |
+| `inventory.product.view_cost` — see purchase cost             |        ✅        | ✅ |    | ✅ | ✅ | ✅ |
+| `inventory.stock.view`                                         |        ✅        | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `inventory.adjust.create` — stock adjustment or damage        |        ✅        | ✅ |    | ✅ |    |    |
+| `inventory.package.view`                                       |        ✅        | ✅ | ✅ | ✅ |    | ✅ |
+| `inventory.package.manage`                                     |        ✅        | ✅ |    | ✅ |    |    |
+| **Sales**                                                  |                  |    |    |    |    |    |
+| `sales.invoice.view` — own invoices                           |        ✅        | ✅ | ✅ |    |    | ✅ |
+| `sales.invoice.view_all` — everyone's invoices                |        ✅        | ✅ |    |    | ✅ | ✅ |
+| `sales.return.create` — accept a return                       |        ✅        | ✅ |    |    |    |    |
+| `sales.payment.collect` — collect a due                       |        ✅        | ✅ | ✅ |    | ✅ |    |
+| **Customers**                                              |                  |    |    |    |    |    |
+| `customers.customer.view`                                      |        ✅        | ✅ | ✅ |    | ✅ | ✅ |
+| `customers.customer.create`                                    |        ✅        | ✅ | ✅ |    |    |    |
+| `customers.customer.update`                                    |        ✅        | ✅ |    |    |    |    |
+| `customers.credit.manage` — set credit limit                  |        ✅        | ✅ |    |    |    |    |
+| `customers.ledger.view`                                        |        ✅        | ✅ |    |    | ✅ | ✅ |
+| `customers.points.view`                                        |        ✅        | ✅ | ✅ |    | ✅ | ✅ |
+| `customers.points.adjust`                                      |        ✅        | ✅ |    |    |    |    |
+| **Purchase**                                               |                  |    |    |    |    |    |
+| `purchase.bill.view`                                           |        ✅        | ✅ |    | ✅ | ✅ | ✅ |
+| `purchase.bill.create`                                         |        ✅        | ✅ |    | ✅ |    |    |
+| `purchase.supplier.manage`                                     |        ✅        | ✅ |    | ✅ |    |    |
+| **Accounts**                                               |                  |    |    |    |    |    |
+| `accounts.account.view`                                        |        ✅        | ✅ |    |    | ✅ | ✅ |
+| `accounts.account.manage` — create accounts                   |        ✅        | ✅ |    |    | ✅ |    |
+| `accounts.transfer.create`                                     |        ✅        | ✅ |    |    | ✅ |    |
+| `accounts.expense.create`                                      |        ✅        | ✅ |    |    | ✅ |    |
+| `accounts.expense.delete`                                      |        ✅        | ✅ |    |    | ✅ |    |
+| `accounts.category.manage` — expense types                    |        ✅        | ✅ |    |    | ✅ |    |
+| **Reports**                                                |                  |    |    |    |    |    |
+| `report.sales.view`                                            |        ✅        | ✅ |    |    | ✅ | ✅ |
+| `report.profit.view`                                           |        ✅        |    |    |    | ✅ | ✅ |
+| `report.stock.view`                                            |        ✅        | ✅ |    | ✅ | ✅ | ✅ |
+| `report.due.view`                                              |        ✅        | ✅ |    |    | ✅ | ✅ |
+| **Settings**                                               |                  |    |    |    |    |    |
+| `settings.store.view`                                          |        ✅        | ✅ |    |    |    | ✅ |
+| `settings.store.update` — store info, VAT, loyalty            |        ✅        | ✅ |    |    |    |    |
+| `settings.branch.manage`                                       |        ✅        | ✅ |    |    |    |    |
+| `settings.user.manage` — add, suspend team members            |        ✅        | ✅ |    |    |    |    |
+| `settings.role.manage` — change a member's role               |        ✅        |    |    |    |    |    |
+| `settings.activity.view` — activity log                       |        ✅        | ✅ |    |    |    | ✅ |
+| **Super admin** (`admin.*`)                              | only Super Admin |    |    |    |    |    |
 
 The catalogue has more permissions than the API has endpoints for (void, stock
 transfer, VAT report, export and others). See [section 7](#7-not-in-the-api-yet).
@@ -376,17 +376,17 @@ transfer, VAT report, export and others). See [section 7](#7-not-in-the-api-yet)
 
 The same endpoint may return less to a weaker role. Handle `null` or `0`:
 
-| Where | Field | Hidden unless |
-|---|---|---|
-| `GET /pos/search` | `purchasePrice` is `null` | `inventory.product.view_cost` |
-| `GET /products` | `purchasePrice`, `wholesalePrice` are `0` (`meta.showCost` says so) | `inventory.product.view_cost` |
-| `GET /products/{id}/history` | `prices` is empty | `inventory.product.view_cost` |
-| `GET /customers/search` | `loyaltyPoints` is `null` | `customers.points.view` |
-| `GET /reports/sales` | `topProducts[].profit` is `null` (`showProfit: false`) | `report.profit.view` |
-| `GET /sales`, `GET /sales/{id}` | only own invoices | `sales.invoice.view_all` |
-| `GET /settings` | `activity` is empty | `settings.activity.view` |
-| `POST /pos/checkout` | `unitPrice` and `discount` in lines, and `orderDiscount`, are **ignored** | `pos.sale.change_price`, `pos.sale.give_discount` |
-| `POST/PATCH /customers` | `creditLimit` is ignored | `customers.credit.manage` |
+| Where                               | Field                                                                                 | Hidden unless                                         |
+| ----------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `GET /pos/search`                 | `purchasePrice` is `null`                                                         | `inventory.product.view_cost`                       |
+| `GET /products`                   | `purchasePrice`, `wholesalePrice` are `0` (`meta.showCost` says so)           | `inventory.product.view_cost`                       |
+| `GET /products/{id}/history`      | `prices` is empty                                                                   | `inventory.product.view_cost`                       |
+| `GET /customers/search`           | `loyaltyPoints` is `null`                                                         | `customers.points.view`                             |
+| `GET /reports/sales`              | `topProducts[].profit` is `null` (`showProfit: false`)                          | `report.profit.view`                                |
+| `GET /sales`, `GET /sales/{id}` | only own invoices                                                                     | `sales.invoice.view_all`                            |
+| `GET /settings`                   | `activity` is empty                                                                 | `settings.activity.view`                            |
+| `POST /pos/checkout`              | `unitPrice` and `discount` in lines, and `orderDiscount`, are **ignored** | `pos.sale.change_price`, `pos.sale.give_discount` |
+| `POST/PATCH /customers`           | `creditLimit` is ignored                                                            | `customers.credit.manage`                           |
 
 ---
 
@@ -396,21 +396,21 @@ Show a tab or menu item when the user has its **gate permission**. Inside a
 screen, use the action permissions (or the `meta.may*` flags the list returns)
 to show buttons.
 
-| App screen | Gate permission | Action permissions inside | OW | MG | CA | SK | AC | AU |
-|---|---|---|:-:|:-:|:-:|:-:|:-:|:-:|
-| **Dashboard** | any of `report.sales.view`, `inventory.stock.view` | — | ✅ | ✅ | ✅* | ✅* | ✅ | ✅ |
-| **POS / Sell** | `pos.sale.create` | `pos.sale.hold`, `pos.shift.manage`, `pos.sale.change_price`, `pos.sale.give_discount`, `pos.sale.redeem_points`, `customers.customer.create` | ✅ | ✅ | ✅ | | | |
-| **Invoices** | `sales.invoice.view` or `sales.invoice.view_all` | `sales.return.create`, `sales.payment.collect` | ✅ | ✅ | ✅ own | | ✅ | ✅ |
-| **Customers** | `customers.customer.view` | `customers.customer.create`/`update`, `customers.ledger.view`, `customers.points.view`/`adjust` | ✅ | ✅ | ✅ | | ✅ | ✅ |
-| **Products and stock** | `inventory.product.view` | `inventory.product.create`/`update`/`delete`, `inventory.adjust.create`, `inventory.stock.view` | ✅ | ✅ | ✅ view | ✅ | ✅ view | ✅ view |
-| **Packages** | `inventory.package.view` | `inventory.package.manage` | ✅ | ✅ | ✅ view | ✅ | | ✅ view |
-| **Catalogue** | `catalog.product.search` | `catalog.product.import`, `catalog.product.suggest` | ✅ | ✅ | ✅ view | ✅ | | ✅ view |
-| **Suggestion approvals** | `catalog.suggestion.review` | — | ✅ | ✅ | | | | |
-| **Purchase** | `purchase.bill.view` | `purchase.bill.create`, `purchase.supplier.manage` | ✅ | ✅ | | ✅ | ✅ view | ✅ view |
-| **Accounts and expenses** | `accounts.account.view` | `accounts.expense.create`/`delete`, `accounts.transfer.create`, `accounts.account.manage`, `accounts.category.manage` | ✅ | ✅ | | | ✅ | ✅ view |
-| **Reports** | any `report.*.view` | tabs: sales, profit, stock, dues, each by its own permission | ✅ | ✅ no profit | | ✅ stock | ✅ | ✅ |
-| **Team and store settings** | `settings.store.view` | `settings.store.update`, `settings.branch.manage`, `settings.user.manage`, `settings.role.manage`, `settings.activity.view` | ✅ | ✅ no roles | | | | ✅ view |
-| **Platform admin** | `admin.store.view` | `admin.store.create`/`update`/`impersonate`, `admin.suggestion.review`, `admin.catalog.manage` | Super Admin only | | | | | |
+| App screen                        | Gate permission                                       | Action permissions inside                                                                                                                                 |        OW        |      MG      |   CA   |    SK    |   AC   |   AU   |
+| --------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------: | :----------: | :-----: | :------: | :-----: | :-----: |
+| **Dashboard**               | any of`report.sales.view`, `inventory.stock.view` | —                                                                                                                                                        |        ✅        |      ✅      |   ✅*   |   ✅*   |   ✅   |   ✅   |
+| **POS / Sell**              | `pos.sale.create`                                   | `pos.sale.hold`, `pos.shift.manage`, `pos.sale.change_price`, `pos.sale.give_discount`, `pos.sale.redeem_points`, `customers.customer.create` |        ✅        |      ✅      |   ✅   |          |        |        |
+| **Invoices**                | `sales.invoice.view` or `sales.invoice.view_all`  | `sales.return.create`, `sales.payment.collect`                                                                                                        |        ✅        |      ✅      | ✅ own |          |   ✅   |   ✅   |
+| **Customers**               | `customers.customer.view`                           | `customers.customer.create`/`update`, `customers.ledger.view`, `customers.points.view`/`adjust`                                                 |        ✅        |      ✅      |   ✅   |          |   ✅   |   ✅   |
+| **Products and stock**      | `inventory.product.view`                            | `inventory.product.create`/`update`/`delete`, `inventory.adjust.create`, `inventory.stock.view`                                                 |        ✅        |      ✅      | ✅ view |    ✅    | ✅ view | ✅ view |
+| **Packages**                | `inventory.package.view`                            | `inventory.package.manage`                                                                                                                              |        ✅        |      ✅      | ✅ view |    ✅    |        | ✅ view |
+| **Catalogue**               | `catalog.product.search`                            | `catalog.product.import`, `catalog.product.suggest`                                                                                                   |        ✅        |      ✅      | ✅ view |    ✅    |        | ✅ view |
+| **Suggestion approvals**    | `catalog.suggestion.review`                         | —                                                                                                                                                        |        ✅        |      ✅      |        |          |        |        |
+| **Purchase**                | `purchase.bill.view`                                | `purchase.bill.create`, `purchase.supplier.manage`                                                                                                    |        ✅        |      ✅      |        |    ✅    | ✅ view | ✅ view |
+| **Accounts and expenses**   | `accounts.account.view`                             | `accounts.expense.create`/`delete`, `accounts.transfer.create`, `accounts.account.manage`, `accounts.category.manage`                           |        ✅        |      ✅      |        |          |   ✅   | ✅ view |
+| **Reports**                 | any`report.*.view`                                  | tabs: sales, profit, stock, dues, each by its own permission                                                                                              |        ✅        | ✅ no profit |        | ✅ stock |   ✅   |   ✅   |
+| **Team and store settings** | `settings.store.view`                               | `settings.store.update`, `settings.branch.manage`, `settings.user.manage`, `settings.role.manage`, `settings.activity.view`                     |        ✅        | ✅ no roles |        |          |        | ✅ view |
+| **Platform admin**          | `admin.store.view`                                  | `admin.store.create`/`update`/`impersonate`, `admin.suggestion.review`, `admin.catalog.manage`                                                  | Super Admin only |              |        |          |        |        |
 
 \* Cashier and stock keeper get a smaller dashboard: `GET /products/stats`
 (low stock, expiring) and, for the cashier, their open shift from
@@ -488,8 +488,7 @@ open drawer ─► load POS ─► scan/search ─► pick customer ─► check
 7. **Close the drawer**: `POST /pos/shift/close` `{"countedCash": 15230}`. The
    response gives `expected`, `counted` and `difference`.
 
-**Hold a cart**: `POST /pos/hold` `{"label": "Blue shirt man", "cart": {...any
-JSON the app wants...}}`. **Resume**: `POST /pos/hold/{id}/resume` returns the
+**Hold a cart**: `POST /pos/hold` `{"label": "Blue shirt man", "cart": {...any JSON the app wants...}}`. **Resume**: `POST /pos/hold/{id}/resume` returns the
 same `cart` JSON and deletes the hold. **Discard**: `DELETE /pos/hold/{id}`.
 The server does not read `cart`; it stores it and gives it back.
 
@@ -500,6 +499,7 @@ The server does not read `cart`; it stores it and gives it back.
    ```json
    { "items": [ { "saleItemId": 881, "qty": 1 } ], "reason": "Damaged pack" }
    ```
+
    Stock goes back up and the customer's balance goes down. Returning more than
    is left on a line fails with `422` and "Only N left to return on that line".
 
@@ -527,6 +527,7 @@ The server does not read `cart`; it stores it and gives it back.
      "note": "Invoice #7781"
    }
    ```
+
    Stock rises, the rest is owed to the supplier, and `paidAmount` leaves
    `accountId`.
 
@@ -595,17 +596,17 @@ super admin approves ──► added to the shared catalogue for every store
 
 A dashboard is a few calls in parallel:
 
-| Tile | Call | Field |
-|---|---|---|
-| Today's sales | `GET /reports/sales?days=1` | `daily[0].total`, `daily[0].count` |
-| Today's payments by method | same | `byMethod` |
-| Profit, last 30 days | `GET /reports/profit?days=30` | `grossProfit`, `netProfit`, `margin` |
-| Sales chart | `GET /reports/sales?days=30` | `daily[]` |
-| Top products | same | `topProducts` |
-| Sales by staff | same | `byUser` |
-| Low stock, expiring | `GET /products/stats` | `lowCount`, `low`, `expiringCount`, `expiring` |
-| Money owed to the shop | `GET /reports/dues` | sum of `due` |
-| Today's expenses | `GET /accounts` | `todayExpense` |
+| Tile                       | Call                            | Field                                                  |
+| -------------------------- | ------------------------------- | ------------------------------------------------------ |
+| Today's sales              | `GET /reports/sales?days=1`   | `daily[0].total`, `daily[0].count`                 |
+| Today's payments by method | same                            | `byMethod`                                           |
+| Profit, last 30 days       | `GET /reports/profit?days=30` | `grossProfit`, `netProfit`, `margin`             |
+| Sales chart                | `GET /reports/sales?days=30`  | `daily[]`                                            |
+| Top products               | same                            | `topProducts`                                        |
+| Sales by staff             | same                            | `byUser`                                             |
+| Low stock, expiring        | `GET /products/stats`         | `lowCount`, `low`, `expiringCount`, `expiring` |
+| Money owed to the shop     | `GET /reports/dues`           | sum of`due`                                          |
+| Today's expenses           | `GET /accounts`               | `todayExpense`                                       |
 
 Sales and stock reports, and profit's revenue and cost, are for the **current
 branch**. For another branch, switch branch first.
@@ -644,18 +645,18 @@ checks. `—` means any signed-in user.
 
 ### Auth and session
 
-| Method | Path | Perm | Body / query | Returns |
-|---|---|---|---|---|
-| POST | `/auth/login` | none | `email`, `password`, `deviceName?` | `token`, `tokenType`, `expiresAt`, `user` |
-| POST | `/auth/logout` | — | | `ok` |
-| GET | `/auth/devices` | — | | list of devices |
-| DELETE | `/auth/devices/{id}` | — | | `ok` |
-| POST | `/auth/switch-store` | — | `storeId` | `storeId` |
-| POST | `/auth/switch-branch` | — | `branchId` | `storeId`, `branchId` |
-| GET | `/me` | — | | see [section 2](#get-me--who-am-i-where-am-i-what-may-i-do) |
-| PATCH | `/me/preferences` | — | `locale?`, `theme?` | `locale`, `theme` |
-| GET | `/public/permissions` | none | | `modules`, `roles` |
-| GET | `/palette?q=` | — | `q` (2+ characters) | global search across products, invoices and customers, filtered by permission |
+| Method | Path                    | Perm | Body / query                             | Returns                                                                       |
+| ------ | ----------------------- | ---- | ---------------------------------------- | ----------------------------------------------------------------------------- |
+| POST   | `/auth/login`         | none | `email`, `password`, `deviceName?` | `token`, `tokenType`, `expiresAt`, `user`                             |
+| POST   | `/auth/logout`        | —   |                                          | `ok`                                                                        |
+| GET    | `/auth/devices`       | —   |                                          | list of devices                                                               |
+| DELETE | `/auth/devices/{id}`  | —   |                                          | `ok`                                                                        |
+| POST   | `/auth/switch-store`  | —   | `storeId`                              | `storeId`                                                                   |
+| POST   | `/auth/switch-branch` | —   | `branchId`                             | `storeId`, `branchId`                                                     |
+| GET    | `/me`                 | —   |                                          | see[section 2](#get-me--who-am-i-where-am-i-what-may-i-do)                     |
+| PATCH  | `/me/preferences`     | —   | `locale?`, `theme?`                  | `locale`, `theme`                                                         |
+| GET    | `/public/permissions` | none |                                          | `modules`, `roles`                                                        |
+| GET    | `/palette?q=`         | —   | `q` (2+ characters)                    | global search across products, invoices and customers, filtered by permission |
 
 ### POS
 
@@ -713,15 +714,15 @@ Active products of the store, with this branch's stock.
 }
 ```
 
-| Field | Rule |
-|---|---|
-| `lines[]` | Required, 1 or more. Each has **either** `storeProductId` **or** `packageId`, plus `qty > 0` |
-| `lines[].unitPrice` | Used only with `pos.sale.change_price`, otherwise the store price is charged |
-| `lines[].discount`, `orderDiscount` | Used only with `pos.sale.give_discount` |
-| `payments[].method` | `cash`, `card`, `bkash`, `nagad`, `rocket` or `bank`. **Do not send `credit` or `points`.** To leave a due, pay less; to use points, send `redeemPoints` |
-| `payments[].accountId` | Send it (from `lookups.accounts`) so the money lands in that account's balance |
-| `customerId` | Required when anything is left due, or points are redeemed or earned. Walk-in customers cannot buy on credit |
-| `redeemPoints` | Needs `pos.sale.redeem_points` and a named customer. The server caps it at what is allowed (minimum points, maximum % of bill) |
+| Field                                   | Rule                                                                                                                                                                             |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lines[]`                             | Required, 1 or more. Each has**either** `storeProductId` **or** `packageId`, plus `qty > 0`                                                                    |
+| `lines[].unitPrice`                   | Used only with`pos.sale.change_price`, otherwise the store price is charged                                                                                                    |
+| `lines[].discount`, `orderDiscount` | Used only with`pos.sale.give_discount`                                                                                                                                         |
+| `payments[].method`                   | `cash`, `card`, `bkash`, `nagad`, `rocket` or `bank`. **Do not send `credit` or `points`.** To leave a due, pay less; to use points, send `redeemPoints` |
+| `payments[].accountId`                | Send it (from`lookups.accounts`) so the money lands in that account's balance                                                                                                  |
+| `customerId`                          | Required when anything is left due, or points are redeemed or earned. Walk-in customers cannot buy on credit                                                                     |
+| `redeemPoints`                        | Needs`pos.sale.redeem_points` and a named customer. The server caps it at what is allowed (minimum points, maximum % of bill)                                                  |
 
 The server works out prices, VAT and totals. **Never trust the app's own
 total**: show the `total` from the response. `201`:
@@ -739,20 +740,20 @@ exceeded, "Points need a named customer").
 
 #### Held carts — `pos.sale.hold`
 
-| Method | Path | Body | Returns |
-|---|---|---|---|
-| POST | `/pos/hold` | `label` (max 80), `cart` (any JSON object) | `201 {id}` |
-| POST | `/pos/hold/{id}/resume` | | the `cart` JSON. The hold is deleted |
-| DELETE | `/pos/hold/{id}` | | `ok` |
+| Method | Path                      | Body                                           | Returns                               |
+| ------ | ------------------------- | ---------------------------------------------- | ------------------------------------- |
+| POST   | `/pos/hold`             | `label` (max 80), `cart` (any JSON object) | `201 {id}`                          |
+| POST   | `/pos/hold/{id}/resume` |                                                | the`cart` JSON. The hold is deleted |
+| DELETE | `/pos/hold/{id}`        |                                                | `ok`                                |
 
 Holds are per user and per branch.
 
 #### Cash drawer — `pos.shift.manage`
 
-| Method | Path | Body | Returns / errors |
-|---|---|---|---|
-| POST | `/pos/shift/open` | `openingCash` | `201 ok`; `422 shift_open` if one is open |
-| POST | `/pos/shift/close` | `countedCash`, `note?` | `expected`, `counted`, `difference`; `422 no_shift` |
+| Method | Path                 | Body                       | Returns / errors                                            |
+| ------ | -------------------- | -------------------------- | ----------------------------------------------------------- |
+| POST   | `/pos/shift/open`  | `openingCash`            | `201 ok`; `422 shift_open` if one is open               |
+| POST   | `/pos/shift/close` | `countedCash`, `note?` | `expected`, `counted`, `difference`; `422 no_shift` |
 
 ### Sales
 
@@ -777,10 +778,7 @@ Query: `q` (invoice no, customer name or phone), `days` (e.g. `1` = today,
 #### `GET /sales/{id}` — same permission
 
 The full invoice for detail and receipt screens: `subtotal`, `discount`, `vat`,
-`total`, `paid`, `due`, `status`, `paymentStatus`, `note`, `customer {name,
-phone}`, `seller`, `branch {name, address, phone}`, `store {name, phone,
-address, currency}`, `items[] {id, name, unit, qty, unitPrice, discount, vat,
-total}` and `payments[] {method, amount, account, reference}`. Use `items[].id`
+`total`, `paid`, `due`, `status`, `paymentStatus`, `note`, `customer {name, phone}`, `seller`, `branch {name, address, phone}`, `store {name, phone, address, currency}`, `items[] {id, name, unit, qty, unitPrice, discount, vat, total}` and `payments[] {method, amount, account, reference}`. Use `items[].id`
 as `saleItemId` for returns.
 
 #### `POST /sales/{id}/returns` — `sales.return.create`
@@ -812,16 +810,16 @@ invoice when the caller holds the permission.
 
 ### Customers
 
-| Method | Path | Perm | Body / query | Returns |
-|---|---|---|---|---|
-| GET | `/customers?q=` | `customers.customer.view` | `q` on name or phone | up to 100: `id, name, phone, email, address, creditLimit, loyaltyPoints, isWalkIn, group, saleCount, due, addedBy, changedBy`; `meta.mayEdit, mayCreate, maySeeLedger, mayManageCredit` |
-| GET | `/customers/search?q=` | `customers.customer.view` | `q` (2+ characters) | up to 8: `id, name, phone, isWalkIn, creditLimit, loyaltyPoints, due` |
-| POST | `/customers/quick` | `customers.customer.create` | `name`, `phone` | `id, name, phone, created` (`201` new, `200` existing phone) |
-| POST | `/customers` | `customers.customer.create` | `name`, `phone?`, `email?`, `address?`, `creditLimit?` | `201 {id}` |
-| PATCH | `/customers/{id}` | `customers.customer.update` | same as above | `{id}` |
-| GET | `/customers/{id}/ledger` | `customers.ledger.view` | | last 100: `id, refType, debit, credit, balance, note, date` |
-| GET | `/customers/{id}/points` | `customers.points.view` | | `balance, worth, config, ledger[]` |
-| POST | `/customers/{id}/points` | `customers.points.adjust` | `points` (signed, not 0), `note` | `{balance}`; `422 negative` |
+| Method | Path                       | Perm                          | Body / query                                                     | Returns                                                                                                                                                                                    |
+| ------ | -------------------------- | ----------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| GET    | `/customers?q=`          | `customers.customer.view`   | `q` on name or phone                                           | up to 100:`id, name, phone, email, address, creditLimit, loyaltyPoints, isWalkIn, group, saleCount, due, addedBy, changedBy`; `meta.mayEdit, mayCreate, maySeeLedger, mayManageCredit` |
+| GET    | `/customers/search?q=`   | `customers.customer.view`   | `q` (2+ characters)                                            | up to 8:`id, name, phone, isWalkIn, creditLimit, loyaltyPoints, due`                                                                                                                     |
+| POST   | `/customers/quick`       | `customers.customer.create` | `name`, `phone`                                              | `id, name, phone, created` (`201` new, `200` existing phone)                                                                                                                         |
+| POST   | `/customers`             | `customers.customer.create` | `name`, `phone?`, `email?`, `address?`, `creditLimit?` | `201 {id}`                                                                                                                                                                               |
+| PATCH  | `/customers/{id}`        | `customers.customer.update` | same as above                                                    | `{id}`                                                                                                                                                                                   |
+| GET    | `/customers/{id}/ledger` | `customers.ledger.view`     |                                                                  | last 100:`id, refType, debit, credit, balance, note, date`                                                                                                                               |
+| GET    | `/customers/{id}/points` | `customers.points.view`     |                                                                  | `balance, worth, config, ledger[]`                                                                                                                                                       |
+| POST   | `/customers/{id}/points` | `customers.points.adjust`   | `points` (signed, not 0), `note`                             | `{balance}`; `422 negative`                                                                                                                                                            |
 
 ### Products and stock
 
@@ -843,16 +841,16 @@ Query: `q` (name, barcode, SKU, generic name), `lowOnly=1`, `trashed=1`, `page`,
 `lowOnly` filters the current page only. `trashed=1` lists the deleted ones
 instead of the live ones; `meta.trashedCount` says how many there are either way.
 
-| Method | Path | Perm | Body | Returns |
-|---|---|---|---|---|
-| GET | `/products/stats` | `inventory.stock.view` | | `total, active, lowCount, low[10], expiringCount, expiring[10], stockValue, canSeeCost` |
-| GET | `/products/{id}/history` | `inventory.stock.view` | | `movements[40] {type, qtyIn, qtyOut, balanceAfter, movedAt, note, user}`, `prices[20]` |
-| POST | `/products` | `inventory.product.create` | see below | `201 {id, name, catalogueId}` |
-| PATCH | `/products/{id}` | `inventory.product.update` | any of `name, brand, sku, barcode, unit, mrp, vatPercent, minimumStock, trackBatch, isActive` | `{id, name}` |
-| DELETE | `/products/{id}` | `inventory.product.delete` | | `{ok, stockWritten}` |
-| POST | `/products/{id}/restore` | `inventory.product.delete` | | `{ok, id, name}` |
-| PATCH | `/products/{id}/prices` | `inventory.product.update` | `purchasePrice`, `salePrice`, `wholesalePrice` (all required) | `ok, changed` |
-| POST | `/products/{id}/adjust` | `inventory.adjust.create` | `qty` (signed, not 0), `reason`, `isDamage?` | `201 ok` |
+| Method | Path                       | Perm                         | Body                                                                                           | Returns                                                                                    |
+| ------ | -------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| GET    | `/products/stats`        | `inventory.stock.view`     |                                                                                                | `total, active, lowCount, low[10], expiringCount, expiring[10], stockValue, canSeeCost`  |
+| GET    | `/products/{id}/history` | `inventory.stock.view`     |                                                                                                | `movements[40] {type, qtyIn, qtyOut, balanceAfter, movedAt, note, user}`, `prices[20]` |
+| POST   | `/products`              | `inventory.product.create` | see below                                                                                      | `201 {id, name, catalogueId}`                                                            |
+| PATCH  | `/products/{id}`         | `inventory.product.update` | any of`name, brand, sku, barcode, unit, mrp, vatPercent, minimumStock, trackBatch, isActive` | `{id, name}`                                                                             |
+| DELETE | `/products/{id}`         | `inventory.product.delete` |                                                                                                | `{ok, stockWritten}`                                                                     |
+| POST   | `/products/{id}/restore` | `inventory.product.delete` |                                                                                                | `{ok, id, name}`                                                                         |
+| PATCH  | `/products/{id}/prices`  | `inventory.product.update` | `purchasePrice`, `salePrice`, `wholesalePrice` (all required)                            | `ok, changed`                                                                            |
+| POST   | `/products/{id}/adjust`  | `inventory.adjust.create`  | `qty` (signed, not 0), `reason`, `isDamage?`                                             | `201 ok`                                                                                 |
 
 Create body: `name`, `purchasePrice` (≥ 0.01) and `salePrice` (≥ purchasePrice)
 are required. Optional: `genericName`, `brand`, `sku`, `barcode`, `unit`,
@@ -878,37 +876,35 @@ invoices stays correct.
 
 ### Packages (bundles)
 
-| Method | Path | Perm | Body / query | Returns |
-|---|---|---|---|---|
-| GET | `/packages?q=&sellableOnly=1` | `inventory.package.view` | | list of package objects; `meta.mayManage` |
-| GET | `/packages/sellable?q=` | `inventory.package.view` | | packages on sale now that can be built from this branch's stock |
-| GET | `/packages/products?q=` | `inventory.package.manage` | | picker: `id, name, unit, salePrice, stock` |
-| POST | `/packages` | `inventory.package.manage` | see below | `201` package |
-| PATCH | `/packages/{id}` | `inventory.package.manage` | same as above (items are replaced) | package |
-| PATCH | `/packages/{id}/active` | `inventory.package.manage` | `isActive` | `id, availability` |
-| DELETE | `/packages/{id}` | `inventory.package.manage` | | `ok` |
+| Method | Path                            | Perm                         | Body / query                       | Returns                                                         |
+| ------ | ------------------------------- | ---------------------------- | ---------------------------------- | --------------------------------------------------------------- |
+| GET    | `/packages?q=&sellableOnly=1` | `inventory.package.view`   |                                    | list of package objects;`meta.mayManage`                      |
+| GET    | `/packages/sellable?q=`       | `inventory.package.view`   |                                    | packages on sale now that can be built from this branch's stock |
+| GET    | `/packages/products?q=`       | `inventory.package.manage` |                                    | picker:`id, name, unit, salePrice, stock`                     |
+| POST   | `/packages`                   | `inventory.package.manage` | see below                          | `201` package                                                 |
+| PATCH  | `/packages/{id}`              | `inventory.package.manage` | same as above (items are replaced) | package                                                         |
+| PATCH  | `/packages/{id}/active`       | `inventory.package.manage` | `isActive`                       | `id, availability`                                            |
+| DELETE | `/packages/{id}`              | `inventory.package.manage` |                                    | `ok`                                                          |
 
 Body: `name`, `price`, `items[] {storeProductId, qty}` (required), plus
 `description?`, `barcode?`, `vatPercent?`, `startsAt?`, `endsAt?` (after
 `startsAt`) and `isActive?`.
 
-Package object: `id, name, description, barcode, price, vatPercent, startsAt,
-endsAt, isActive, availability, sellable, buildable, componentTotal, saving,
-items[] {storeProductId, name, unit, qty, salePrice}`. `availability` is `live`,
+Package object: `id, name, description, barcode, price, vatPercent, startsAt, endsAt, isActive, availability, sellable, buildable, componentTotal, saving, items[] {storeProductId, name, unit, qty, salePrice}`. `availability` is `live`,
 `scheduled`, `expired` or `inactive`. `buildable` is how many can be made from
 this branch's stock.
 
 ### Catalogue
 
-| Method | Path | Perm | Body / query | Returns |
-|---|---|---|---|---|
-| GET | `/catalog?q=&mine=1&missing=1&page=&perPage=` | `catalog.product.search` | `mine=1` → only what this store already stocks; `missing=1` → only what it does not yet; neither → both | paged (30 a page, `perPage` 10–100), always the store’s own store type: `id, name, genericName, barcode, brand, unit, category, defaultPurchasePrice, defaultSalePrice, vatPercent, alreadyInStore, pending`; `meta.total`, `meta.page`, `meta.pages`, `meta.mineCount`, `meta.missingCount`. `pending: true` means a shop put it up and the platform has not vouched for it yet — every store of this type still sees it and may add it |
-| POST | `/catalog/{id}/adopt` | `catalog.product.import` | `purchasePrice`, `salePrice`, `wholesalePrice?`, `localName?`, `openingStock?`, `minimumStock?` | `201 {id, created: true}`, or `200 {id, created: false}` if already in store |
-| GET | `/catalog/check?name=&barcode=&brand=` | `catalog.product.suggest` | | `parsed, verdict, exact, alreadyInStore, matches[]` |
-| GET | `/catalog/lookups` | `catalog.product.suggest` | | `units[] {short, label, labelBn}` (common ones first) and `brands[]` names — what the new-product form offers. Units are the shared ones plus this store’s own; brands are this store’s only |
-| POST | `/catalog/suggestions` | `catalog.product.suggest` | see below | `201 {id, endorsed, storeProductId, name, relatedProducts}`; `409 already_in_catalog` |
-| GET | `/catalog/suggestions` | `catalog.suggestion.review` | | `id, status, payload, economics, askedBy, askedAt, endorsedBy, endorsedAt, storeProduct, reviewNote`; `meta.pending` |
-| POST | `/catalog/suggestions/{id}/review` | `catalog.suggestion.review` | `approve`, plus optional `name, genericName, barcode, purchasePrice, salePrice, mrp, vatPercent, minimumStock, openingStock, note` | approve: `201 {endorsed: true, storeProductId, name}`; reject: `{endorsed: false}` |
+| Method | Path                                            | Perm                          | Body / query                                                                                                                           | Returns                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------ | ----------------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/catalog?q=&mine=1&missing=1&page=&perPage=` | `catalog.product.search`    | `mine=1` → only what this store already stocks; `missing=1` → only what it does not yet; neither → both                         | paged (30 a page,`perPage` 10–100), always the store’s own store type: `id, name, genericName, barcode, brand, unit, category, defaultPurchasePrice, defaultSalePrice, vatPercent, alreadyInStore, pending`; `meta.total`, `meta.page`, `meta.pages`, `meta.mineCount`, `meta.missingCount`. `pending: true` means a shop put it up and the platform has not vouched for it yet — every store of this type still sees it and may add it |
+| POST   | `/catalog/{id}/adopt`                         | `catalog.product.import`    | `purchasePrice`, `salePrice`, `wholesalePrice?`, `localName?`, `openingStock?`, `minimumStock?`                            | `201 {id, created: true}`, or `200 {id, created: false}` if already in store                                                                                                                                                                                                                                                                                                                                                                           |
+| GET    | `/catalog/check?name=&barcode=&brand=`        | `catalog.product.suggest`   |                                                                                                                                        | `parsed, verdict, exact, alreadyInStore, matches[]`                                                                                                                                                                                                                                                                                                                                                                                                      |
+| GET    | `/catalog/lookups`                            | `catalog.product.suggest`   |                                                                                                                                        | `units[] {short, label, labelBn}` (common ones first) and `brands[]` names — what the new-product form offers. Units are the shared ones plus this store’s own; brands are this store’s only                                                                                                                                                                                                                                                        |
+| POST   | `/catalog/suggestions`                        | `catalog.product.suggest`   | see below                                                                                                                              | `201 {id, endorsed, storeProductId, name, relatedProducts}`; `409 already_in_catalog`                                                                                                                                                                                                                                                                                                                                                                  |
+| GET    | `/catalog/suggestions`                        | `catalog.suggestion.review` |                                                                                                                                        | `id, status, payload, economics, askedBy, askedAt, endorsedBy, endorsedAt, storeProduct, reviewNote`; `meta.pending`                                                                                                                                                                                                                                                                                                                                   |
+| POST   | `/catalog/suggestions/{id}/review`            | `catalog.suggestion.review` | `approve`, plus optional `name, genericName, barcode, purchasePrice, salePrice, mrp, vatPercent, minimumStock, openingStock, note` | approve:`201 {endorsed: true, storeProductId, name}`; reject: `{endorsed: false}`                                                                                                                                                                                                                                                                                                                                                                      |
 
 Suggestion body: `name`, `purchasePrice` (≥ 0.01) and `salePrice` (≥
 purchasePrice) are required. Optional: `genericName`, `brand`, `barcode`,
@@ -935,26 +931,26 @@ Suggestion `status`: `pending` → `endorsed` (on sale in this store) →
 
 ### Purchase
 
-| Method | Path | Perm | Body / query | Returns |
-|---|---|---|---|---|
-| GET | `/purchases?q=` | `purchase.bill.view` | `q` on ref no or supplier | latest 50: `id, refNo, purchaseDate, total, paid, due, paymentStatus, status, supplier, branch, itemCount`; `meta.suppliers[], summary, mayCreate, mayPay, mayManageSuppliers` |
-| GET | `/purchases/products?q=` | `purchase.bill.create` | | `id, name, purchasePrice, trackBatch, unit` |
-| POST | `/purchases` | `purchase.bill.create` | see [5.4](#54-goods-in--purchase-stock-keeper-manager-owner) | `201 {id, refNo, total}` |
-| POST | `/suppliers` | `purchase.supplier.manage` | `name`, `company?`, `phone?`, `address?` | `201 {id}` |
-| PATCH | `/suppliers/{id}` | `purchase.supplier.manage` | same as above | `{id}` |
+| Method | Path                       | Perm                         | Body / query                                               | Returns                                                                                                                                                                           |
+| ------ | -------------------------- | ---------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/purchases?q=`          | `purchase.bill.view`       | `q` on ref no or supplier                                | latest 50:`id, refNo, purchaseDate, total, paid, due, paymentStatus, status, supplier, branch, itemCount`; `meta.suppliers[], summary, mayCreate, mayPay, mayManageSuppliers` |
+| GET    | `/purchases/products?q=` | `purchase.bill.create`     |                                                            | `id, name, purchasePrice, trackBatch, unit`                                                                                                                                     |
+| POST   | `/purchases`             | `purchase.bill.create`     | see[5.4](#54-goods-in--purchase-stock-keeper-manager-owner) | `201 {id, refNo, total}`                                                                                                                                                        |
+| POST   | `/suppliers`             | `purchase.supplier.manage` | `name`, `company?`, `phone?`, `address?`           | `201 {id}`                                                                                                                                                                      |
+| PATCH  | `/suppliers/{id}`        | `purchase.supplier.manage` | same as above                                              | `{id}`                                                                                                                                                                          |
 
 ### Accounts and expenses
 
-| Method | Path | Perm | Body | Returns |
-|---|---|---|---|---|
-| GET | `/accounts` | `accounts.account.view` | | `accounts[], expenses[80], transactions[40], categories[], quick[], monthExpense, todayExpense`; `meta.mayManage, mayExpense, mayDeleteExpense, mayManageCategories, mayTransfer` |
-| POST | `/accounts` | `accounts.account.manage` | `name`, `type` (`cash`, `bank`, `mfs`), `openingBalance?` | `201 {id}` |
-| POST | `/accounts/transfer` | `accounts.transfer.create` | `fromAccountId`, `toAccountId` (different), `amount`, `note?` | `ok` |
-| POST | `/expenses` | `accounts.expense.create` | `categoryId?` or `categoryName?`, `amount?`, `accountId?`, `note?`, `date?` | `201 {ok, id, amount}`; `422 amount_required` |
-| DELETE | `/expenses/{id}` | `accounts.expense.delete` | | `deleted` |
-| POST | `/expense-categories` | `accounts.category.manage` | `name`, `icon?` (emoji), `defaultAmount?`, `isQuick?`, `isActive?`, `sortOrder?` | `201 {id}`; `422 duplicate` |
-| PATCH | `/expense-categories/{id}` | `accounts.category.manage` | same as above | `{id}` |
-| DELETE | `/expense-categories/{id}` | `accounts.category.manage` | | `{deleted, retired, usedCount?}`. A type with expenses is retired, not deleted |
+| Method | Path                         | Perm                         | Body                                                                                         | Returns                                                                                                                                                                               |
+| ------ | ---------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/accounts`                | `accounts.account.view`    |                                                                                              | `accounts[], expenses[80], transactions[40], categories[], quick[], monthExpense, todayExpense`; `meta.mayManage, mayExpense, mayDeleteExpense, mayManageCategories, mayTransfer` |
+| POST   | `/accounts`                | `accounts.account.manage`  | `name`, `type` (`cash`, `bank`, `mfs`), `openingBalance?`                        | `201 {id}`                                                                                                                                                                          |
+| POST   | `/accounts/transfer`       | `accounts.transfer.create` | `fromAccountId`, `toAccountId` (different), `amount`, `note?`                        | `ok`                                                                                                                                                                                |
+| POST   | `/expenses`                | `accounts.expense.create`  | `categoryId?` or `categoryName?`, `amount?`, `accountId?`, `note?`, `date?`      | `201 {ok, id, amount}`; `422 amount_required`                                                                                                                                     |
+| DELETE | `/expenses/{id}`           | `accounts.expense.delete`  |                                                                                              | `deleted`                                                                                                                                                                           |
+| POST   | `/expense-categories`      | `accounts.category.manage` | `name`, `icon?` (emoji), `defaultAmount?`, `isQuick?`, `isActive?`, `sortOrder?` | `201 {id}`; `422 duplicate`                                                                                                                                                       |
+| PATCH  | `/expense-categories/{id}` | `accounts.category.manage` | same as above                                                                                | `{id}`                                                                                                                                                                              |
+| DELETE | `/expense-categories/{id}` | `accounts.category.manage` |                                                                                              | `{deleted, retired, usedCount?}`. A type with expenses is retired, not deleted                                                                                                      |
 
 `POST /expenses` and `POST /accounts/transfer` need nothing from
 `accounts.account.view`, but their screens load from `GET /accounts`. A custom
@@ -962,44 +958,43 @@ role with only `expense.create` needs its own simple form.
 
 ### Reports
 
-| Method | Path | Perm | Query | Returns |
-|---|---|---|---|---|
-| GET | `/reports/sales` | `report.sales.view` | `days` (default 30) | `daily[] {date, total, count}`, `topProducts[15] {id, name, qty, revenue, profit}`, `byUser[] {name, total, count}`, `byMethod[] {method, total}`, `showProfit` |
-| GET | `/reports/profit` | `report.profit.view` | `days` (default 30) | `revenue, cost, returnTotal, grossProfit, expenses, netProfit, margin` (%) |
-| GET | `/reports/stock` | `report.stock.view` | | `stockValue, totalUnits, low[], expiring[], dead[20]` (no sale in 90 days) |
-| GET | `/reports/dues` | `report.due.view` | | up to 100: `id, name, phone, due, creditLimit, ageDays` |
+| Method | Path                | Perm                   | Query                 | Returns                                                                                                                                                                   |
+| ------ | ------------------- | ---------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/reports/sales`  | `report.sales.view`  | `days` (default 30) | `daily[] {date, total, count}`, `topProducts[15] {id, name, qty, revenue, profit}`, `byUser[] {name, total, count}`, `byMethod[] {method, total}`, `showProfit` |
+| GET    | `/reports/profit` | `report.profit.view` | `days` (default 30) | `revenue, cost, returnTotal, grossProfit, expenses, netProfit, margin` (%)                                                                                              |
+| GET    | `/reports/stock`  | `report.stock.view`  |                       | `stockValue, totalUnits, low[], expiring[], dead[20]` (no sale in 90 days)                                                                                              |
+| GET    | `/reports/dues`   | `report.due.view`    |                       | up to 100:`id, name, phone, due, creditLimit, ageDays`                                                                                                                  |
 
 Sales, stock, and profit's `revenue` and `cost` are for the current branch.
 Profit's `returnTotal` and `expenses`, and the dues report, cover the whole store.
 
 ### Settings and team
 
-| Method | Path | Perm | Body / query | Returns |
-|---|---|---|---|---|
-| GET | `/settings` | `settings.store.view` | | `store, branches[], members[], roles[], settings{}, activity[], permissionModules, loyalty`; `meta.mayUpdateStore, mayManageBranch, mayManageUser, mayManageRole, maySeeActivity` |
-| PATCH | `/settings/store` | `settings.store.update` | `name` required; `phone?, email?, address?, city?, vatMode?` (`inclusive`, `exclusive`), `receiptPaper?` (`58mm`, `80mm`, `A4`), `invoicePrefix?`, `allowCreditSale?`, `loyalty?{loyalty_enabled, loyalty_earn_per, loyalty_earn_points, loyalty_value_per, loyalty_min_redeem, loyalty_max_redeem_pct, loyalty_round}` | `ok` |
-| POST | `/settings/branches` | `settings.branch.manage` | `name`, `code`, `phone?`, `address?` | `201 {id}`; `422 plan_limit` |
-| PATCH | `/settings/branches/{id}` | `settings.branch.manage` | same as above | `{id}` |
-| POST | `/settings/members` | `settings.user.manage` | `name`, `email`, `password` (min 6), `roleId`, `branchId?` | `201 {userId, reusedExistingAccount}`; `422 plan_limit / duplicate / bad_role` |
-| PATCH | `/settings/members/{storeUserId}/status` | `settings.user.manage` | `active` | `ok`; `422 self` |
-| PATCH | `/settings/members/{userId}/role` | `settings.role.manage` | `roleId` | `ok`; `422 self`, `403 forbidden_role` |
-| GET | `/settings/roles/{id}` | `settings.role.manage` | | `id, name, label, isLocked, permissions[]` |
-| GET | `/settings/activity` | `settings.activity.view` | `q?, subject?, event?, userId?, days?` (1–365, default 30) | up to 200: `id, event, subjectType, subjectId, subjectLabel, changes[] {field, from, to}, createdAt, user, ip`; `meta.subjects, events, days` |
+| Method | Path                                       | Perm                       | Body / query                                                                                                                                                                                                                                                                                                                                  | Returns                                                                                                                                                                               |
+| ------ | ------------------------------------------ | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/settings`                              | `settings.store.view`    |                                                                                                                                                                                                                                                                                                                                               | `store, branches[], members[], roles[], settings{}, activity[], permissionModules, loyalty`; `meta.mayUpdateStore, mayManageBranch, mayManageUser, mayManageRole, maySeeActivity` |
+| PATCH  | `/settings/store`                        | `settings.store.update`  | `name` required; `phone?, email?, address?, city?, vatMode?` (`inclusive`, `exclusive`), `receiptPaper?` (`58mm`, `80mm`, `A4`), `invoicePrefix?`, `allowCreditSale?`, `loyalty?{loyalty_enabled, loyalty_earn_per, loyalty_earn_points, loyalty_value_per, loyalty_min_redeem, loyalty_max_redeem_pct, loyalty_round}` | `ok`                                                                                                                                                                                |
+| POST   | `/settings/branches`                     | `settings.branch.manage` | `name`, `code`, `phone?`, `address?`                                                                                                                                                                                                                                                                                                  | `201 {id}`; `422 plan_limit`                                                                                                                                                      |
+| PATCH  | `/settings/branches/{id}`                | `settings.branch.manage` | same as above                                                                                                                                                                                                                                                                                                                                 | `{id}`                                                                                                                                                                              |
+| POST   | `/settings/members`                      | `settings.user.manage`   | `name`, `email`, `password` (min 6), `roleId`, `branchId?`                                                                                                                                                                                                                                                                          | `201 {userId, reusedExistingAccount}`; `422 plan_limit / duplicate / bad_role`                                                                                                    |
+| PATCH  | `/settings/members/{storeUserId}/status` | `settings.user.manage`   | `active`                                                                                                                                                                                                                                                                                                                                    | `ok`; `422 self`                                                                                                                                                                  |
+| PATCH  | `/settings/members/{userId}/role`        | `settings.role.manage`   | `roleId`                                                                                                                                                                                                                                                                                                                                    | `ok`; `422 self`, `403 forbidden_role`                                                                                                                                          |
+| GET    | `/settings/roles/{id}`                   | `settings.role.manage`   |                                                                                                                                                                                                                                                                                                                                               | `id, name, label, isLocked, permissions[]`                                                                                                                                          |
+| GET    | `/settings/activity`                     | `settings.activity.view` | `q?, subject?, event?, userId?, days?` (1–365, default 30)                                                                                                                                                                                                                                                                                 | up to 200:`id, event, subjectType, subjectId, subjectLabel, changes[] {field, from, to}, createdAt, user, ip`; `meta.subjects, events, days`                                      |
 
-`members[]` item: `storeUserId, status (active|suspended), id, name, email,
-phone, lastLoginAt, roleName`.
+`members[]` item: `storeUserId, status (active|suspended), id, name, email, phone, lastLoginAt, roleName`.
 
 ### Super admin
 
 All need the matching `admin.*` permission, which only Super Admin holds.
 
-| Method | Path | Perm | Body | Returns |
-|---|---|---|---|---|
-| GET | `/admin/overview` | `admin.store.view` | | `stores[], storeTypes[], plans[], suggestions[], totals` |
-| POST | `/admin/stores` | `admin.store.create` | `name`, `storeTypeId`, `ownerName`, `ownerEmail`, `ownerPassword`; `planId?, phone?, address?, branchName?` | `201 {storeId, ownerEmail, reusedExistingAccount}` |
-| PATCH | `/admin/stores/{id}/status` | `admin.store.update` | `status` (`active`, `suspended`) | `ok` |
-| POST | `/admin/stores/{id}/impersonate` | `admin.store.impersonate` | | `storeId, branchId`. This device is now in that store |
-| POST | `/admin/suggestions/{id}/review` | `admin.suggestion.review` | `approve`, `note?`, and optional corrected fields | `201 {created: true, globalProductId}` or `{created: false}` |
+| Method | Path                               | Perm                        | Body                                                                                                                    | Returns                                                          |
+| ------ | ---------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| GET    | `/admin/overview`                | `admin.store.view`        |                                                                                                                         | `stores[], storeTypes[], plans[], suggestions[], totals`       |
+| POST   | `/admin/stores`                  | `admin.store.create`      | `name`, `storeTypeId`, `ownerName`, `ownerEmail`, `ownerPassword`; `planId?, phone?, address?, branchName?` | `201 {storeId, ownerEmail, reusedExistingAccount}`             |
+| PATCH  | `/admin/stores/{id}/status`      | `admin.store.update`      | `status` (`active`, `suspended`)                                                                                  | `ok`                                                           |
+| POST   | `/admin/stores/{id}/impersonate` | `admin.store.impersonate` |                                                                                                                         | `storeId, branchId`. This device is now in that store          |
+| POST   | `/admin/suggestions/{id}/review` | `admin.suggestion.review` | `approve`, `note?`, and optional corrected fields                                                                   | `201 {created: true, globalProductId}` or `{created: false}` |
 
 #### The shared product catalogue
 
@@ -1009,14 +1004,14 @@ what it sells with its own prices — which is how somebody opening a pharmacy h
 a stocked till the same afternoon. These endpoints are how the platform keeps
 that table right.
 
-| Method | Path | Perm | Body / query | Returns |
-|---|---|---|---|---|
-| GET | `/admin/catalog` | `admin.catalog.manage` | `q`, `storeType`, `status`, `trashed=1`, `page`, `perPage` | paged entries: `id, name, genericName, brand, unit, category, categoryId, storeType, storeTypeId, sku, barcode, purchasePrice, salePrice, mrp, vatPercent, status, inStores, deletedAt`; `meta.total, page, perPage, trashedCount, pendingCount, storeTypes[]` |
-| GET | `/admin/catalog/lookups?storeType=` | `admin.catalog.manage` | | `brands[]`, `units[] {short, label}`, `categories[] {id, name}` — the shared ones, never a single shop's |
-| POST | `/admin/catalog` | `admin.catalog.manage` | `storeTypeId`, `name` required; `genericName?, brand?, unit?, categoryId?, sku?, barcode?, description?, purchasePrice?, salePrice?, mrp?, vatPercent?, status?` | `201` entry |
-| PATCH | `/admin/catalog/{id}` | `admin.catalog.manage` | any of the above | entry |
-| DELETE | `/admin/catalog/{id}` | `admin.catalog.manage` | | `{ok, storesAffected}` |
-| POST | `/admin/catalog/{id}/restore` | `admin.catalog.manage` | | entry |
+| Method | Path                                  | Perm                     | Body / query                                                                                                                                                           | Returns                                                                                                                                                                                                                                                           |
+| ------ | ------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/admin/catalog`                    | `admin.catalog.manage` | `q`, `storeType`, `status`, `trashed=1`, `page`, `perPage`                                                                                                 | paged entries:`id, name, genericName, brand, unit, category, categoryId, storeType, storeTypeId, sku, barcode, purchasePrice, salePrice, mrp, vatPercent, status, inStores, deletedAt`; `meta.total, page, perPage, trashedCount, pendingCount, storeTypes[]` |
+| GET    | `/admin/catalog/lookups?storeType=` | `admin.catalog.manage` |                                                                                                                                                                        | `brands[]`, `units[] {short, label}`, `categories[] {id, name}` — the shared ones, never a single shop's                                                                                                                                                   |
+| POST   | `/admin/catalog`                    | `admin.catalog.manage` | `storeTypeId`, `name` required; `genericName?, brand?, unit?, categoryId?, sku?, barcode?, description?, purchasePrice?, salePrice?, mrp?, vatPercent?, status?` | `201` entry                                                                                                                                                                                                                                                     |
+| PATCH  | `/admin/catalog/{id}`               | `admin.catalog.manage` | any of the above                                                                                                                                                       | entry                                                                                                                                                                                                                                                             |
+| DELETE | `/admin/catalog/{id}`               | `admin.catalog.manage` |                                                                                                                                                                        | `{ok, storesAffected}`                                                                                                                                                                                                                                          |
+| POST   | `/admin/catalog/{id}/restore`       | `admin.catalog.manage` |                                                                                                                                                                        | entry                                                                                                                                                                                                                                                             |
 
 `inStores` counts the shops that have taken the entry onto their shelf, across
 every store — worth reading before changing a name three hundred shops are
@@ -1037,19 +1032,19 @@ These permissions exist in the role matrix, but **there is no endpoint for them
 yet**, in the web workspace or here. Leave them out of the first app release, or
 ask for the endpoint first:
 
-| Process | Permission |
-|---|---|
-| Send stock to another branch or receive it | `inventory.transfer.create` / `approve` |
-| Approve stock adjustments (they apply immediately today) | `inventory.adjust.approve` |
+| Process                                                                     | Permission                                                                                     |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Send stock to another branch or receive it                                  | `inventory.transfer.create` / `approve`                                                    |
+| Approve stock adjustments (they apply immediately today)                    | `inventory.adjust.approve`                                                                   |
 | Edit or delete a purchase, pay a supplier's due, return goods to a supplier | `purchase.bill.update` / `delete`, `purchase.payment.create`, `purchase.return.create` |
-| Delete a customer | `customers.customer.delete` |
-| Daily closing | `accounts.closing.manage` |
-| VAT report, export of any list or report | `report.vat.view`, `report.export`, `*.export` |
-| Edit which permissions a role has, or deny one permission to one person | `settings.role.manage` (only reading and assigning roles exists) |
-| Assign a member to specific branches | `settings.user.manage` |
-| Print templates, API keys | `settings.template.manage`, `settings.apikey.manage` |
-| Plans | `admin.plan.manage` |
-| Push notifications (low stock, big sale) | — |
+| Delete a customer                                                           | `customers.customer.delete`                                                                  |
+| Daily closing                                                               | `accounts.closing.manage`                                                                    |
+| VAT report, export of any list or report                                    | `report.vat.view`, `report.export`, `*.export`                                           |
+| Edit which permissions a role has, or deny one permission to one person     | `settings.role.manage` (only reading and assigning roles exists)                             |
+| Assign a member to specific branches                                        | `settings.user.manage`                                                                       |
+| Print templates, API keys                                                   | `settings.template.manage`, `settings.apikey.manage`                                       |
+| Plans                                                                       | `admin.plan.manage`                                                                          |
+| Push notifications (low stock, big sale)                                    | —                                                                                             |
 
 ---
 

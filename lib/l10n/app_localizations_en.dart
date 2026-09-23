@@ -906,4 +906,939 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get torch => 'Torch';
+
+  @override
+  String get productsTitle => 'Products';
+
+  @override
+  String get productsSearchHint => 'Name, barcode or SKU';
+
+  @override
+  String get productsLowOnly => 'Low stock';
+
+  @override
+  String get productsTrashed => 'Deleted';
+
+  @override
+  String get productsLive => 'On the shelf';
+
+  @override
+  String get productsNone => 'No products yet';
+
+  @override
+  String get productsNoneBody =>
+      'Add the first one, or bring it in from the catalogue.';
+
+  @override
+  String get productsNoResults => 'Nothing matched';
+
+  @override
+  String get productsNoResultsBody =>
+      'Try part of the name, the barcode or the SKU.';
+
+  @override
+  String get productsNoneTrashed => 'Nothing deleted';
+
+  @override
+  String get productsNoneTrashedBody =>
+      'Deleted products wait here until they are restored.';
+
+  @override
+  String get addProduct => 'Add a product';
+
+  @override
+  String get editProduct => 'Edit';
+
+  @override
+  String get productSaved => 'Saved';
+
+  @override
+  String productAdded(String name) {
+    return '$name is on the shelf';
+  }
+
+  @override
+  String get stockValue => 'Stock value';
+
+  @override
+  String lowStockCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count running low',
+      one: '1 running low',
+      zero: 'Nothing low',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String expiringCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count expiring',
+      one: '1 expiring',
+      zero: 'None expiring',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products',
+      one: '1 product',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String showingOf(String shown, String total) {
+    return 'Showing $shown of $total';
+  }
+
+  @override
+  String get costLabel => 'Cost';
+
+  @override
+  String get saleLabel => 'Sale';
+
+  @override
+  String get wholesaleLabel => 'Wholesale';
+
+  @override
+  String get mrpLabel => 'MRP';
+
+  @override
+  String get marginLabel => 'Margin';
+
+  @override
+  String get vatLabel => 'VAT';
+
+  @override
+  String get skuLabel => 'SKU';
+
+  @override
+  String get barcodeLabel => 'Barcode';
+
+  @override
+  String get unitLabel => 'Unit';
+
+  @override
+  String get brandLabel => 'Brand';
+
+  @override
+  String get categoryLabel => 'Category';
+
+  @override
+  String get minimumStockLabel => 'Reorder at';
+
+  @override
+  String get openingStockLabel => 'Opening stock';
+
+  @override
+  String get trackBatchLabel => 'Track batches and expiry';
+
+  @override
+  String get genericNameLabel => 'Generic name';
+
+  @override
+  String get productNameLabel => 'Name';
+
+  @override
+  String get inactiveBadge => 'Not for sale';
+
+  @override
+  String get deletedBadge => 'Deleted';
+
+  @override
+  String onShelf(String qty) {
+    return '$qty on the shelf';
+  }
+
+  @override
+  String get changePrices => 'Change prices';
+
+  @override
+  String get pricesSaved => 'Prices changed';
+
+  @override
+  String get pricesUnchanged => 'Nothing to change';
+
+  @override
+  String get priceHistory => 'Price history';
+
+  @override
+  String get stockHistory => 'Stock history';
+
+  @override
+  String get currentPrice => 'Now';
+
+  @override
+  String get adjustStock => 'Adjust stock';
+
+  @override
+  String get adjustQtyLabel => 'Change by';
+
+  @override
+  String get adjustHelp =>
+      'Signed and not zero. −3 takes three off the shelf, 3 puts three back.';
+
+  @override
+  String get adjustReasonLabel => 'Reason';
+
+  @override
+  String get adjustIsDamage => 'This is damage, not a correction';
+
+  @override
+  String get adjustDone => 'Stock adjusted';
+
+  @override
+  String get deleteProduct => 'Delete this product';
+
+  @override
+  String get deleteProductBody =>
+      'It leaves the till, the lists and every stock figure. Past sales still name it, and you can restore it.';
+
+  @override
+  String deleteProductDone(String qty) {
+    return 'Deleted. $qty came off the shelf.';
+  }
+
+  @override
+  String get restoreProduct => 'Restore';
+
+  @override
+  String restoreProductDone(String name) {
+    return '$name is back';
+  }
+
+  @override
+  String deletedOn(String date) {
+    return 'Deleted $date';
+  }
+
+  @override
+  String get noMovements => 'No stock movements yet';
+
+  @override
+  String get noPrices => 'No price changes yet';
+
+  @override
+  String get movementOpening => 'Opening';
+
+  @override
+  String get movementPurchase => 'Goods in';
+
+  @override
+  String get movementSale => 'Sold';
+
+  @override
+  String get movementReturn => 'Returned';
+
+  @override
+  String get movementAdjustment => 'Adjusted';
+
+  @override
+  String get movementDamage => 'Damage';
+
+  @override
+  String get movementTransfer => 'Transfer';
+
+  @override
+  String balanceAfter(String qty) {
+    return 'Left: $qty';
+  }
+
+  @override
+  String get priceBelowCost => 'Below cost';
+
+  @override
+  String get saleBelowPurchase => 'Selling price can\'t be below the cost.';
+
+  @override
+  String get costHidden => 'Costs are hidden for your role.';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get trialEndsToday =>
+      'Your trial ends today. Contact the platform to keep this shop open.';
+
+  @override
+  String trialDaysLeft(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days left on your trial',
+      one: '1 day left on your trial',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profitPercentLabel => 'Profit %';
+
+  @override
+  String get saleAboveMrp => 'Above the printed MRP.';
+
+  @override
+  String get wholesaleBlankHelp => 'Blank = selling price';
+
+  @override
+  String get markupLabel => 'Markup';
+
+  @override
+  String get stopSelling => 'Stop selling';
+
+  @override
+  String get resumeSelling => 'Sell again';
+
+  @override
+  String get stoppedSellingNote =>
+      'Not offered at the till. Stock and history are kept.';
+
+  @override
+  String get productStopped => 'No longer sold at the till.';
+
+  @override
+  String get productResumed => 'Back on sale.';
+
+  @override
+  String get newProduct => 'New product';
+
+  @override
+  String get lineBelowCost =>
+      'A line is priced below its cost, and the sale would be refused. Change its price or discount.';
+
+  @override
+  String get lineBelowCostShort => 'Below cost — the sale would be refused.';
+
+  @override
+  String get discountBelowCost =>
+      'That discount takes the bill below what the goods cost.';
+
+  @override
+  String get orderDiscountPercent => 'Bill discount (%)';
+
+  @override
+  String get previousDueLabel => 'Previous due';
+
+  @override
+  String get collectPreviousDue => 'Collect previous due too';
+
+  @override
+  String get outstandingLabel => 'Owes in total';
+
+  @override
+  String get cashTaken => 'Cash taken';
+
+  @override
+  String get digitalTaken => 'Digital payments';
+
+  @override
+  String get duesCollected => 'Dues collected';
+
+  @override
+  String get dueGiven => 'Given on credit';
+
+  @override
+  String shiftSpansDays(int count) {
+    return 'This drawer has been open for $count days.';
+  }
+
+  @override
+  String get lineDiscounts => 'Line discounts';
+
+  @override
+  String get youSaved => 'You saved (vs MRP)';
+
+  @override
+  String get openingBalance => 'Opening balance';
+
+  @override
+  String get openingBalanceHelp =>
+      'What they owed before this shop used bizPOS.';
+
+  @override
+  String get ledgerSale => 'Sale';
+
+  @override
+  String get ledgerPayment => 'Payment';
+
+  @override
+  String get ledgerReturn => 'Return';
+
+  @override
+  String get ledgerVoid => 'Void';
+
+  @override
+  String get ledgerOpeningCorrection => 'Opening balance corrected';
+
+  @override
+  String get registerTitle => 'Create your shop';
+
+  @override
+  String get registerSubtitle =>
+      'Sign your shop up and start selling straight away — the till, cash drawer and walk-in customer are set up for you.';
+
+  @override
+  String registerTrialNote(int days) {
+    return 'Free for $days days. After that an admin has to extend it; nothing is deleted.';
+  }
+
+  @override
+  String openShopTrialNote(int days) {
+    return 'A new shop runs free for $days days, like any sign-up.';
+  }
+
+  @override
+  String get registerShopSection => 'The shop';
+
+  @override
+  String get registerOwnerSection => 'The owner';
+
+  @override
+  String get shopName => 'Shop name';
+
+  @override
+  String get storeTypeLabel => 'Kind of shop';
+
+  @override
+  String get storeTypeHelp => 'Decides which product catalogue you start from.';
+
+  @override
+  String get shopAddressOptional => 'Address (optional)';
+
+  @override
+  String get branchNameOptional => 'Branch name (optional)';
+
+  @override
+  String get branchNameHint => 'Main Branch';
+
+  @override
+  String get ownerName => 'Your name';
+
+  @override
+  String get phone => 'Phone';
+
+  @override
+  String get shopPhoneHelp => 'How the platform reaches you about your shop.';
+
+  @override
+  String get invalidPhone => 'That doesn\'t look like a phone number.';
+
+  @override
+  String get passwordRule => 'At least 6 characters.';
+
+  @override
+  String get registerAction => 'Create shop';
+
+  @override
+  String get registering => 'Creating your shop…';
+
+  @override
+  String get haveAccount => 'Already have an account? Sign in';
+
+  @override
+  String get signInInstead => 'Sign in';
+
+  @override
+  String get registerCta => 'New shop? Create an account';
+
+  @override
+  String get signInThenAddShop =>
+      'After signing in, open your new shop from Profile → Open another shop.';
+
+  @override
+  String get openAnotherShop => 'Open another shop';
+
+  @override
+  String get openShopAction => 'Open shop';
+
+  @override
+  String shopOpened(String name) {
+    return '$name is open. You\'re working in it now.';
+  }
+
+  @override
+  String shopLocked(String name) {
+    return '$name has been closed by the platform.';
+  }
+
+  @override
+  String get packagesTitle => 'Packages';
+
+  @override
+  String get newPackage => 'New package';
+
+  @override
+  String get packagesSearchHint => 'Search packages';
+
+  @override
+  String get packagesEmpty => 'No packages yet';
+
+  @override
+  String get packagesEmptyBody =>
+      'Bundle products that sell together at one price.';
+
+  @override
+  String get deletePackage => 'Delete package';
+
+  @override
+  String deletePackageBody(String name) {
+    return 'Delete $name? Past sales keep it; the till stops offering it.';
+  }
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get packageDeleted => 'Package deleted.';
+
+  @override
+  String get packageSaved => 'Package saved.';
+
+  @override
+  String fromDate(String date) {
+    return 'From $date';
+  }
+
+  @override
+  String untilDate(String date) {
+    return 'Until $date';
+  }
+
+  @override
+  String packageSaves(String amount) {
+    return 'Saves $amount';
+  }
+
+  @override
+  String packageBuildable(String count) {
+    return 'Can make $count';
+  }
+
+  @override
+  String get packageOnSale => 'On sale';
+
+  @override
+  String get availabilityLive => 'Live';
+
+  @override
+  String get availabilityScheduled => 'Scheduled';
+
+  @override
+  String get availabilityExpired => 'Expired';
+
+  @override
+  String get availabilityInactive => 'Off';
+
+  @override
+  String get packageName => 'Package name';
+
+  @override
+  String get packagePrice => 'Package price';
+
+  @override
+  String get packageItems => 'What\'s inside';
+
+  @override
+  String get packageNeedsItems => 'Add at least one product.';
+
+  @override
+  String get packageComponents => 'Items at their own prices';
+
+  @override
+  String get packageSaving => 'Customer saves';
+
+  @override
+  String get packageAboveItems => 'Costs more than the items alone';
+
+  @override
+  String get packageStartsAny => 'Starts now';
+
+  @override
+  String get packageEndsNever => 'No end date';
+
+  @override
+  String get packageClearDates => 'Clear dates';
+
+  @override
+  String get packageWindowInvalid => 'The end date must come after the start.';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get addToPackage => 'Add to package';
+
+  @override
+  String get catalogueTitle => 'Catalogue';
+
+  @override
+  String get catalogueSearchHint => 'Search by name, company or generic';
+
+  @override
+  String get catalogueAll => 'All';
+
+  @override
+  String catalogueMine(String count) {
+    return 'In my store ($count)';
+  }
+
+  @override
+  String catalogueMissing(String count) {
+    return 'Not in my store ($count)';
+  }
+
+  @override
+  String get catalogueNoResults => 'Nothing in the catalogue by that name';
+
+  @override
+  String get catalogueNoResultsBody =>
+      'If the product is real, suggest it and it can go on sale.';
+
+  @override
+  String get catalogueNothingMissing =>
+      'Your shop already stocks everything in the catalogue';
+
+  @override
+  String get suggestProduct => 'Suggest a product';
+
+  @override
+  String get inMyStore => 'In my store';
+
+  @override
+  String get pendingBadge => 'Pending';
+
+  @override
+  String get addToStore => 'Add to my store';
+
+  @override
+  String adoptedProduct(String name) {
+    return '$name is on your shelf.';
+  }
+
+  @override
+  String get alreadyInStoreNote => 'Your store already has this product.';
+
+  @override
+  String get mrpHelp => 'The price printed on the pack.';
+
+  @override
+  String get adoptOpeningHelp => 'How many you have now.';
+
+  @override
+  String get localNameLabel => 'Name in my shop';
+
+  @override
+  String get localNameHelp => 'Optional';
+
+  @override
+  String get suggestNameHelp => 'We check the catalogue as you type.';
+
+  @override
+  String get suggestReason => 'Why stock it? (optional)';
+
+  @override
+  String get suggestReasonHelp => 'Helps whoever approves it.';
+
+  @override
+  String get sendSuggestion => 'Send suggestion';
+
+  @override
+  String get suggestionEndorsed =>
+      'On sale in your store now. The platform will review it for other shops.';
+
+  @override
+  String get suggestionSent => 'Sent for approval.';
+
+  @override
+  String get alreadyInCatalogue => 'Already in the catalogue';
+
+  @override
+  String alreadyInCatalogueBody(String name) {
+    return 'The catalogue already has $name. Send yours anyway?';
+  }
+
+  @override
+  String get sendAnyway => 'Send anyway';
+
+  @override
+  String get verdictExists =>
+      'This is already in the catalogue — add it instead of suggesting it.';
+
+  @override
+  String get verdictVariant =>
+      'The same product exists at another strength. Yours is a different product.';
+
+  @override
+  String get verdictOtherBrand =>
+      'The same product exists from another company.';
+
+  @override
+  String get verdictSimilar => 'Something similar exists. Worth a look first.';
+
+  @override
+  String get verdictNew => 'Nothing like it in the catalogue — it\'s new.';
+
+  @override
+  String get adoptThisInstead => 'Add this one instead';
+
+  @override
+  String get suggestionsTitle => 'Suggestions';
+
+  @override
+  String suggestionsPending(int count) {
+    return '$count waiting for you';
+  }
+
+  @override
+  String get suggestionsEmpty => 'No suggestions';
+
+  @override
+  String get suggestionsEmptyBody =>
+      'Products your staff suggest appear here for approval.';
+
+  @override
+  String get statusPending => 'Waiting';
+
+  @override
+  String get statusEndorsed => 'On sale here';
+
+  @override
+  String get statusApproved => 'In the catalogue';
+
+  @override
+  String get statusRejected => 'Rejected';
+
+  @override
+  String askedBy(String name) {
+    return 'Asked by $name';
+  }
+
+  @override
+  String get reject => 'Reject';
+
+  @override
+  String get approveAndStock => 'Approve';
+
+  @override
+  String get reviewNoteOptional => 'Note (optional)';
+
+  @override
+  String get rejectReason => 'Why not?';
+
+  @override
+  String get suggestionApproved => 'Approved — it\'s on sale in your store.';
+
+  @override
+  String get suggestionRejected => 'Rejected.';
+
+  @override
+  String get purchaseTitle => 'Purchases';
+
+  @override
+  String get suppliers => 'Suppliers';
+
+  @override
+  String get supplier => 'Supplier';
+
+  @override
+  String get goodsIn => 'Goods in';
+
+  @override
+  String get purchaseSearchHint => 'Search by bill no or supplier';
+
+  @override
+  String get purchasesEmpty => 'No purchases yet';
+
+  @override
+  String get purchasesEmptyBody =>
+      'Record goods as they come in, and the stock rises with them.';
+
+  @override
+  String billsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bills',
+      one: '1 bill',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get owedToSuppliers => 'Owed to suppliers';
+
+  @override
+  String get owedToSupplier => 'Owed to the supplier';
+
+  @override
+  String get noSupplier => 'No supplier';
+
+  @override
+  String photosUploaded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos added',
+      one: '1 photo added',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deletePhoto => 'Remove photo';
+
+  @override
+  String get deletePhotoBody =>
+      'Remove this photo from the bill? The bill itself is not changed.';
+
+  @override
+  String billPhotos(int count, int max) {
+    return 'Bill photos ($count/$max)';
+  }
+
+  @override
+  String get noBillPhotos => 'No photos of this bill.';
+
+  @override
+  String get billPhotosHelp =>
+      'Add a photo of the paper bill — it goes up after the bill is saved.';
+
+  @override
+  String get takePhoto => 'Take a photo';
+
+  @override
+  String get chooseFromGallery => 'Choose from gallery';
+
+  @override
+  String get photoPickFailed => 'Couldn\'t open the camera or gallery.';
+
+  @override
+  String photosTooBig(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos are over 8 MB and were left out',
+      one: '1 photo is over 8 MB and was left out',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get addSupplier => 'Add supplier';
+
+  @override
+  String get suppliersEmpty => 'No suppliers yet';
+
+  @override
+  String get supplierSaved => 'Supplier saved.';
+
+  @override
+  String get supplierName => 'Name';
+
+  @override
+  String get supplierCompany => 'Company (optional)';
+
+  @override
+  String get supplierSearch => 'Who is it from?';
+
+  @override
+  String newSupplierNote(String name) {
+    return '\"$name\" is new — it will be saved with this bill.';
+  }
+
+  @override
+  String get pickSupplierFromList => 'Pick a supplier from the list.';
+
+  @override
+  String get itemsReceived => 'What came in';
+
+  @override
+  String get noItemsReceived => 'Add the products on this bill.';
+
+  @override
+  String batchShort(String batch) {
+    return 'Batch $batch';
+  }
+
+  @override
+  String expiresShort(String date) {
+    return 'Exp $date';
+  }
+
+  @override
+  String get billDiscountPercent => 'Discount on the bill';
+
+  @override
+  String get paidToSupplier => 'Paid now';
+
+  @override
+  String get paidFollowsTotal => 'The whole bill, unless you type less.';
+
+  @override
+  String get paidOverTotal => 'More than the bill.';
+
+  @override
+  String get payInFull => 'Pay in full';
+
+  @override
+  String get payNothing => 'Nothing paid';
+
+  @override
+  String get paidFrom => 'Paid from';
+
+  @override
+  String get purchaseNote => 'Note (optional)';
+
+  @override
+  String get purchaseNoteHint => 'Supplier\'s invoice no';
+
+  @override
+  String get saveBill => 'Save bill';
+
+  @override
+  String purchaseSaved(String refNo) {
+    return 'Bill $refNo saved. Stock is updated.';
+  }
+
+  @override
+  String get photoUploadFailed => 'The photos didn\'t go up';
+
+  @override
+  String photoUploadFailedBody(String reason) {
+    return 'The bill is saved. The photos could not be uploaded: $reason';
+  }
+
+  @override
+  String get skipPhotos => 'Skip';
+
+  @override
+  String get pickProduct => 'Pick a product';
+
+  @override
+  String get purchaseAddFromCatalogue =>
+      'Not in your store yet? Add it from the catalogue first.';
+
+  @override
+  String get tracksBatches => 'Batch and expiry';
+
+  @override
+  String get quantityReceived => 'Quantity';
+
+  @override
+  String get unitCost => 'Cost each';
+
+  @override
+  String get batchNo => 'Batch no';
+
+  @override
+  String get expiryDate => 'Expiry date';
 }

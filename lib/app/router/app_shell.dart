@@ -46,6 +46,19 @@ class AppShell extends ConsumerWidget {
               background: palette.warning,
               foreground: palette.surface,
             ),
+          // A self-signed-up shop stops at the end of its trial, and sign-in is
+          // refused from then on. Saying so on the last day is the difference
+          // between a phone call to the platform and a locked door at opening.
+          if (session is SessionActive &&
+              (session.me.store?.trialEndingSoon ?? false))
+            _Banner(
+              text: session.me.store!.trialDaysLeft! <= 0
+                  ? l10n.trialEndsToday
+                  : l10n.trialDaysLeft(session.me.store!.trialDaysLeft!),
+              icon: Icons.hourglass_bottom,
+              background: palette.danger,
+              foreground: palette.surface,
+            ),
           Expanded(child: child),
         ],
       ),
@@ -116,9 +129,11 @@ class _Banner extends StatelessWidget {
     required this.text,
     required this.background,
     required this.foreground,
+    this.icon = Icons.shield_outlined,
   });
 
   final String text;
+  final IconData icon;
   final Color background;
   final Color foreground;
 
@@ -134,7 +149,7 @@ class _Banner extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.shield_outlined, size: 18, color: foreground),
+                Icon(icon, size: 18, color: foreground),
                 const SizedBox(width: Insets.s8),
                 Expanded(
                   child: Text(

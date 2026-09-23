@@ -4,7 +4,7 @@ import '../api_exception.dart';
 import 'method_override_interceptor.dart';
 
 /// Turns every failure into an [ApiException], so no screen ever inspects a
-/// status code. The mapping follows the error table in `docs/MOBILE-API.md`
+/// status code. The mapping follows the error table in `docs/MOBILE-API-NEW.md`
 /// section 1.
 ///
 /// The exception travels as [DioException.error]; [ApiClient] unwraps it.
@@ -58,6 +58,14 @@ class ErrorInterceptor extends Interceptor {
     switch (status) {
       case 401:
         return UnauthenticatedException(message ?? 'Your session has ended.');
+      case 403 when code == 'trial_ended' || code == 'store_suspended':
+        final store = error?['store'];
+        return StoreLockedException(
+          message ?? 'This store is closed.',
+          code: code!,
+          messageBn: error?['messageBn'] as String?,
+          storeName: store is Map ? store['name'] as String? : null,
+        );
       case 403:
         return ForbiddenException(
           message ?? 'You are not allowed to do that.',
@@ -70,6 +78,9 @@ class ErrorInterceptor extends Interceptor {
       case 409:
         return ConflictException(
           message ?? 'That already exists.',
+          code: code,
+          messageBn: error?['messageBn'] as String?,
+          on: error?['on'] as String?,
           match: error?['match'] as Map<String, dynamic>?,
           alreadyInStore: _asInt(error?['alreadyInStore']),
         );

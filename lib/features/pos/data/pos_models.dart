@@ -152,6 +152,94 @@ class ShiftClosing {
       );
 }
 
+/// One day of a drawer's takings.
+class ShiftDay {
+  const ShiftDay({
+    required this.invoices,
+    required this.sold,
+    required this.cash,
+    required this.digital,
+    required this.dueGiven,
+    required this.collected,
+    this.date,
+  });
+
+  /// `YYYY-MM-DD`, or null on the totals row.
+  final String? date;
+  final int invoices;
+  final num sold;
+
+  /// Taken at this counter, by how it was paid. Points are left out: nothing
+  /// was handed over for them.
+  final num cash;
+  final num digital;
+
+  /// Put on the khata — what went out unpaid.
+  final num dueGiven;
+
+  /// Money that arrived after its bill rather than with it: dues collected,
+  /// counted by when the money came in, not by which shift wrote the bill.
+  final num collected;
+
+  factory ShiftDay.fromJson(Map<String, dynamic> json) => ShiftDay(
+        date: _strOrNull(json['date']),
+        invoices: _int(json['invoices']),
+        sold: _num(json['sold']),
+        cash: _num(json['cash']),
+        digital: _num(json['digital']),
+        dueGiven: _num(json['dueGiven']),
+        collected: _num(json['collected']),
+      );
+}
+
+/// `GET /pos/shift/report` — the drawer's report, a day at a time.
+///
+/// A shift is not a day: a drawer opened on Monday and never closed holds a
+/// week, so the window is the shift and the rows are days, newest first. With
+/// no drawer open it answers for today with [shiftId] null, which is still
+/// worth showing to a cashier about to open one.
+class ShiftReport {
+  const ShiftReport({
+    required this.openingCash,
+    required this.cashTaken,
+    required this.expected,
+    required this.days,
+    required this.totals,
+    this.shiftId,
+    this.openedAt,
+  });
+
+  final int? shiftId;
+  final DateTime? openedAt;
+  final num openingCash;
+  final num cashTaken;
+
+  /// `openingCash + cashTaken` — the same arithmetic, from the same query, as
+  /// `POST /pos/shift/close`, so the two cannot disagree. Cash paid *out* of
+  /// the drawer as an expense is not taken off it.
+  final num expected;
+  final List<ShiftDay> days;
+  final ShiftDay totals;
+
+  factory ShiftReport.fromJson(Map<String, dynamic> json) {
+    final shift = json['shift'];
+    return ShiftReport(
+      shiftId: shift is Map<String, dynamic> ? _intOrNull(shift['id']) : null,
+      openedAt:
+          shift is Map<String, dynamic> ? AppDates.parse(shift['openedAt']) : null,
+      openingCash: _num(json['openingCash']),
+      cashTaken: _num(json['cashTaken']),
+      expected: _num(json['expected']),
+      days: _listOf(json['days'], ShiftDay.fromJson),
+      totals: ShiftDay.fromJson(
+        json['totals'] is Map<String, dynamic>
+            ? json['totals'] as Map<String, dynamic>
+            : const {},
+      ),
+    );
+  }
+}
+
 /// The store's loyalty settings, straight out of `lookups.loyalty`.
 ///
 /// These keys are snake_case in the response — one of the few places besides
@@ -370,6 +458,8 @@ class CheckoutResult {
     required this.paymentStatus,
     this.pointsEarned,
     this.pointsRedeemed,
+    this.previousDue,
+    this.outstanding,
   });
 
   final int saleId;
@@ -386,6 +476,13 @@ class CheckoutResult {
   final num? pointsEarned;
   final num? pointsRedeemed;
 
+  /// What the customer owed before this bill — a record, not a charge.
+  final num? previousDue;
+
+  /// Everything they owe now that this bill and any payment have both landed.
+  /// It is what the next bill will print as its previous due.
+  final num? outstanding;
+
   factory CheckoutResult.fromJson(Map<String, dynamic> json) => CheckoutResult(
         saleId: _int(json['saleId']),
         invoiceNo: _str(json['invoiceNo']),
@@ -395,6 +492,8 @@ class CheckoutResult {
         paymentStatus: _str(json['paymentStatus']),
         pointsEarned: _numOrNull(json['pointsEarned']),
         pointsRedeemed: _numOrNull(json['pointsRedeemed']),
+        previousDue: _numOrNull(json['previousDue']),
+        outstanding: _numOrNull(json['outstanding']),
       );
 }
 

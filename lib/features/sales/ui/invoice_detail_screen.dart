@@ -150,10 +150,27 @@ class _Detail extends ConsumerWidget {
                 padding: const EdgeInsets.all(Insets.s12),
                 children: [
                   _TotalLine(l10n.subtotal, money.format(sale.subtotal)),
-                  if (sale.discount > 0)
+                  // Split when the server split it: a customer reading a slip
+                  // wants to know which saving came off what. An invoice from
+                  // before the split carries the total only.
+                  if (sale.discount > 0 && sale.lineDiscount == null)
                     _TotalLine(
                       l10n.discount,
                       '−${money.format(sale.discount)}',
+                      tone: palette.accent,
+                    ),
+                  if ((sale.lineDiscount ?? 0) > 0)
+                    _TotalLine(
+                      l10n.lineDiscounts,
+                      '−${money.format(sale.lineDiscount)}',
+                      tone: palette.accent,
+                    ),
+                  if ((sale.orderDiscount ?? 0) > 0)
+                    _TotalLine(
+                      sale.discountPercent == null
+                          ? l10n.orderDiscount
+                          : '${l10n.orderDiscount} (${_rate(sale.discountPercent!)}%)',
+                      '−${money.format(sale.orderDiscount)}',
                       tone: palette.accent,
                     ),
                   if (sale.vat > 0)
@@ -171,6 +188,22 @@ class _Detail extends ConsumerWidget {
                       money.format(sale.due),
                       tone: palette.warning,
                     ),
+                  // A record of the khata the bill was written into, not part
+                  // of what this bill charged.
+                  if ((sale.previousDue ?? 0) > 0)
+                    _TotalLine(
+                      l10n.previousDueLabel,
+                      money.format(sale.previousDue),
+                      tone: palette.muted,
+                    ),
+                  if ((sale.mrpSaving ?? 0) > 0) ...[
+                    Divider(color: palette.hairline, height: Insets.s24),
+                    _TotalLine(
+                      l10n.youSaved,
+                      money.format(sale.mrpSaving),
+                      tone: palette.positive,
+                    ),
+                  ],
                 ],
               ),
 
@@ -375,15 +408,29 @@ class _ItemRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final text = Theme.of(context).textTheme;
+    final l10n = AppL10n.of(context);
+
+    final qty = item.qty
+        .toStringAsFixed(item.qty == item.qty.roundToDouble() ? 0 : 2);
+    final lineOff = (item.discount ?? 0) > 0
+        ? '  −${money.format(item.discount)}'
+            '${item.discountPercent == null ? '' : ' (${_rate(item.discountPercent!)}%)'}'
+        : '';
+    // The printed price, when it was above what was charged. The saving is
+    // already inside the price, so it is shown beside the line and never
+    // taken off the total.
+    final printed = (item.mrp ?? 0) > item.unitPrice
+        ? '${l10n.mrpLabel} ${money.format(item.mrp)}'
+            '${item.mrpDiscountPercent == null ? '' : ' · −${_rate(item.mrpDiscountPercent!)}%'}'
+        : null;
 
     return ListTile(
       dense: true,
       title: Text(item.name),
       subtitle: Text(
-        '${item.qty.toStringAsFixed(item.qty == item.qty.roundToDouble() ? 0 : 2)}'
-        '${item.unit == null ? '' : ' ${item.unit}'}'
-        ' × ${money.format(item.unitPrice)}'
-        '${(item.discount ?? 0) > 0 ? '  −${money.format(item.discount)}' : ''}',
+        '$qty${item.unit == null ? '' : ' ${item.unit}'}'
+        ' × ${money.format(item.unitPrice)}$lineOff'
+        '${printed == null ? '' : '\n$printed'}',
         style: text.bodySmall?.copyWith(color: palette.muted),
       ),
       trailing: Text(
@@ -430,3 +477,7 @@ class _TotalLine extends StatelessWidget {
     );
   }
 }
+
+String _rate(num value) => value == value.roundToDouble()
+    ? value.toStringAsFixed(0)
+    : value.toStringAsFixed(1);

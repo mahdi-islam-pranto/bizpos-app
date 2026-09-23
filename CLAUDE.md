@@ -6,13 +6,68 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `bizpos_app` is the Flutter mobile client for **bizPOS**, a multi-store retail POS
 whose backend is an existing, running Laravel web workspace.
-**`docs/MOBILE-API-UPDATED.md` (~1080 lines) is the spec of record** — read the
+**`docs/MOBILE-API-NEW.md` (~1930 lines) is the spec of record** — read the
 relevant section before writing any feature. It defines not just endpoints but
 which screens each role gets and what order each process' steps must follow.
-`docs/MOBILE-API.md` is the superseded first version, kept only for diffing; do
-not build from it.
+`docs/MOBILE-API-UPDATED.md` is the superseded second version, kept only for
+diffing; do not build from it. (The first version, `MOBILE-API.md`, is gone.)
 
-What the updated doc changed (all of it is in section 7's shrinking list):
+What the NEW doc changed over UPDATED, and where the app stands on each:
+
+- **The till sends a bill discount as a rate**: `orderDiscountPercent` (0–100),
+  worked out by the server off the goods after line discounts. `Cart` holds
+  `orderDiscountPercent`; a hold from an older build with a flat
+  `orderDiscount` comes back as the equivalent rate. Built.
+- **Nothing sells below cost** — a line under its `purchasePrice` after its
+  discount, or a bill discount taking the basket under the cost of its goods,
+  is `422 sale`. `Cart.belowCost` disables the pay button when the costs are
+  known (never for a cashier without `view_cost`, never line-by-line for a
+  package). The same rule is a `422` on every price form, so `PricingDraft`
+  disables Save. Built.
+- **The khata**: `GET /customers/search` `due` includes an `openingBalance`;
+  checkout takes `collectPrevious: true` to settle old debt with today's bill
+  (the server splits the tender — send what was typed), `payments: []` with a
+  named customer is a bill wholly on credit, and the reply has `previousDue` and
+  `outstanding`. Customers gain `openingBalance` / `invoiceDue` (both gated on
+  `customers.credit.manage`, silently ignored otherwise) and ledger rows
+  `opening` / `opening_correction`. Built. **Collecting an opening balance has
+  no endpoint yet** — `POST /sales/{id}/payments` needs an invoice.
+- **Invoices carry their arithmetic**: list rows gain `subtotal`, `discount`,
+  `discountPercent` (the rate given, null ≠ 0), `discountRate` (derived — show
+  as "≈"), `previousDue`; detail splits `lineDiscount` / `orderDiscount` and
+  adds `mrpSaving` and per-item `mrp`, `mrpDiscount(Percent)`,
+  `discountPercent`. Built.
+- **Products carry a markup**: `profitPercent` (stated, null ≠ 0) and
+  `profitRate` (derived), both null without `view_cost`. The form fills the
+  selling price from cost + rate and sends both. `PATCH /products/{id}` now
+  also takes the price set, but the app keeps prices on `PriceSheet` →
+  `/prices` so the all-or-nothing rule lives in one place, and sends
+  `isActive` **alone** (stop / resume selling on the detail screen).
+  `GET /products/lookups` feeds the company and unit boxes. `openingStock`
+  now defaults to 0 on `POST /products` (1 on catalogue adopt). Built.
+- **`GET /pos/shift/report`** — the drawer's takings a day at a time, shown on
+  the close sheet before the count. Built.
+- **POS "New product"** when a search finds nothing, for
+  `inventory.product.create`, then re-search and add. Built.
+- **Sign-in**: `403 trial_ended` / `store_suspended` → `StoreLockedException`
+  (message in the reader's language via `messageBn`); `/me` `store` gains
+  `trial_ends_at` / `trial_days_left`, and the shell warns on the last day.
+  Built. **Sign-up is built too**: `/register` (`RegisterScreen`) posts
+  `POST /auth/register` and adopts the returned token straight into the new
+  shop via `SessionController.register` — which, unlike `signIn`, leaves the
+  session untouched on failure so the screen keeps its own errors. `409
+  sign_in_to_add_store` sends the person to `/login?email=`; opening a second
+  shop is `OpenStoreSheet` (`POST /stores` then switch-store) on Profile and on
+  the no-store screen, with `GET /stores` `meta.locked` named there.
+- **Later phases, not built**: `GET /dashboard?range=` (the whole owner's
+  screen in one call, sections `null` when not permitted — phase 3), salary
+  expenses (`isSalary`, `employeeName`, `salaryMonth`) and `employees[]` on
+  `GET /accounts` (phase 3), `GET /suppliers/search`, `supplierName` on
+  `POST /purchases`, `discountPercent` on purchases and bill photos
+  `PATCH /admin/stores/{id}` and `/extend` (phase 4). (Phase 2's catalogue
+  and purchase additions are built — see below.)
+
+What the UPDATED doc had already changed (all built where the phase is):
 
 - **`POST /sales/{id}/void`** now exists — `pos.sale.void`, `reason` required
   (3–255). A void is not a return: it undoes the entire sale (stock, money,
@@ -29,13 +84,46 @@ What the updated doc changed (all of it is in section 7's shrinking list):
 - **`/admin/catalog`** (`admin.catalog.manage`) gives the platform direct
   control of the shared catalogue. Phase 4.
 
-The build plan lives at `~/.claude/plans/piped-twirling-crab.md`. **Phases 0 and
-1 are done.** Phase 0 is the transport/session/permission spine, login, a
-permission-built navigation shell and a profile screen. Phase 1 is the counter:
-POS with camera scanning, cart, customer picker, split payment, loyalty
-redemption, cash drawer and held carts; invoices with returns, due collection
-and void; customers with ledger and points. Later phases add inventory, money,
-team and platform; printing comes last.
+The build plan lives at `~/.claude/plans/piped-twirling-crab.md`. **Phases 0, 1
+and 2 are done**; phase 3 (money and insight) is next. Phase 0 is the
+transport/session/permission spine, login, a permission-built navigation shell
+and a profile screen. Phase 1 is the counter: POS with camera scanning, cart,
+customer picker, split payment, loyalty redemption, cash drawer and held carts;
+invoices with returns, due collection and void; customers with ledger and
+points. Phase 2 so far is `lib/features/products/`: the paginated product list
+with `lowOnly` and the `trashed=1` list, product detail with movement and price
+history, manual create / edit / soft-delete / restore, `PATCH
+/products/{id}/prices` and `POST /products/{id}/adjust`; `lib/features/packages/`
+(bundles CRUD with availability and date window); `lib/features/catalogue/`
+(paged catalogue with All / In my store / Not in my store, adopt with the
+catalogue's prices and MRP, suggest with a live `/catalog/check` verdict and the
+`409` → `confirmedNew` resend, and the review queue); and
+`lib/features/purchases/` (bill list, goods-in at `/purchase/new` with supplier
+search or a new `supplierName`, batch/expiry lines, bill `discountPercent`,
+paid-from account, and bill photos). Later phases add money, team and
+platform; printing comes last.
+
+Phase 2 details that are easy to break:
+
+- **Bill photos are `multipart/form-data`**, the one non-JSON call, uploaded
+  *after* `POST /purchases` succeeds and retried on their own — never part of
+  the bill. `PurchasesRepository.uploadPhotos` passes a `FormData` and lets Dio
+  write the boundary; the test asserts the content type.
+- **Adopt defaults `openingStock` to 1, `POST /products` to 0.** Both forms
+  always send the figure they show.
+- **`/catalog/check` matches are snake_case** (`generic_name`, `reason_en`).
+- **Accounts for paying a supplier** have no purchase endpoint: they come from
+  `GET /accounts` or `/pos/lookups`, whichever the role may read, and a stock
+  keeper sends no `accountId`.
+- **The POS "added" confirmation lives in the cart bar**, not a snack bar: the
+  shell's scaffold floats snack bars over the bar the cashier taps next.
+
+`builtScreens` in `app_router.dart` lists the gates that have a real screen
+behind them, and the landing screen after sign-in is the first *built* one a
+person may reach. Without that, a cashier opened the app on the Dashboard
+placeholder — its gate is `inventory.stock.view`, which a cashier holds — with
+the till one tab away. Landing a phase means adding its `AppScreen` to both
+`screenFor()` and `builtScreens`.
 
 ## Commands
 
@@ -44,7 +132,7 @@ flutter pub get
 flutter gen-l10n                 # after editing lib/l10n/*.arb (also runs during build)
 flutter run --dart-define=BIZPOS_BASE_URL=http://10.0.2.2:8000/api/v1
 flutter analyze                  # lints via flutter_lints (analysis_options.yaml)
-flutter test                     # 89 tests
+flutter test                     # 169 tests
 flutter test test/app/screen_gates_test.dart --plain-name "cashier"   # one test
 flutter build apk --debug
 ```
@@ -88,7 +176,7 @@ Landing a later phase is one line there. Detail routes (`/invoices/:id`,
 
 ## API contract — invariants that affect every layer
 
-These come from `docs/MOBILE-API-UPDATED.md` and are easy to get wrong once and
+These come from `docs/MOBILE-API-NEW.md` and are easy to get wrong once and
 then everywhere. Build them into the HTTP client and the session layer, not into
 individual screens.
 
@@ -148,7 +236,8 @@ Two more consequences that shape models, not just widgets:
   `showProfit: false`, `activity` empty. Every such field must be nullable and
   the UI must degrade, not crash.
 - Some request fields are **silently ignored** without the permission —
-  `unitPrice`/`discount`/`orderDiscount` on checkout, `creditLimit` on customers.
+  `unitPrice`/`discount`/`orderDiscountPercent` on checkout, `creditLimit` and
+  `openingBalance` on customers.
   Never assume the echoed response equals what was sent.
 
 `/me` is refreshed at start-up, after every store/branch switch, on
@@ -187,7 +276,7 @@ Three rules break silently rather than loudly, so they live in one testable
 place each rather than in a widget:
 
 - `Cart.toCheckoutBody()` decides which permission-gated fields travel.
-  `unitPrice`, line `discount` and `orderDiscount` are **ignored** without
+  `unitPrice`, line `discount` and `orderDiscountPercent` are **ignored** without
   `pos.sale.change_price` / `pos.sale.give_discount` — sending them anyway is
   worse than an error, because the response comes back without them and nothing
   says why. `customerId` goes only for a *named* customer. `credit` and `points`
@@ -209,6 +298,25 @@ Barcode scanning is `mobile_scanner`, debounced by (value, 800 ms) because MLKit
 fires the same label many times a second. The sheet always offers a typed
 barcode as well: a camera permission can be refused, and a till that only works
 one way is a till that stops.
+
+**Lists fetch through a provider, never through a future held in `initState`.**
+The repository's `CancelToken` dies with the session scope, and the scope epoch
+is bumped by the `/me` refresh on foreground-resume and after any 403. A search
+started by hand in `initState` loses that race, comes back `CancelledException`,
+and `AsyncView` renders that as a spinner with no retry — a till with no
+products in it and no way to get any. `posSearchProvider` and
+`posCustomerSearchProvider` are keyed on a value-type query so Riverpod re-runs
+them against the new repository instead.
+
+## Theme traps
+
+`ButtonStyle.minimumSize` uses `Size(0, kMinTapTarget)`, **never**
+`Size.fromHeight`. `Size.fromHeight` sets the minimum *width* to infinity, which
+is harmless in a stretched `Column` and fatal in a `Row`: the button asserts
+"BoxConstraints forces an infinite width" and paints as a grey box in release.
+That one line broke the POS charge button, the resume button on a held cart and
+"Use the most allowed" at once. Buttons that want the full width say so with a
+`SizedBox` at the call site.
 
 ## Testing against the backend
 

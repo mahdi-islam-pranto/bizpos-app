@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/session/session_controller.dart';
 import '../../core/widgets/states.dart';
+import '../../core/theme/tokens.dart';
 import '../../l10n/app_localizations.dart';
+import '../settings/open_store_sheet.dart';
 
 /// Signed in, but the account belongs to no active store — or was suspended.
 ///
@@ -32,11 +34,23 @@ class NoStoreScreen extends ConsumerWidget {
         icon: Icons.storefront_outlined,
         title: l10n.noStoreTitle,
         body: l10n.noStoreBody,
-        action: OutlinedButton.icon(
-          onPressed: () =>
-              ref.read(sessionControllerProvider.notifier).refreshMe(),
-          icon: const Icon(Icons.refresh),
-          label: Text(l10n.retry),
+        action: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            OutlinedButton.icon(
+              onPressed: () =>
+                  ref.read(sessionControllerProvider.notifier).refreshMe(),
+              icon: const Icon(Icons.refresh),
+              label: Text(l10n.retry),
+            ),
+            const SizedBox(height: Insets.s12),
+            // With no shop to be in, opening one of your own is still open.
+            FilledButton.icon(
+              onPressed: () => OpenStoreSheet.show(context),
+              icon: const Icon(Icons.add_business_outlined),
+              label: Text(l10n.openAnotherShop),
+            ),
+          ],
         ),
       ),
     );

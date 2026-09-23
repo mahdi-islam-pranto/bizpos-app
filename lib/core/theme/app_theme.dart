@@ -60,13 +60,19 @@ class AppTheme {
         minVerticalPadding: Insets.s12,
         contentPadding: const EdgeInsets.symmetric(horizontal: Insets.s16),
       ),
+      // `Size(0, …)`, never `Size.fromHeight`. `Size.fromHeight` sets the
+      // *minimum width* to infinity, which is fine in a stretched Column and
+      // fatal in a Row: the button asserts "BoxConstraints forces an infinite
+      // width" and renders as a grey box in release. The POS charge button, the
+      // resume button on a held cart and "Redeem max" all live in Rows. Buttons
+      // that want the full width say so with a SizedBox at the call site.
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: palette.accent,
           foregroundColor: palette.onAccent,
           disabledBackgroundColor: palette.surfaceAlt,
           disabledForegroundColor: palette.muted,
-          minimumSize: const Size.fromHeight(kMinTapTarget),
+          minimumSize: const Size(0, kMinTapTarget),
           textStyle: text.labelLarge,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Radii.row),
@@ -84,7 +90,7 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: palette.text,
           side: BorderSide(color: palette.hairline),
-          minimumSize: const Size.fromHeight(kMinTapTarget),
+          minimumSize: const Size(0, kMinTapTarget),
           textStyle: text.labelLarge,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Radii.row),

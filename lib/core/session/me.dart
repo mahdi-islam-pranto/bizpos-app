@@ -5,7 +5,7 @@ import '../permissions/permission_set.dart';
 ///
 /// `/me` is the one response that answers in **snake_case** (`is_super_admin`,
 /// `store_type_id`, `label_bn`) while the rest of the API is camelCase — see
-/// `docs/MOBILE-API.md` section 2. Rather than trusting a convention that has an
+/// `docs/MOBILE-API-NEW.md` section 2. Rather than trusting a convention that has an
 /// exception, every key here is read explicitly, with the sibling spelling as a
 /// fallback so the same model parses both responses.
 Object? _either(Map<String, dynamic> json, String a, String b) =>
@@ -73,6 +73,8 @@ class MeStore {
     required this.currency,
     this.storeTypeId,
     this.storeTypeName,
+    this.trialEndsAt,
+    this.trialDaysLeft,
   });
 
   final int id;
@@ -85,6 +87,16 @@ class MeStore {
   final int? storeTypeId;
   final String? storeTypeName;
 
+  /// A shop that signed itself up runs on a clock (five days today) and then
+  /// stops: sign-in is refused until an admin extends it. Both are null for a
+  /// shop with no clock on it, which is every shop the platform created.
+  final DateTime? trialEndsAt;
+  final int? trialDaysLeft;
+
+  /// Worth a warning: the door is about to shut, and nothing else says so.
+  bool get trialEndingSoon =>
+      trialDaysLeft != null && trialDaysLeft! <= 1;
+
   factory MeStore.fromJson(Map<String, dynamic> json) => MeStore(
         id: _int(json['id']),
         name: _string(json['name']),
@@ -95,6 +107,11 @@ class MeStore {
         storeTypeId: _intOrNull(_either(json, 'store_type_id', 'storeTypeId')),
         storeTypeName:
             _either(json, 'store_type_name', 'storeTypeName') as String?,
+        trialEndsAt: DateTime.tryParse(
+          _string(_either(json, 'trial_ends_at', 'trialEndsAt')),
+        ),
+        trialDaysLeft:
+            _intOrNull(_either(json, 'trial_days_left', 'trialDaysLeft')),
       );
 }
 
@@ -229,6 +246,8 @@ class Me {
             'currency': store!.currency,
             'store_type_id': store!.storeTypeId,
             'store_type_name': store!.storeTypeName,
+            'trial_ends_at': store!.trialEndsAt?.toIso8601String(),
+            'trial_days_left': store!.trialDaysLeft,
           },
         if (branch != null)
           'branch': {

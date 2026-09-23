@@ -67,6 +67,11 @@ class SaleListItem {
     required this.status,
     required this.paymentStatus,
     required this.itemCount,
+    this.subtotal,
+    this.discount,
+    this.discountPercent,
+    this.discountRate,
+    this.previousDue,
     this.saleDate,
     this.customer,
     this.seller,
@@ -75,6 +80,26 @@ class SaleListItem {
 
   final int id;
   final String invoiceNo;
+
+  /// The goods before anything came off them.
+  final num? subtotal;
+
+  /// Everything that did come off — the bill rate and the line discounts
+  /// together.
+  final num? discount;
+
+  /// The rate the cashier **gave** on the bill, or null. Null is not zero: it
+  /// means nobody set a rate, and any discount came off the lines.
+  final num? discountPercent;
+
+  /// What [discount] comes to as a share of [subtotal], however it was given.
+  /// Derived, so shown as approximate when [discountPercent] is null.
+  final num? discountRate;
+
+  /// What the customer owed when this bill was written: the khata it was
+  /// written into, not part of its total.
+  final num? previousDue;
+
   final num total;
   final num paid;
   final num due;
@@ -89,6 +114,11 @@ class SaleListItem {
   factory SaleListItem.fromJson(Map<String, dynamic> json) => SaleListItem(
         id: _int(json['id']),
         invoiceNo: _str(json['invoiceNo']),
+        subtotal: _numOrNull(json['subtotal']),
+        discount: _numOrNull(json['discount']),
+        discountPercent: _numOrNull(json['discountPercent']),
+        discountRate: _numOrNull(json['discountRate']),
+        previousDue: _numOrNull(json['previousDue']),
         total: _num(json['total']),
         paid: _num(json['paid']),
         due: _num(json['due']),
@@ -108,11 +138,19 @@ class SalesSummary {
     required this.count,
     required this.total,
     required this.due,
+    this.goods,
+    this.discount,
+    this.paid,
   });
 
   final int count;
   final num total;
   final num due;
+
+  /// The goods before discounts, and what came off them.
+  final num? goods;
+  final num? discount;
+  final num? paid;
 
   static SalesSummary? from(Meta meta) {
     final raw = meta.objectValue('summary');
@@ -121,6 +159,9 @@ class SalesSummary {
       count: _int(raw['count']),
       total: _num(raw['total']),
       due: _num(raw['due']),
+      goods: _numOrNull(raw['goods']),
+      discount: _numOrNull(raw['discount']),
+      paid: _numOrNull(raw['paid']),
     );
   }
 }
@@ -135,6 +176,10 @@ class SaleItem {
     required this.total,
     this.unit,
     this.discount,
+    this.discountPercent,
+    this.mrp,
+    this.mrpDiscount,
+    this.mrpDiscountPercent,
     this.vat,
   });
 
@@ -144,7 +189,19 @@ class SaleItem {
   final num unitPrice;
   final num total;
   final String? unit;
+
+  /// Taka off this line at the till, and the same as a rate of the line's own
+  /// gross (price × qty).
   final num? discount;
+  final num? discountPercent;
+
+  /// The printed price as it read on the day of sale, and what the customer
+  /// saved against it. That saving is **already inside the selling price** and
+  /// never comes off the bill — it is the "you saved" line, not a discount.
+  final num? mrp;
+  final num? mrpDiscount;
+  final num? mrpDiscountPercent;
+
   final num? vat;
 
   factory SaleItem.fromJson(Map<String, dynamic> json) => SaleItem(
@@ -155,6 +212,10 @@ class SaleItem {
         total: _num(json['total']),
         unit: _strOrNull(json['unit']),
         discount: _numOrNull(json['discount']),
+        discountPercent: _numOrNull(json['discountPercent']),
+        mrp: _numOrNull(json['mrp']),
+        mrpDiscount: _numOrNull(json['mrpDiscount']),
+        mrpDiscountPercent: _numOrNull(json['mrpDiscountPercent']),
         vat: _numOrNull(json['vat']),
       );
 }
@@ -213,6 +274,11 @@ class SaleDetail {
     required this.payments,
     required this.branch,
     required this.store,
+    this.lineDiscount,
+    this.orderDiscount,
+    this.discountPercent,
+    this.mrpSaving,
+    this.previousDue,
     this.saleDate,
     this.note,
     this.customerName,
@@ -224,7 +290,24 @@ class SaleDetail {
   final int id;
   final String invoiceNo;
   final num subtotal;
+
+  /// The two discounts together — the one number the accounts use. An
+  /// invoice from before the split carries only this.
   final num discount;
+
+  /// The line discounts added up, and what came off the bill as a whole.
+  final num? lineDiscount;
+  final num? orderDiscount;
+
+  /// The bill rate the cashier gave, or null when they gave a figure.
+  final num? discountPercent;
+
+  /// Savings against the printed prices, for the "you saved" line. Never part
+  /// of [discount].
+  final num? mrpSaving;
+
+  final num? previousDue;
+
   final num vat;
   final num total;
   final num paid;
@@ -253,6 +336,11 @@ class SaleDetail {
       invoiceNo: _str(json['invoiceNo']),
       subtotal: _num(json['subtotal']),
       discount: _num(json['discount']),
+      lineDiscount: _numOrNull(json['lineDiscount']),
+      orderDiscount: _numOrNull(json['orderDiscount']),
+      discountPercent: _numOrNull(json['discountPercent']),
+      mrpSaving: _numOrNull(json['mrpSaving']),
+      previousDue: _numOrNull(json['previousDue']),
       vat: _num(json['vat']),
       total: _num(json['total']),
       paid: _num(json['paid']),

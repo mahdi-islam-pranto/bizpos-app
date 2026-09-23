@@ -512,5 +512,528 @@
   "cameraDenied": "The camera is not available. Type the barcode instead.",
   "typeBarcode": "Type a barcode",
   "scanning": "Point the camera at the barcode",
-  "torch": "Torch"
+  "torch": "Torch",
+  "productsTitle": "Products",
+  "productsSearchHint": "Name, barcode or SKU",
+  "productsLowOnly": "Low stock",
+  "productsTrashed": "Deleted",
+  "productsLive": "On the shelf",
+  "productsNone": "No products yet",
+  "productsNoneBody": "Add the first one, or bring it in from the catalogue.",
+  "productsNoResults": "Nothing matched",
+  "productsNoResultsBody": "Try part of the name, the barcode or the SKU.",
+  "productsNoneTrashed": "Nothing deleted",
+  "productsNoneTrashedBody": "Deleted products wait here until they are restored.",
+  "addProduct": "Add a product",
+  "editProduct": "Edit",
+  "productSaved": "Saved",
+  "productAdded": "{name} is on the shelf",
+  "@productAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stockValue": "Stock value",
+  "lowStockCount": "{count, plural, =0{Nothing low} =1{1 running low} other{{count} running low}}",
+  "@lowStockCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "expiringCount": "{count, plural, =0{None expiring} =1{1 expiring} other{{count} expiring}}",
+  "@expiringCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productCount": "{count, plural, =1{1 product} other{{count} products}}",
+  "@productCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "showingOf": "Showing {shown} of {total}",
+  "@showingOf": {
+    "placeholders": {
+      "shown": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "costLabel": "Cost",
+  "saleLabel": "Sale",
+  "wholesaleLabel": "Wholesale",
+  "mrpLabel": "MRP",
+  "marginLabel": "Margin",
+  "vatLabel": "VAT",
+  "skuLabel": "SKU",
+  "barcodeLabel": "Barcode",
+  "unitLabel": "Unit",
+  "brandLabel": "Brand",
+  "categoryLabel": "Category",
+  "minimumStockLabel": "Reorder at",
+  "openingStockLabel": "Opening stock",
+  "trackBatchLabel": "Track batches and expiry",
+  "genericNameLabel": "Generic name",
+  "productNameLabel": "Name",
+  "inactiveBadge": "Not for sale",
+  "deletedBadge": "Deleted",
+  "onShelf": "{qty} on the shelf",
+  "@onShelf": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "changePrices": "Change prices",
+  "pricesSaved": "Prices changed",
+  "pricesUnchanged": "Nothing to change",
+  "priceHistory": "Price history",
+  "stockHistory": "Stock history",
+  "currentPrice": "Now",
+  "adjustStock": "Adjust stock",
+  "adjustQtyLabel": "Change by",
+  "adjustHelp": "Signed and not zero. −3 takes three off the shelf, 3 puts three back.",
+  "adjustReasonLabel": "Reason",
+  "adjustIsDamage": "This is damage, not a correction",
+  "adjustDone": "Stock adjusted",
+  "deleteProduct": "Delete this product",
+  "deleteProductBody": "It leaves the till, the lists and every stock figure. Past sales still name it, and you can restore it.",
+  "deleteProductDone": "Deleted. {qty} came off the shelf.",
+  "@deleteProductDone": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "restoreProduct": "Restore",
+  "restoreProductDone": "{name} is back",
+  "@restoreProductDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletedOn": "Deleted {date}",
+  "@deletedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noMovements": "No stock movements yet",
+  "noPrices": "No price changes yet",
+  "movementOpening": "Opening",
+  "movementPurchase": "Goods in",
+  "movementSale": "Sold",
+  "movementReturn": "Returned",
+  "movementAdjustment": "Adjusted",
+  "movementDamage": "Damage",
+  "movementTransfer": "Transfer",
+  "balanceAfter": "Left: {qty}",
+  "@balanceAfter": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "priceBelowCost": "Below cost",
+  "saleBelowPurchase": "Selling price can't be below the cost.",
+  "costHidden": "Costs are hidden for your role.",
+  "yes": "Yes",
+  "trialEndsToday": "Your trial ends today. Contact the platform to keep this shop open.",
+  "trialDaysLeft": "{days, plural, =1{1 day left on your trial} other{{days} days left on your trial}}",
+  "@trialDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "profitPercentLabel": "Profit %",
+  "saleAboveMrp": "Above the printed MRP.",
+  "wholesaleBlankHelp": "Blank = selling price",
+  "markupLabel": "Markup",
+  "stopSelling": "Stop selling",
+  "resumeSelling": "Sell again",
+  "stoppedSellingNote": "Not offered at the till. Stock and history are kept.",
+  "productStopped": "No longer sold at the till.",
+  "productResumed": "Back on sale.",
+  "newProduct": "New product",
+  "lineBelowCost": "A line is priced below its cost, and the sale would be refused. Change its price or discount.",
+  "lineBelowCostShort": "Below cost — the sale would be refused.",
+  "discountBelowCost": "That discount takes the bill below what the goods cost.",
+  "orderDiscountPercent": "Bill discount (%)",
+  "previousDueLabel": "Previous due",
+  "collectPreviousDue": "Collect previous due too",
+  "outstandingLabel": "Owes in total",
+  "cashTaken": "Cash taken",
+  "digitalTaken": "Digital payments",
+  "duesCollected": "Dues collected",
+  "dueGiven": "Given on credit",
+  "shiftSpansDays": "This drawer has been open for {count} days.",
+  "@shiftSpansDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lineDiscounts": "Line discounts",
+  "youSaved": "You saved (vs MRP)",
+  "openingBalance": "Opening balance",
+  "openingBalanceHelp": "What they owed before this shop used bizPOS.",
+  "ledgerSale": "Sale",
+  "ledgerPayment": "Payment",
+  "ledgerReturn": "Return",
+  "ledgerVoid": "Void",
+  "ledgerOpeningCorrection": "Opening balance corrected",
+  "registerTitle": "Create your shop",
+  "registerSubtitle": "Sign your shop up and start selling straight away — the till, cash drawer and walk-in customer are set up for you.",
+  "registerTrialNote": "Free for {days} days. After that an admin has to extend it; nothing is deleted.",
+  "@registerTrialNote": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "openShopTrialNote": "A new shop runs free for {days} days, like any sign-up.",
+  "@openShopTrialNote": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "registerShopSection": "The shop",
+  "registerOwnerSection": "The owner",
+  "shopName": "Shop name",
+  "storeTypeLabel": "Kind of shop",
+  "storeTypeHelp": "Decides which product catalogue you start from.",
+  "shopAddressOptional": "Address (optional)",
+  "branchNameOptional": "Branch name (optional)",
+  "branchNameHint": "Main Branch",
+  "ownerName": "Your name",
+  "phone": "Phone",
+  "shopPhoneHelp": "How the platform reaches you about your shop.",
+  "invalidPhone": "That doesn't look like a phone number.",
+  "passwordRule": "At least 6 characters.",
+  "registerAction": "Create shop",
+  "registering": "Creating your shop…",
+  "haveAccount": "Already have an account? Sign in",
+  "signInInstead": "Sign in",
+  "registerCta": "New shop? Create an account",
+  "signInThenAddShop": "After signing in, open your new shop from Profile → Open another shop.",
+  "openAnotherShop": "Open another shop",
+  "openShopAction": "Open shop",
+  "shopOpened": "{name} is open. You're working in it now.",
+  "@shopOpened": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shopLocked": "{name} has been closed by the platform.",
+  "@shopLocked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "packagesTitle": "Packages",
+  "newPackage": "New package",
+  "packagesSearchHint": "Search packages",
+  "packagesEmpty": "No packages yet",
+  "packagesEmptyBody": "Bundle products that sell together at one price.",
+  "deletePackage": "Delete package",
+  "deletePackageBody": "Delete {name}? Past sales keep it; the till stops offering it.",
+  "@deletePackageBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "delete": "Delete",
+  "packageDeleted": "Package deleted.",
+  "packageSaved": "Package saved.",
+  "fromDate": "From {date}",
+  "@fromDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "untilDate": "Until {date}",
+  "@untilDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "packageSaves": "Saves {amount}",
+  "@packageSaves": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "packageBuildable": "Can make {count}",
+  "@packageBuildable": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "packageOnSale": "On sale",
+  "availabilityLive": "Live",
+  "availabilityScheduled": "Scheduled",
+  "availabilityExpired": "Expired",
+  "availabilityInactive": "Off",
+  "packageName": "Package name",
+  "packagePrice": "Package price",
+  "packageItems": "What's inside",
+  "packageNeedsItems": "Add at least one product.",
+  "packageComponents": "Items at their own prices",
+  "packageSaving": "Customer saves",
+  "packageAboveItems": "Costs more than the items alone",
+  "packageStartsAny": "Starts now",
+  "packageEndsNever": "No end date",
+  "packageClearDates": "Clear dates",
+  "packageWindowInvalid": "The end date must come after the start.",
+  "description": "Description",
+  "addToPackage": "Add to package",
+  "catalogueTitle": "Catalogue",
+  "catalogueSearchHint": "Search by name, company or generic",
+  "catalogueAll": "All",
+  "catalogueMine": "In my store ({count})",
+  "@catalogueMine": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogueMissing": "Not in my store ({count})",
+  "@catalogueMissing": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogueNoResults": "Nothing in the catalogue by that name",
+  "catalogueNoResultsBody": "If the product is real, suggest it and it can go on sale.",
+  "catalogueNothingMissing": "Your shop already stocks everything in the catalogue",
+  "suggestProduct": "Suggest a product",
+  "inMyStore": "In my store",
+  "pendingBadge": "Pending",
+  "addToStore": "Add to my store",
+  "adoptedProduct": "{name} is on your shelf.",
+  "@adoptedProduct": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "alreadyInStoreNote": "Your store already has this product.",
+  "mrpHelp": "The price printed on the pack.",
+  "adoptOpeningHelp": "How many you have now.",
+  "localNameLabel": "Name in my shop",
+  "localNameHelp": "Optional",
+  "suggestNameHelp": "We check the catalogue as you type.",
+  "suggestReason": "Why stock it? (optional)",
+  "suggestReasonHelp": "Helps whoever approves it.",
+  "sendSuggestion": "Send suggestion",
+  "suggestionEndorsed": "On sale in your store now. The platform will review it for other shops.",
+  "suggestionSent": "Sent for approval.",
+  "alreadyInCatalogue": "Already in the catalogue",
+  "alreadyInCatalogueBody": "The catalogue already has {name}. Send yours anyway?",
+  "@alreadyInCatalogueBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sendAnyway": "Send anyway",
+  "verdictExists": "This is already in the catalogue — add it instead of suggesting it.",
+  "verdictVariant": "The same product exists at another strength. Yours is a different product.",
+  "verdictOtherBrand": "The same product exists from another company.",
+  "verdictSimilar": "Something similar exists. Worth a look first.",
+  "verdictNew": "Nothing like it in the catalogue — it's new.",
+  "adoptThisInstead": "Add this one instead",
+  "suggestionsTitle": "Suggestions",
+  "suggestionsPending": "{count} waiting for you",
+  "@suggestionsPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suggestionsEmpty": "No suggestions",
+  "suggestionsEmptyBody": "Products your staff suggest appear here for approval.",
+  "statusPending": "Waiting",
+  "statusEndorsed": "On sale here",
+  "statusApproved": "In the catalogue",
+  "statusRejected": "Rejected",
+  "askedBy": "Asked by {name}",
+  "@askedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reject": "Reject",
+  "approveAndStock": "Approve",
+  "reviewNoteOptional": "Note (optional)",
+  "rejectReason": "Why not?",
+  "suggestionApproved": "Approved — it's on sale in your store.",
+  "suggestionRejected": "Rejected.",
+  "purchaseTitle": "Purchases",
+  "suppliers": "Suppliers",
+  "supplier": "Supplier",
+  "goodsIn": "Goods in",
+  "purchaseSearchHint": "Search by bill no or supplier",
+  "purchasesEmpty": "No purchases yet",
+  "purchasesEmptyBody": "Record goods as they come in, and the stock rises with them.",
+  "billsCount": "{count, plural, =1{1 bill} other{{count} bills}}",
+  "@billsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "owedToSuppliers": "Owed to suppliers",
+  "owedToSupplier": "Owed to the supplier",
+  "noSupplier": "No supplier",
+  "photosUploaded": "{count, plural, =1{1 photo added} other{{count} photos added}}",
+  "@photosUploaded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deletePhoto": "Remove photo",
+  "deletePhotoBody": "Remove this photo from the bill? The bill itself is not changed.",
+  "billPhotos": "Bill photos ({count}/{max})",
+  "@billPhotos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "noBillPhotos": "No photos of this bill.",
+  "billPhotosHelp": "Add a photo of the paper bill — it goes up after the bill is saved.",
+  "takePhoto": "Take a photo",
+  "chooseFromGallery": "Choose from gallery",
+  "photoPickFailed": "Couldn't open the camera or gallery.",
+  "photosTooBig": "{count, plural, =1{1 photo is over 8 MB and was left out} other{{count} photos are over 8 MB and were left out}}",
+  "@photosTooBig": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addSupplier": "Add supplier",
+  "suppliersEmpty": "No suppliers yet",
+  "supplierSaved": "Supplier saved.",
+  "supplierName": "Name",
+  "supplierCompany": "Company (optional)",
+  "supplierSearch": "Who is it from?",
+  "newSupplierNote": "\"{name}\" is new — it will be saved with this bill.",
+  "@newSupplierNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pickSupplierFromList": "Pick a supplier from the list.",
+  "itemsReceived": "What came in",
+  "noItemsReceived": "Add the products on this bill.",
+  "batchShort": "Batch {batch}",
+  "@batchShort": {
+    "placeholders": {
+      "batch": {
+        "type": "String"
+      }
+    }
+  },
+  "expiresShort": "Exp {date}",
+  "@expiresShort": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "billDiscountPercent": "Discount on the bill",
+  "paidToSupplier": "Paid now",
+  "paidFollowsTotal": "The whole bill, unless you type less.",
+  "paidOverTotal": "More than the bill.",
+  "payInFull": "Pay in full",
+  "payNothing": "Nothing paid",
+  "paidFrom": "Paid from",
+  "purchaseNote": "Note (optional)",
+  "purchaseNoteHint": "Supplier's invoice no",
+  "saveBill": "Save bill",
+  "purchaseSaved": "Bill {refNo} saved. Stock is updated.",
+  "@purchaseSaved": {
+    "placeholders": {
+      "refNo": {
+        "type": "String"
+      }
+    }
+  },
+  "photoUploadFailed": "The photos didn't go up",
+  "photoUploadFailedBody": "The bill is saved. The photos could not be uploaded: {reason}",
+  "@photoUploadFailedBody": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "skipPhotos": "Skip",
+  "pickProduct": "Pick a product",
+  "purchaseAddFromCatalogue": "Not in your store yet? Add it from the catalogue first.",
+  "tracksBatches": "Batch and expiry",
+  "quantityReceived": "Quantity",
+  "unitCost": "Cost each",
+  "batchNo": "Batch no",
+  "expiryDate": "Expiry date"
 }

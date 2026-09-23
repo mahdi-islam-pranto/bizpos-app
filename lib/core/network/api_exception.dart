@@ -22,6 +22,36 @@ final class ForbiddenException extends ApiException {
   final String? permission;
 }
 
+/// 403 `trial_ended` or `store_suspended` at sign-in: the password was right
+/// and there is nowhere to go. Every store this person can reach has been
+/// switched off — a trial nobody extended, or a suspension. Nothing in it is
+/// deleted; it waits for the platform to turn it back on.
+///
+/// Not a [ForbiddenException]: nothing the app does will change it, so there is
+/// no permission to hide and no retry to offer — only the message to show.
+final class StoreLockedException extends ApiException {
+  const StoreLockedException(
+    super.message, {
+    required this.code,
+    this.messageBn,
+    this.storeName,
+  });
+
+  /// `trial_ended` or `store_suspended`. The same to the app, different to the
+  /// shopkeeper, which is why the server tells them apart.
+  final String code;
+
+  /// The server writes this one in Bangla as well.
+  final String? messageBn;
+  final String? storeName;
+
+  bool get isTrialEnded => code == 'trial_ended';
+
+  /// [message] in the reader's language, when the server supplied it.
+  String messageFor(String locale) =>
+      locale == 'bn' && (messageBn ?? '').isNotEmpty ? messageBn! : message;
+}
+
 /// A 403 whose body is HTML came from the web server, not from bizPOS: the
 /// `X-HTTP-Method-Override` header was lost, so LiteSpeed refused the real verb
 /// before Laravel saw it. This is a bug in the app, not a condition to handle.
@@ -36,7 +66,7 @@ final class MethodOverrideException extends ApiException {
   String toString() =>
       'MethodOverrideException: $attemptedMethod $path was refused by the web '
       'server with an HTML 403. The X-HTTP-Method-Override header is missing — '
-      'send this verb as a POST. See docs/MOBILE-API.md section 1.';
+      'send this verb as a POST. See docs/MOBILE-API-NEW.md section 1.';
 }
 
 /// 422 `validation` — [fields] maps a field name to its messages.
@@ -61,15 +91,38 @@ final class BusinessRuleException extends ApiException {
   final String code;
 }
 
-/// 409 `already_in_catalog` — a product suggestion duplicates the catalogue.
+/// 409 — something that already exists.
+///
+/// [code] tells the cases apart: `already_in_catalog` (a product suggestion
+/// duplicates the catalogue), `sign_in_to_add_store` and `already_registered`
+/// (a sign-up with an email or phone the platform knows), `duplicate_store`
+/// (the same shop name twice under one account).
 final class ConflictException extends ApiException {
-  const ConflictException(super.message, {this.match, this.alreadyInStore});
+  const ConflictException(
+    super.message, {
+    this.code,
+    this.messageBn,
+    this.on,
+    this.match,
+    this.alreadyInStore,
+  });
+
+  final String? code;
+
+  /// The server writes the sign-up conflicts in Bangla too.
+  final String? messageBn;
+
+  /// Which field the conflict is about (`email`, `phone`), when it said.
+  final String? on;
 
   /// The catalogue entry that matched.
   final Map<String, dynamic>? match;
 
   /// This store's product id, when the match is already on sale here.
   final int? alreadyInStore;
+
+  String messageFor(String locale) =>
+      locale == 'bn' && (messageBn ?? '').isNotEmpty ? messageBn! : message;
 }
 
 /// 404 — no such record *in the current store*, or no such route. Worth its own

@@ -171,6 +171,75 @@ class SessionController extends AsyncNotifier<SessionState> {
     }
   }
 
+  /// Signs a new shop up and walks straight into it.
+  ///
+  /// Unlike [signIn], a refusal leaves the session state alone: the sign-up
+  /// screen shows its own errors, and a session in error would bounce it to
+  /// the login screen. Only a success touches the session.
+  Future<void> register({
+    required String name,
+    required int storeTypeId,
+    required String ownerName,
+    required String email,
+    required String phone,
+    required String password,
+    String? address,
+    String? branchName,
+  }) async {
+    final result = await _api.register(
+      name: name,
+      storeTypeId: storeTypeId,
+      ownerName: ownerName,
+      email: email,
+      phone: phone,
+      password: password,
+      address: address,
+      branchName: branchName,
+      deviceName: await _deviceName(),
+    );
+    await _adoptToken(result.token, result.expiresAt);
+  }
+
+  /// A token the server just issued becomes this device's session.
+  Future<void> _adoptToken(String token, DateTime? expiresAt) async {
+    _holder.set(token);
+    await _tokens.write(token, expiresAt: expiresAt);
+    ref.read(apiClientProvider).allowSignOutAgain();
+    try {
+      final me = await _api.me();
+      state = AsyncValue.data(await _stateFor(me, expiresAt: expiresAt));
+    } catch (e, stack) {
+      _holder.clear();
+      await _tokens.clear();
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  /// Opens another shop under this account and moves this device into it.
+  ///
+  /// Two calls, because they are two things: the shop exists once the first
+  /// succeeds, whether or not the switch that follows does.
+  Future<void> openStore({
+    required String name,
+    required int storeTypeId,
+    required String phone,
+    String? address,
+    String? branchName,
+  }) async {
+    final id = await _api.openStore(
+      name: name,
+      storeTypeId: storeTypeId,
+      phone: phone,
+      address: address,
+      branchName: branchName,
+    );
+    if (id > 0) {
+      await switchStore(id);
+    } else {
+      await refreshMe(bumpEpoch: true);
+    }
+  }
+
   /// Refetches `/me` in place, keeping the current screen.
   ///
   /// [bumpEpoch] forces every scope-keyed provider to refetch even when the

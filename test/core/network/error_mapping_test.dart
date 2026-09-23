@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/fake_adapter.dart';
 
-/// One case per row of the error table in `docs/MOBILE-API.md` section 1. If the
+/// One case per row of the error table in `docs/MOBILE-API-NEW.md` section 1. If the
 /// backend ever changes a shape, this is where it shows up — not in a screen.
 void main() {
   late FakeAdapter adapter;
@@ -45,6 +45,39 @@ void main() {
     final error = await callAndCatch();
     expect(error, isA<UnauthenticatedException>());
     expect((error! as ApiException).message, 'Unauthenticated.');
+  });
+
+  test('403 trial_ended is a closed store, not a missing permission', () async {
+    answerWith(403, {
+      'error': {
+        'code': 'trial_ended',
+        'message': 'The trial period for this store has ended.',
+        'messageBn': 'এই দোকানের ট্রায়াল সময় শেষ হয়েছে।',
+        'store': {'name': 'Rahman Pharmacy', 'trialEndsAt': '2026-09-28'},
+      },
+    });
+
+    final error = await callAndCatch();
+    expect(error, isA<StoreLockedException>());
+    final locked = error! as StoreLockedException;
+    expect(locked.isTrialEnded, isTrue);
+    expect(locked.storeName, 'Rahman Pharmacy');
+    // The server wrote it in both languages; the reader gets theirs.
+    expect(locked.messageFor('bn'), 'এই দোকানের ট্রায়াল সময় শেষ হয়েছে।');
+    expect(locked.messageFor('en'), 'The trial period for this store has ended.');
+  });
+
+  test('403 store_suspended is the same thing to the app', () async {
+    answerWith(403, {
+      'error': {'code': 'store_suspended', 'message': 'This store is suspended.'},
+    });
+
+    final error = await callAndCatch();
+    expect(error, isA<StoreLockedException>());
+    expect((error! as StoreLockedException).isTrialEnded, isFalse);
+    // No Bangla supplied: fall back rather than show nothing.
+    expect((error as StoreLockedException).messageFor('bn'),
+        'This store is suspended.');
   });
 
   test('401 signs out once, not once per parallel call', () async {

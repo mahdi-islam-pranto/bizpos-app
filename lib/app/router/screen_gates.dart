@@ -6,7 +6,7 @@ import '../../l10n/app_localizations.dart';
 
 /// Every screen the app has, and the permission that unlocks it.
 ///
-/// This is the role map in `docs/MOBILE-API.md` section 4, written as data. Both
+/// This is the role map in `docs/MOBILE-API-NEW.md` section 4, written as data. Both
 /// the navigation shell and the route guards read it, so a menu entry and its
 /// route can never disagree about who is allowed in — and a role's app is
 /// described in one place instead of being scattered across widgets.

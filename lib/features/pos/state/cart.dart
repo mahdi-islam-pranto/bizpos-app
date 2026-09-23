@@ -42,6 +42,29 @@ class CartLine {
 
   bool get overStock => item.stock != null && qty > item.stock!;
 
+  /// What one unit goes out at once its own discount is off.
+  Decimal get netUnitPrice {
+    if (qty <= 0) return Decimal.zero;
+    return (subtotal / Exact.of(qty)).toDecimal(scaleOnInfinitePrecision: 6);
+  }
+
+  /// The server refuses a line whose price, after its own discount, is under
+  /// the product's cost. Only knowable when the cost came down with the item —
+  /// which it does not for a cashier without `inventory.product.view_cost`, and
+  /// never for a package, whose price is judged across its products.
+  bool get belowCost {
+    final cost = item.purchasePrice;
+    if (cost == null || cost <= 0 || item.isPackage) return false;
+    return netUnitPrice < Exact.of(cost);
+  }
+
+  /// This line's known cost, or null when the cost is hidden.
+  Decimal? get knownCost {
+    final cost = item.purchasePrice;
+    if (cost == null || cost <= 0 || item.isPackage) return null;
+    return Exact.of(cost) * Exact.of(qty);
+  }
+
   /// Lines are identified by what they are, not by position: scanning the same
   /// barcode twice adds one to the line that already exists.
   String get key => '${item.isPackage ? 'pkg' : 'sp'}:${item.id}';
@@ -85,6 +108,7 @@ class CartLine {
         'barcode': item.barcode,
         'vatPercent': item.vatPercent,
         'stock': item.stock,
+        'purchasePrice': item.purchasePrice,
         'qty': qty,
         'unitPrice': unitPrice,
         'lineDiscount': lineDiscount,
@@ -104,6 +128,7 @@ class CartLine {
         barcode: raw['barcode'] as String?,
         vatPercent: (raw['vatPercent'] as num?) ?? 0,
         stock: raw['stock'] as num?,
+        purchasePrice: raw['purchasePrice'] as num?,
       ),
       qty: (raw['qty'] as num?) ?? 1,
       unitPrice: raw['unitPrice'] as num?,
@@ -143,7 +168,7 @@ class Cart {
   const Cart({
     this.lines = const [],
     this.customer,
-    this.orderDiscount,
+    this.orderDiscountPercent,
     this.redeemPoints = 0,
     this.note,
   });
@@ -154,8 +179,12 @@ class Cart {
   /// points at all, needs a named one.
   final PosCustomer? customer;
 
-  /// Set only with `pos.sale.give_discount`.
-  final num? orderDiscount;
+  /// Set only with `pos.sale.give_discount`. A **rate** off the whole bill,
+  /// 0–100, and what the till sends as `orderDiscountPercent`: "ten percent
+  /// off" survives the basket changing under it, a flat figure does not. The
+  /// server works the taka out off the goods total after the line discounts,
+  /// which is exactly what [orderDiscountAmount] previews.
+  final num? orderDiscountPercent;
 
   final num redeemPoints;
   final String? note;
@@ -176,12 +205,36 @@ class Cart {
   Decimal get linesTotal =>
       Exact.sum(lines.map((line) => line.subtotal));
 
+  /// The taka the bill rate comes to, off [linesTotal], to the paisa.
+  Decimal get orderDiscountAmount {
+    final rate = orderDiscountPercent ?? 0;
+    if (rate <= 0) return Decimal.zero;
+    return Exact.paisa((linesTotal * Exact.of(rate)).shift(-2));
+  }
+
   Decimal get estimatedTotal {
-    final afterOrder = linesTotal - Exact.of(orderDiscount ?? 0);
+    final afterOrder = linesTotal - orderDiscountAmount;
     return afterOrder < Decimal.zero ? Decimal.zero : afterOrder;
   }
 
   bool get hasOverStockLine => lines.any((line) => line.overStock);
+
+  /// "Nothing goes out below what it cost." The server refuses the sale when a
+  /// line is under its cost, or when the bill discount takes the whole basket
+  /// under the cost of its goods — so the till disables its own pay button
+  /// rather than take money and then be refused. Lines whose cost is hidden
+  /// are left to the server; there is nothing here to compare them against.
+  bool get hasBelowCostLine => lines.any((line) => line.belowCost);
+
+  bool get discountBelowCost {
+    if ((orderDiscountPercent ?? 0) <= 0) return false;
+    final costs = [for (final line in lines) line.knownCost];
+    // Only a basket whose every cost is known can be judged as a whole.
+    if (costs.isEmpty || costs.any((c) => c == null)) return false;
+    return estimatedTotal < Exact.sum(costs.whereType<Decimal>());
+  }
+
+  bool get belowCost => hasBelowCostLine || discountBelowCost;
 
   /// A named customer, not the walk-in one. Credit and points both need this.
   bool get hasNamedCustomer =>
@@ -198,7 +251,7 @@ class Cart {
   Cart copyWith({
     List<CartLine>? lines,
     PosCustomer? customer,
-    num? orderDiscount,
+    num? orderDiscountPercent,
     num? redeemPoints,
     String? note,
     bool clearCustomer = false,
@@ -207,8 +260,9 @@ class Cart {
       Cart(
         lines: lines ?? this.lines,
         customer: clearCustomer ? null : (customer ?? this.customer),
-        orderDiscount:
-            clearOrderDiscount ? null : (orderDiscount ?? this.orderDiscount),
+        orderDiscountPercent: clearOrderDiscount
+            ? null
+            : (orderDiscountPercent ?? this.orderDiscountPercent),
         redeemPoints: redeemPoints ?? this.redeemPoints,
         note: note ?? this.note,
       );
@@ -218,19 +272,25 @@ class Cart {
   /// Every permission-sensitive field is decided here rather than in the sheet,
   /// because the rules are easy to state and easy to get wrong:
   ///
-  /// * `unitPrice`, line `discount` and `orderDiscount` are **silently ignored**
-  ///   without `pos.sale.change_price` / `pos.sale.give_discount`. Sending them
+  /// * `unitPrice`, line `discount` and `orderDiscountPercent` are **silently
+  ///   ignored** without `pos.sale.change_price` / `pos.sale.give_discount`. Sending them
   ///   anyway is not an error — it is worse, because the response comes back
   ///   without them and nothing says why.
   /// * `customerId` goes only for a **named** customer. The walk-in one means
   ///   nobody in particular, and it cannot hold a due or points.
   /// * Each line carries `storeProductId` **or** `packageId`, never both.
   /// * `credit` and `points` never appear as payment methods: a due is paying
-  ///   less, and points go in `redeemPoints`.
+  ///   less, and points go in `redeemPoints`. Nothing paid at all is
+  ///   `payments: []` with a named customer — the whole bill onto the khata.
+  /// * `collectPrevious` asks for the customer's old debt along with today's
+  ///   goods: tender past this bill then settles older debts, oldest first,
+  ///   where without it the same over-tender is change. It means nothing
+  ///   without a named customer, so it never travels without one.
   Map<String, dynamic> toCheckoutBody({
     required bool mayChangePrice,
     required bool mayDiscount,
     required List<CartPayment> payments,
+    bool collectPrevious = false,
   }) =>
       {
         if (hasNamedCustomer) 'customerId': customer!.id,
@@ -245,14 +305,15 @@ class Cart {
           for (final payment in payments)
             if (payment.amount > 0) payment.toJson(),
         ],
-        if (mayDiscount && (orderDiscount ?? 0) > 0)
-          'orderDiscount': orderDiscount,
+        if (mayDiscount && (orderDiscountPercent ?? 0) > 0)
+          'orderDiscountPercent': orderDiscountPercent,
         if (redeemPoints > 0) 'redeemPoints': redeemPoints,
+        if (collectPrevious && hasNamedCustomer) 'collectPrevious': true,
         if ((note ?? '').isNotEmpty) 'note': note,
       };
 
   Map<String, dynamic> toHoldJson() => {
-        'v': 1,
+        'v': 2,
         'lines': [for (final line in lines) line.toHoldJson()],
         if (customer != null)
           'customer': {
@@ -261,7 +322,7 @@ class Cart {
             'phone': customer!.phone,
             'isWalkIn': customer!.isWalkIn,
           },
-        'orderDiscount': orderDiscount,
+        'orderDiscountPercent': orderDiscountPercent,
         'redeemPoints': redeemPoints,
         'note': note,
       };
@@ -284,11 +345,27 @@ class Cart {
       customer: rawCustomer is Map<String, dynamic>
           ? PosCustomer.fromJson(rawCustomer)
           : null,
-      orderDiscount: json['orderDiscount'] as num?,
+      orderDiscountPercent: _holdRate(json, lines),
       redeemPoints: (json['redeemPoints'] as num?) ?? 0,
       note: json['note'] as String?,
     );
   }
+}
+
+/// The bill rate a hold carries. A hold from before the till sent rates holds
+/// a flat `orderDiscount` instead; it comes back as the rate that figure was of
+/// the goods it was given against, rather than being dropped.
+num? _holdRate(Map<String, dynamic> json, List<CartLine> lines) {
+  final rate = json['orderDiscountPercent'];
+  if (rate is num) return rate;
+  final flat = json['orderDiscount'];
+  if (flat is! num || flat <= 0) return null;
+  final goods = Exact.sum(lines.map((line) => line.subtotal));
+  if (goods <= Decimal.zero) return null;
+  final asRate = (Exact.of(flat) * Decimal.fromInt(100) / goods)
+      .toDecimal(scaleOnInfinitePrecision: 4);
+  final value = asRate.round(scale: 2).toDouble();
+  return value > 100 ? 100 : value;
 }
 
 /// The cart, as a Riverpod notifier.
@@ -363,10 +440,14 @@ class CartController extends Notifier<Cart> {
         ],
       );
 
-  void setOrderDiscount(num? amount) => state = state.copyWith(
-        orderDiscount: amount,
-        clearOrderDiscount: amount == null,
-      );
+  /// A rate, clamped to 0–100. Null or zero removes it.
+  void setOrderDiscountPercent(num? rate) {
+    if (rate == null || rate <= 0) {
+      state = state.copyWith(clearOrderDiscount: true);
+      return;
+    }
+    state = state.copyWith(orderDiscountPercent: rate > 100 ? 100 : rate);
+  }
 
   void setCustomer(PosCustomer? customer) {
     if (customer == null) {

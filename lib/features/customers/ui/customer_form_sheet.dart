@@ -61,6 +61,11 @@ class _CustomerFormSheetState extends ConsumerState<CustomerFormSheet> {
         ? ''
         : widget.customer!.creditLimit!.toString(),
   );
+  late final _opening = TextEditingController(
+    text: (widget.customer?.openingBalance ?? 0) == 0
+        ? ''
+        : widget.customer!.openingBalance!.toString(),
+  );
 
   Map<String, List<String>> _fieldErrors = const {};
   bool _busy = false;
@@ -72,6 +77,7 @@ class _CustomerFormSheetState extends ConsumerState<CustomerFormSheet> {
     _email.dispose();
     _address.dispose();
     _credit.dispose();
+    _opening.dispose();
     super.dispose();
   }
 
@@ -98,6 +104,7 @@ class _CustomerFormSheetState extends ConsumerState<CustomerFormSheet> {
           email: _trimmed(_email),
           address: _trimmed(_address),
           creditLimit: mayManageCredit ? AmountField.read(_credit) : null,
+          openingBalance: mayManageCredit ? AmountField.read(_opening) : null,
         );
       } else {
         await repository.update(
@@ -107,6 +114,9 @@ class _CustomerFormSheetState extends ConsumerState<CustomerFormSheet> {
           email: _trimmed(_email),
           address: _trimmed(_address),
           creditLimit: mayManageCredit ? AmountField.read(_credit) : null,
+          // Blank on an edit means "leave it", not "clear it": clearing is
+          // typing a zero, which the server files as a correction.
+          openingBalance: mayManageCredit ? AmountField.read(_opening) : null,
         );
       }
       if (!mounted) return;
@@ -190,6 +200,14 @@ class _CustomerFormSheetState extends ConsumerState<CustomerFormSheet> {
                     prefix: money.sign,
                     helperText: l10n.creditLimitHelp,
                     errorText: errorFor('creditLimit'),
+                  ),
+                  const SizedBox(height: Insets.s16),
+                  AmountField(
+                    controller: _opening,
+                    label: l10n.openingBalance,
+                    prefix: money.sign,
+                    helperText: l10n.openingBalanceHelp,
+                    errorText: errorFor('openingBalance'),
                   ),
                 ],
               ],

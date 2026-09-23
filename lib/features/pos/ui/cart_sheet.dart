@@ -101,6 +101,10 @@ class CartSheet extends ConsumerWidget {
                       value: money.format(cart.estimatedTotal.toDouble()),
                       strong: true,
                     ),
+                    if (cart.belowCost) ...[
+                      const SizedBox(height: Insets.s12),
+                      BelowCostNotice(cart: cart),
+                    ],
                     const SizedBox(height: Insets.s4),
                     // Said plainly, because the number above is the app's own
                     // arithmetic and the receipt's is the server's.
@@ -124,10 +128,14 @@ class CartSheet extends ConsumerWidget {
         SheetAction(
           label: '${l10n.charge}  ${money.format(cart.estimatedTotal.toDouble())}',
           icon: Icons.point_of_sale,
-          onPressed: () async {
-            Navigator.of(context).pop();
-            await PaymentSheet.show(context, lookups: lookups);
-          },
+          // The server refuses a sale below cost. Taking the money first and
+          // being refused after is the one order a counter cannot afford.
+          onPressed: cart.belowCost
+              ? null
+              : () async {
+                  Navigator.of(context).pop();
+                  await PaymentSheet.show(context, lookups: lookups);
+                },
         ),
       ],
     );
@@ -271,6 +279,14 @@ class _CartRow extends StatelessWidget {
                 style: text.labelSmall?.copyWith(color: palette.warning),
               ),
             ),
+          if (line.belowCost)
+            Padding(
+              padding: const EdgeInsets.only(top: Insets.s4),
+              child: Text(
+                l10n.lineBelowCostShort,
+                style: text.labelSmall?.copyWith(color: palette.danger),
+              ),
+            ),
         ],
       ),
     );
@@ -297,8 +313,18 @@ class _CustomerRow extends ConsumerWidget {
       title: Text(
         cart.hasNamedCustomer ? customer!.name : l10n.walkInCustomer,
       ),
+      // The khata is one figure: what they owed walking in sits beside the
+      // cart, because the next question is whether they are paying it.
       subtitle: cart.hasNamedCustomer
-          ? Text(customer!.phone ?? l10n.noPhone)
+          ? Text(
+              (customer!.due ?? 0) > 0
+                  ? '${customer.phone ?? l10n.noPhone} · '
+                      '${l10n.previousDueLabel} ${ref.watch(moneyProvider).format(customer.due)}'
+                  : customer.phone ?? l10n.noPhone,
+              style: (customer.due ?? 0) > 0
+                  ? TextStyle(color: palette.warning)
+                  : null,
+            )
           : Text(l10n.chooseCustomer),
       trailing: const Icon(Icons.chevron_right),
       onTap: () async {
@@ -337,19 +363,23 @@ class _DiscountRow extends ConsumerWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
+        // A rate, because the till sends one: ten percent off stays ten
+        // percent off when another item goes in the basket.
         TextButton(
           onPressed: () async {
-            final amount = await _askAmount(
+            final rate = await _askAmount(
               context,
-              title: l10n.orderDiscount,
-              initial: cart.orderDiscount,
+              title: l10n.orderDiscountPercent,
+              initial: cart.orderDiscountPercent,
+              suffix: '%',
             );
-            ref.read(cartProvider.notifier).setOrderDiscount(amount);
+            ref.read(cartProvider.notifier).setOrderDiscountPercent(rate);
           },
           child: Text(
-            cart.orderDiscount == null || cart.orderDiscount == 0
+            (cart.orderDiscountPercent ?? 0) <= 0
                 ? l10n.add
-                : '−${money.format(cart.orderDiscount)}',
+                : '${_rate(cart.orderDiscountPercent!)}%  '
+                    '−${money.format(cart.orderDiscountAmount.toDouble())}',
             style: TextStyle(color: palette.accent),
           ),
         ),
@@ -502,40 +532,114 @@ Future<num?> _askAmount(
   BuildContext context, {
   required String title,
   num? initial,
-}) async {
-  final controller = TextEditingController(
-    text: initial == null || initial == 0 ? '' : initial.toString(),
-  );
-
-  final result = await showAppSheet<num?>(
-    context,
-    title: title,
-    builder: (sheetContext) => Padding(
-      padding: const EdgeInsets.all(Insets.gutter),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AmountField(
-            controller: controller,
-            label: title,
-            autofocus: true,
-            onSubmitted: (_) => Navigator.of(sheetContext)
-                .pop(AmountField.read(controller)),
-          ),
-          const SizedBox(height: Insets.s24),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: () => Navigator.of(sheetContext)
-                  .pop(AmountField.read(controller)),
-              child: Text(AppL10n.of(sheetContext).apply),
-            ),
-          ),
-        ],
+  String? suffix,
+}) =>
+    showAppSheet<num?>(
+      context,
+      title: title,
+      builder: (_) => _AmountPrompt(
+        title: title,
+        initial: initial,
+        suffix: suffix,
       ),
-    ),
+    );
+
+/// The prompt owns its controller, so the controller dies with the sheet.
+///
+/// It used to be created outside and disposed the moment the sheet's future
+/// completed — but that future completes when `pop` is called, while the sheet
+/// is still animating out with its text field attached. Disposing under a live
+/// field tore the overlay down mid-frame (`_dependents.isEmpty`), and Apply
+/// showed a red screen instead of a discount.
+class _AmountPrompt extends StatefulWidget {
+  const _AmountPrompt({required this.title, this.initial, this.suffix});
+
+  final String title;
+  final num? initial;
+  final String? suffix;
+
+  @override
+  State<_AmountPrompt> createState() => _AmountPromptState();
+}
+
+class _AmountPromptState extends State<_AmountPrompt> {
+  late final _controller = TextEditingController(
+    text: widget.initial == null || widget.initial == 0
+        ? ''
+        : widget.initial.toString(),
   );
 
-  controller.dispose();
-  return result;
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    // Keyboard down first, so the sheet closes without a focused field.
+    FocusScope.of(context).unfocus();
+    Navigator.of(context).pop(AmountField.read(_controller));
+  }
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.all(Insets.gutter),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AmountField(
+              controller: _controller,
+              label: widget.title,
+              prefix: widget.suffix,
+              autofocus: true,
+              onSubmitted: (_) => _submit(),
+            ),
+            const SizedBox(height: Insets.s24),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: _submit,
+                child: Text(AppL10n.of(context).apply),
+              ),
+            ),
+          ],
+        ),
+      );
+}
+
+String _rate(num value) => value == value.roundToDouble()
+    ? value.toStringAsFixed(0)
+    : value.toString();
+
+/// Why the pay button is off. The messages name no figures: a cashier may sell
+/// without being allowed to see what anything cost.
+class BelowCostNotice extends StatelessWidget {
+  const BelowCostNotice({required this.cart, super.key});
+
+  final Cart cart;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final palette = context.palette;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.block, size: 16, color: palette.danger),
+        const SizedBox(width: Insets.s8),
+        Expanded(
+          child: Text(
+            cart.hasBelowCostLine
+                ? l10n.lineBelowCost
+                : l10n.discountBelowCost,
+            style: Theme.of(context)
+                .textTheme
+                .bodySmall
+                ?.copyWith(color: palette.danger),
+          ),
+        ),
+      ],
+    );
+  }
 }

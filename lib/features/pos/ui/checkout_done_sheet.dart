@@ -86,6 +86,15 @@ class CheckoutDoneSheet extends ConsumerWidget {
                         tone: palette.warning,
                         title: l10n.dueLabel,
                       ),
+                    // The whole khata after this bill, old debt included — the
+                    // figure the customer actually asks about.
+                    if ((result.outstanding ?? 0) > 0 &&
+                        result.outstanding != result.due)
+                      _Pill(
+                        label: money.format(result.outstanding),
+                        tone: palette.warning,
+                        title: l10n.outstandingLabel,
+                      ),
                     if ((result.pointsRedeemed ?? 0) > 0)
                       _Pill(
                         label: l10n.pointsRedeemed(

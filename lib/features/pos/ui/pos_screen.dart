@@ -12,6 +12,7 @@ import '../../../core/widgets/async_view.dart';
 import '../../../core/widgets/fields.dart';
 import '../../../core/widgets/states.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../products/ui/product_form_sheet.dart';
 import '../data/pos_models.dart';
 import '../data/pos_repository.dart';
 import '../state/cart.dart';
@@ -39,19 +40,27 @@ class _PosScreenState extends ConsumerState<PosScreen> {
   final _searchFocus = FocusNode();
 
   Timer? _debounce;
-  bool _packages = false;
-  AsyncValue<List<SellableItem>>? _results;
 
-  @override
-  void initState() {
-    super.initState();
-    // Bundles are a different list, not a filter, so switching tabs refetches.
-    _runSearch('');
-  }
+  /// The product that just went in, shown inside the cart bar for a moment.
+  ///
+  /// Not a snack bar: the outer shell's scaffold floats one straight over the
+  /// cart bar, which is exactly the thing a cashier reaches for next. The bar
+  /// saying "Napa added" where the item count usually is confirms the tap and
+  /// covers nothing.
+  String? _justAdded;
+  Timer? _justAddedTimer;
+
+  /// What the list is showing. Held here and handed to [posSearchProvider],
+  /// which owns the fetching — so a store or branch switch, or the `/me`
+  /// refresh that bumps the scope epoch at start-up, re-runs the search instead
+  /// of cancelling it and leaving the counter with an empty list it cannot
+  /// retry.
+  PosQuery _query = const PosQuery();
 
   @override
   void dispose() {
     _debounce?.cancel();
+    _justAddedTimer?.cancel();
     _search.dispose();
     _searchFocus.dispose();
     super.dispose();
@@ -61,23 +70,13 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     _debounce?.cancel();
     _debounce = Timer(
       const Duration(milliseconds: 280),
-      () => _runSearch(value.trim()),
+      () => _setQuery(_query.withText(value.trim())),
     );
   }
 
-  Future<void> _runSearch(String query) async {
-    setState(() => _results = const AsyncValue.loading());
-    final repository = ref.read(posRepositoryProvider);
-    try {
-      final found = _packages
-          ? await repository.sellablePackages(query.isEmpty ? null : query)
-          // An empty query still asks the server, which answers with a recent
-          // window — so the till opens showing something rather than a blank.
-          : await repository.search(query);
-      if (mounted) setState(() => _results = AsyncValue.data(found));
-    } catch (e, stack) {
-      if (mounted) setState(() => _results = AsyncValue.error(e, stack));
-    }
+  void _setQuery(PosQuery next) {
+    if (next == _query) return;
+    if (mounted) setState(() => _query = next);
   }
 
   /// A scan is a search whose first result is the answer.
@@ -89,32 +88,75 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     final code = await ScannerSheet.show(context);
     if (code == null || !mounted) return;
 
+    _debounce?.cancel();
     _search.text = code;
-    setState(() => _results = const AsyncValue.loading());
+    // Bundles never carry the barcode that was scanned, so a scan always lands
+    // in the product list.
+    _setQuery(PosQuery(text: code));
 
+    final List<SellableItem> found;
     try {
-      final found = await ref.read(posRepositoryProvider).search(code);
-      if (!mounted) return;
-      setState(() => _results = AsyncValue.data(found));
+      found = await ref.read(posSearchProvider(PosQuery(text: code)).future);
+    } catch (_) {
+      // The list below is showing the same failure with its own retry; a second
+      // complaint here would only cover it up.
+      return;
+    }
+    if (!mounted) return;
 
-      final exact = found.isNotEmpty && found.first.barcode == code
-          ? found.first
-          : null;
-      if (exact != null) {
-        _addToCart(exact);
-        // Cleared so the next scan starts from nothing rather than from the
-        // last code still sitting in the box.
-        _search.clear();
-        await _runSearch('');
+    final exact = found.isNotEmpty && found.first.barcode == code
+        ? found.first
+        : null;
+    if (exact == null) return;
+
+    _addToCart(exact);
+    // Cleared so the next scan starts from nothing rather than from the last
+    // code still sitting in the box.
+    _search.clear();
+    _setQuery(const PosQuery());
+  }
+
+  /// `POST /products` from the till, then `/pos/search` again so the new
+  /// product reaches the cart in exactly the shape every other one does.
+  ///
+  /// What was searched for fills the form in: a string of digits is a barcode
+  /// that was scanned, anything else is a name.
+  Future<void> _newProduct() async {
+    final typed = _query.text.trim();
+    final looksLikeBarcode = RegExp(r'^\d{6,}$').hasMatch(typed);
+    final created = await ProductFormSheet.showNew(
+      context,
+      initialName: looksLikeBarcode ? null : typed,
+      initialBarcode: looksLikeBarcode ? typed : null,
+    );
+    if (created == null || !mounted) return;
+
+    final lookFor = created.barcode ?? created.name;
+    ref.invalidate(posSearchProvider);
+    try {
+      final found =
+          await ref.read(posSearchProvider(PosQuery(text: lookFor)).future);
+      if (!mounted) return;
+      for (final item in found) {
+        if (item.id == created.id) {
+          _addToCart(item);
+          _search.clear();
+          _setQuery(const PosQuery());
+          return;
+        }
       }
-    } catch (e, stack) {
-      if (mounted) setState(() => _results = AsyncValue.error(e, stack));
+    } catch (_) {
+      // The product exists; the list below will show it on the next search.
     }
   }
 
   void _addToCart(SellableItem item) {
     ref.read(cartProvider.notifier).add(item);
-    showNote(context, AppL10n.of(context).addedToCart(item.name));
+    _justAddedTimer?.cancel();
+    setState(() => _justAdded = item.name);
+    _justAddedTimer = Timer(const Duration(milliseconds: 1600), () {
+      if (mounted) setState(() => _justAdded = null);
+    });
   }
 
   @override
@@ -122,6 +164,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     final l10n = AppL10n.of(context);
     final lookups = ref.watch(posLookupsProvider);
     final cart = ref.watch(cartProvider);
+    final results = ref.watch(posSearchProvider(_query));
 
     return Scaffold(
       appBar: AppBar(
@@ -158,7 +201,10 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                 focusNode: _searchFocus,
                 hint: l10n.posSearchHint,
                 onChanged: _onQueryChanged,
-                onSubmitted: (value) => _runSearch(value.trim()),
+                onSubmitted: (value) {
+                  _debounce?.cancel();
+                  _setQuery(_query.withText(value.trim()));
+                },
                 trailing: IconButton(
                   tooltip: l10n.posScan,
                   icon: const Icon(Icons.qr_code_scanner),
@@ -176,63 +222,68 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                   children: [
                     ChoiceChip(
                       label: Text(l10n.posTabProducts),
-                      selected: !_packages,
-                      onSelected: (_) {
-                        setState(() => _packages = false);
-                        _runSearch(_search.text.trim());
-                      },
+                      selected: !_query.packages,
+                      onSelected: (_) => _setQuery(_query.withPackages(false)),
                     ),
                     const SizedBox(width: Insets.s8),
                     ChoiceChip(
                       label: Text(l10n.posTabPackages),
-                      selected: _packages,
-                      onSelected: (_) {
-                        setState(() => _packages = true);
-                        _runSearch(_search.text.trim());
-                      },
+                      selected: _query.packages,
+                      onSelected: (_) => _setQuery(_query.withPackages(true)),
                     ),
                   ],
                 ),
               ),
             ),
             Expanded(
-              child: _results == null
-                  ? const LoadingList()
-                  : AsyncView<List<SellableItem>>(
-                      value: _results!,
-                      onRetry: () => _runSearch(_search.text.trim()),
-                      builder: (context, items) => items.isEmpty
-                          ? EmptyState(
-                              title: _search.text.isEmpty
-                                  ? l10n.posStartTitle
-                                  : l10n.posNoResults,
-                              body: _search.text.isEmpty
-                                  ? l10n.posStartBody
-                                  : l10n.posNoResultsBody,
-                              icon: Icons.qr_code_scanner,
-                            )
-                          : ListView.separated(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: Insets.s8,
+              child: AsyncView<List<SellableItem>>(
+                value: results,
+                onRetry: () => ref.invalidate(posSearchProvider(_query)),
+                builder: (context, items) => items.isEmpty
+                    ? MessageState(
+                        title: _query.text.isEmpty
+                            ? l10n.posStartTitle
+                            : l10n.posNoResults,
+                        body: _query.text.isEmpty
+                            ? l10n.posStartBody
+                            : l10n.posNoResultsBody,
+                        icon: Icons.qr_code_scanner,
+                        // Nothing on the shelf by that name: write it down
+                        // here, with the customer still waiting, rather than
+                        // send the cashier to another screen.
+                        action: _query.text.isEmpty || _query.packages
+                            ? null
+                            : PermissionGate(
+                                perm: P.inventoryProductCreate,
+                                child: OutlinedButton.icon(
+                                  onPressed: _newProduct,
+                                  icon: const Icon(Icons.add),
+                                  label: Text(l10n.newProduct),
+                                ),
                               ),
-                              itemCount: items.length,
-                              separatorBuilder: (_, _) => const Divider(
-                                height: 1,
-                                indent: Insets.gutter,
-                              ),
-                              itemBuilder: (context, i) => _ProductRow(
-                                item: items[i],
-                                inCart: cart.lineFor(items[i])?.qty,
-                                onTap: () => _addToCart(items[i]),
-                              ),
-                            ),
-                    ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: Insets.s8,
+                        ),
+                        itemCount: items.length,
+                        separatorBuilder: (_, _) => const Divider(
+                          height: 1,
+                          indent: Insets.gutter,
+                        ),
+                        itemBuilder: (context, i) => _ProductRow(
+                          item: items[i],
+                          inCart: cart.lineFor(items[i])?.qty,
+                          onTap: () => _addToCart(items[i]),
+                        ),
+                      ),
+              ),
             ),
           ],
         ),
       ),
       bottomNavigationBar: lookups.maybeWhen(
-        data: (data) => _CartBar(lookups: data),
+        data: (data) => _CartBar(lookups: data, justAdded: _justAdded),
         orElse: () => null,
       ),
     );
@@ -338,9 +389,12 @@ class _ProductRow extends ConsumerWidget {
 /// straight to payment, which is the path a busy counter takes ninety times out
 /// of a hundred.
 class _CartBar extends ConsumerWidget {
-  const _CartBar({required this.lookups});
+  const _CartBar({required this.lookups, this.justAdded});
 
   final PosLookups lookups;
+
+  /// Shown in place of the item count for a moment after a tap.
+  final String? justAdded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -372,12 +426,41 @@ class _CartBar extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          l10n.cartItems(cart.lineCount),
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelMedium
-                              ?.copyWith(color: palette.muted),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 180),
+                          child: justAdded == null
+                              ? Text(
+                                  l10n.cartItems(cart.lineCount),
+                                  key: const ValueKey('count'),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelMedium
+                                      ?.copyWith(color: palette.muted),
+                                )
+                              : Row(
+                                  key: ValueKey(justAdded),
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      size: 14,
+                                      color: palette.positive,
+                                    ),
+                                    const SizedBox(width: Insets.s4),
+                                    Flexible(
+                                      child: Text(
+                                        l10n.addedToCart(justAdded!),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelMedium
+                                            ?.copyWith(
+                                              color: palette.positive,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                         ),
                         Text(
                           money.format(cart.estimatedTotal.toDouble()),

@@ -146,6 +146,11 @@ class _Detail extends ConsumerWidget {
                     label: l10n.dueLabel,
                     value: money.format(customer.due),
                     tone: customer.due > 0 ? palette.warning : null,
+                    // Part of it has no invoice behind it; whoever goes to
+                    // collect it should know.
+                    note: (customer.openingBalance ?? 0) > 0
+                        ? '${l10n.openingBalance} ${money.format(customer.openingBalance)}'
+                        : null,
                   ),
                   _Stat(
                     label: l10n.invoices,
@@ -289,7 +294,7 @@ class _LedgerPanel extends ConsumerWidget {
                     for (final entry in entries)
                       ListTile(
                         dense: true,
-                        title: Text(entry.refType.toUpperCase()),
+                        title: Text(ledgerLabel(l10n, entry.refType)),
                         subtitle: Text(
                           [
                             AppDates.stamp(entry.date, locale: locale),
@@ -331,11 +336,17 @@ class _LedgerPanel extends ConsumerWidget {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.label, required this.value, this.tone});
+  const _Stat({
+    required this.label,
+    required this.value,
+    this.tone,
+    this.note,
+  });
 
   final String label;
   final String value;
   final Color? tone;
+  final String? note;
 
   @override
   Widget build(BuildContext context) {
@@ -354,8 +365,22 @@ class _Stat extends StatelessWidget {
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
+          if (note != null)
+            Text(note!, style: text.labelSmall?.copyWith(color: palette.muted)),
         ],
       ),
     );
   }
 }
+
+/// A ledger row's kind in words. An unknown kind reads as itself, so a type the
+/// API adds later is still something rather than nothing.
+String ledgerLabel(AppL10n l10n, String refType) => switch (refType) {
+      'sale' => l10n.ledgerSale,
+      'payment' => l10n.ledgerPayment,
+      'return' => l10n.ledgerReturn,
+      'void' => l10n.ledgerVoid,
+      'opening' => l10n.openingBalance,
+      'opening_correction' => l10n.ledgerOpeningCorrection,
+      _ => refType.replaceAll('_', ' ').toUpperCase(),
+    };

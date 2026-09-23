@@ -1,9 +1,10 @@
 import '../network/api_client.dart';
 import '../network/api_paths.dart';
 import 'me.dart';
+import 'signup_models.dart';
 
 /// The auth and session endpoints. Everything here is documented in
-/// `docs/MOBILE-API.md` section 2.
+/// `docs/MOBILE-API-NEW.md` section 2.
 class AuthApi {
   const AuthApi(this._client);
 
@@ -27,6 +28,88 @@ class AuthApi {
       parse: parseObject(LoginResult.fromJson),
     );
     return response.data;
+  }
+
+  /// `GET /public/store-types` — open, because the sign-up form is.
+  Future<SignupOptions> signupOptions() async {
+    final response = await _client.get<SignupOptions>(
+      ApiPaths.publicStoreTypes,
+      parse: parseObject(SignupOptions.fromJson),
+    );
+    return response.data;
+  }
+
+  /// `POST /auth/register` — stands the whole shop up and signs the owner in.
+  ///
+  /// Never retried: it is throttled to five an hour, and a second attempt that
+  /// got through would be a second shop.
+  Future<RegisterResult> register({
+    required String name,
+    required int storeTypeId,
+    required String ownerName,
+    required String email,
+    required String phone,
+    required String password,
+    String? address,
+    String? branchName,
+    String? deviceName,
+  }) async {
+    final response = await _client.post<RegisterResult>(
+      ApiPaths.register,
+      body: {
+        'name': name,
+        'storeTypeId': storeTypeId,
+        'ownerName': ownerName,
+        'email': email,
+        'phone': phone,
+        'password': password,
+        'address': ?address,
+        'branchName': ?branchName,
+        'deviceName': ?deviceName,
+      },
+      parse: parseObject(RegisterResult.fromJson),
+    );
+    return response.data;
+  }
+
+  /// `GET /stores` — what a store picker is drawn from.
+  Future<StoreList> stores() async {
+    final response = await _client.get<List<OwnedStore>>(
+      ApiPaths.stores,
+      parse: parseListOf(OwnedStore.fromJson),
+    );
+    final locked = response.meta.objectValue('locked');
+    return StoreList(
+      stores: response.data,
+      lockedName: locked?['name']?.toString(),
+    );
+  }
+
+  /// `POST /stores` — opens another shop under this account, on the same trial
+  /// clock a public sign-up gets. Returns the new store's id; the device is not
+  /// moved into it until [switchStore].
+  Future<int> openStore({
+    required String name,
+    required int storeTypeId,
+    required String phone,
+    String? address,
+    String? branchName,
+  }) async {
+    final response = await _client.post<Map<String, dynamic>>(
+      ApiPaths.stores,
+      body: {
+        'name': name,
+        'storeTypeId': storeTypeId,
+        'phone': phone,
+        'address': ?address,
+        'branchName': ?branchName,
+      },
+      parse: parseObject((json) => json),
+    );
+    final data = response.data;
+    final store = data['store'];
+    final id = store is Map ? store['id'] : data['id'];
+    return id is num ? id.toInt() : int.tryParse('$id') ?? 0;
   }
 
   /// Who am I, where am I, what may I do.

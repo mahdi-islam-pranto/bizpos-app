@@ -45,15 +45,17 @@ class CustomersRepository {
     return CustomerPage(customers: response.data, meta: response.meta);
   }
 
-  /// `creditLimit` is **silently ignored** without `customers.credit.manage`,
-  /// so the caller passes it only when the permission is held — otherwise the
-  /// form would appear to save a limit that never landed.
+  /// `creditLimit` and `openingBalance` are **silently ignored** without
+  /// `customers.credit.manage`, so the caller passes them only when the
+  /// permission is held — otherwise the form would appear to save a figure
+  /// that never landed.
   Future<int> create({
     required String name,
     String? phone,
     String? email,
     String? address,
     num? creditLimit,
+    num? openingBalance,
   }) async {
     final response = await _client.post(
       ApiPaths.customers,
@@ -64,6 +66,7 @@ class CustomersRepository {
         'email': ?email,
         'address': ?address,
         'creditLimit': ?creditLimit,
+        'openingBalance': ?openingBalance,
       },
       cancelToken: _cancel,
     );
@@ -73,6 +76,9 @@ class CustomersRepository {
 
   /// Travels as a POST with `X-HTTP-Method-Override: PATCH`, like every other
   /// non-GET verb in this app.
+  ///
+  /// Changing `openingBalance` later does not rewrite history: the server
+  /// writes an `opening_correction` line for the difference.
   Future<void> update(
     int id, {
     required String name,
@@ -80,6 +86,7 @@ class CustomersRepository {
     String? email,
     String? address,
     num? creditLimit,
+    num? openingBalance,
   }) =>
       _client.patch(
         ApiPaths.customer(id),
@@ -90,6 +97,7 @@ class CustomersRepository {
           'email': ?email,
           'address': ?address,
           'creditLimit': ?creditLimit,
+          'openingBalance': ?openingBalance,
         },
         cancelToken: _cancel,
       );

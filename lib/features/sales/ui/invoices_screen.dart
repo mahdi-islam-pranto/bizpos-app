@@ -324,6 +324,7 @@ class _InvoiceRow extends ConsumerWidget {
           sale.customer ?? l10n.walkInCustomer,
           AppDates.stamp(sale.saleDate, locale: locale),
           l10n.itemsCount(sale.itemCount),
+          ?discountLabel(sale, money),
         ].where((s) => s.isNotEmpty).join(' · '),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -355,3 +356,23 @@ class _InvoiceRow extends ConsumerWidget {
 /// The permission set the list screen itself needs. Kept beside the screen so
 /// the route guard and the tab agree without either importing the other.
 const invoicesGate = [P.salesInvoiceView, P.salesInvoiceViewAll];
+
+/// The discount on a row, with its rate. The rate the cashier gave is shown
+/// plainly; one worked out from the figures is marked "≈", because nobody set
+/// it.
+String? discountLabel(SaleListItem sale, Money money) {
+  final off = sale.discount ?? 0;
+  if (off <= 0) return null;
+  final given = sale.discountPercent;
+  final derived = sale.discountRate;
+  final rate = given != null
+      ? ' (${_rate(given)}%)'
+      : derived != null && derived > 0
+          ? ' (≈${_rate(derived)}%)'
+          : '';
+  return '−${money.format(off)}$rate';
+}
+
+String _rate(num value) => value == value.roundToDouble()
+    ? value.toStringAsFixed(0)
+    : value.toStringAsFixed(1);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/env.dart';
 import '../../core/network/api_exception.dart';
@@ -9,7 +10,10 @@ import '../../core/theme/tokens.dart';
 import '../../l10n/app_localizations.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({this.initialEmail, super.key});
+
+  /// Filled in when a sign-up found this email already had an account.
+  final String? initialEmail;
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -17,7 +21,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _form = GlobalKey<FormState>();
-  final _email = TextEditingController();
+  late final _email = TextEditingController(text: widget.initialEmail ?? '');
   final _password = TextEditingController();
   bool _obscure = true;
 
@@ -135,6 +139,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       onPressed: busy ? null : _submit,
                       child: Text(busy ? l10n.signingIn : l10n.signIn),
                     ),
+                    const SizedBox(height: Insets.s12),
+                    // A shop that is not on bizPOS yet signs itself up.
+                    OutlinedButton.icon(
+                      onPressed: busy ? null : () => context.go('/register'),
+                      icon: const Icon(Icons.add_business_outlined),
+                      label: Text(l10n.registerCta),
+                    ),
+                    if ((widget.initialEmail ?? '').isNotEmpty) ...[
+                      const SizedBox(height: Insets.s12),
+                      Text(
+                        l10n.signInThenAddShop,
+                        style: text.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                     const SizedBox(height: Insets.s24),
                     // Which backend this build talks to. Invaluable while there
                     // is more than one, and harmless once there is not.
@@ -175,12 +194,17 @@ class _ErrorNotice extends StatelessWidget {
     // carries what has nowhere else to go: wrong password, rate limit, offline.
     final message = switch (error) {
       ValidationException() => null,
+      // The right password and a closed shop. The server wrote the message in
+      // both languages; there is nothing to retry.
+      final StoreLockedException locked =>
+        locked.messageFor(Localizations.localeOf(context).languageCode),
       ApiException(:final message) => message,
       _ => l10n.genericError,
     };
     if (message == null) return const SizedBox.shrink();
 
-    final isWarning = error is RateLimitedException;
+    final isWarning =
+        error is RateLimitedException || error is StoreLockedException;
     final tone = isWarning ? palette.warning : palette.danger;
 
     return Container(
@@ -194,7 +218,11 @@ class _ErrorNotice extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
-            isWarning ? Icons.timer_outlined : Icons.error_outline,
+            error is StoreLockedException
+                ? Icons.lock_clock_outlined
+                : isWarning
+                    ? Icons.timer_outlined
+                    : Icons.error_outline,
             size: 18,
             color: tone,
           ),

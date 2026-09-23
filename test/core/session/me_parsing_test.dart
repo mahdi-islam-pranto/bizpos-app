@@ -56,6 +56,51 @@ void main() {
     });
   });
 
+  group('the trial clock', () {
+    Me withStore(Map<String, dynamic> store) => Me.fromJson({
+          'user': {'id': 1, 'name': 'A', 'email': 'a@b.c'},
+          'store': {
+            'id': 42,
+            'name': 'Rahman Pharmacy',
+            'slug': 'rahman-pharmacy',
+            'currency': 'BDT',
+            ...store,
+          },
+          'permissions': <String>[],
+        });
+
+    test('reads the snake_case trial keys', () {
+      final me = withStore({
+        'trial_ends_at': '2026-09-28T23:59:59+06:00',
+        'trial_days_left': 1,
+      });
+
+      expect(me.store!.trialDaysLeft, 1);
+      expect(me.store!.trialEndsAt, isNotNull);
+      expect(me.store!.trialEndingSoon, isTrue);
+    });
+
+    test('a shop with no clock is never ending', () {
+      // The live server answers null for both on a platform-created shop.
+      final me = withStore({'trial_ends_at': null, 'trial_days_left': null});
+
+      expect(me.store!.trialEndsAt, isNull);
+      expect(me.store!.trialEndingSoon, isFalse);
+    });
+
+    test('the clock survives the cache', () {
+      final me = withStore({
+        'trial_ends_at': '2026-09-28T23:59:59+06:00',
+        'trial_days_left': 3,
+      });
+      final again = Me.fromJson(me.toJson());
+
+      expect(again.store!.trialDaysLeft, 3);
+      expect(again.store!.trialEndsAt, me.store!.trialEndsAt);
+      expect(again.store!.trialEndingSoon, isFalse);
+    });
+  });
+
   group('the shapes that are easy to crash on', () {
     test('no store is a state, not a parse failure', () {
       final me = Me.fromJson({

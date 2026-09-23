@@ -903,4 +903,906 @@ class AppL10nBn extends AppL10n {
 
   @override
   String get torch => 'টর্চ';
+
+  @override
+  String get productsTitle => 'পণ্য';
+
+  @override
+  String get productsSearchHint => 'নাম, বারকোড বা SKU';
+
+  @override
+  String get productsLowOnly => 'কম স্টক';
+
+  @override
+  String get productsTrashed => 'মুছে ফেলা';
+
+  @override
+  String get productsLive => 'তাকে আছে';
+
+  @override
+  String get productsNone => 'এখনও কোনো পণ্য নেই';
+
+  @override
+  String get productsNoneBody => 'প্রথমটি যোগ করুন, বা ক্যাটালগ থেকে আনুন।';
+
+  @override
+  String get productsNoResults => 'কিছু মেলেনি';
+
+  @override
+  String get productsNoResultsBody => 'নামের অংশ, বারকোড বা SKU দিয়ে দেখুন।';
+
+  @override
+  String get productsNoneTrashed => 'কিছু মোছা হয়নি';
+
+  @override
+  String get productsNoneTrashedBody =>
+      'মুছে ফেলা পণ্য ফেরত আনার আগ পর্যন্ত এখানে থাকে।';
+
+  @override
+  String get addProduct => 'পণ্য যোগ করুন';
+
+  @override
+  String get editProduct => 'সম্পাদনা';
+
+  @override
+  String get productSaved => 'সংরক্ষিত';
+
+  @override
+  String productAdded(String name) {
+    return '$name তাকে উঠেছে';
+  }
+
+  @override
+  String get stockValue => 'স্টকের মূল্য';
+
+  @override
+  String lowStockCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি কমে এসেছে',
+      zero: 'কিছু কম নেই',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String expiringCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটির মেয়াদ শেষ হচ্ছে',
+      zero: 'মেয়াদ শেষের কিছু নেই',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String productCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি পণ্য',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String showingOf(String shown, String total) {
+    return '$totalটির মধ্যে $shownটি';
+  }
+
+  @override
+  String get costLabel => 'ক্রয়মূল্য';
+
+  @override
+  String get saleLabel => 'বিক্রয়মূল্য';
+
+  @override
+  String get wholesaleLabel => 'পাইকারি';
+
+  @override
+  String get mrpLabel => 'এমআরপি';
+
+  @override
+  String get marginLabel => 'লাভ';
+
+  @override
+  String get vatLabel => 'ভ্যাট';
+
+  @override
+  String get skuLabel => 'SKU';
+
+  @override
+  String get barcodeLabel => 'বারকোড';
+
+  @override
+  String get unitLabel => 'একক';
+
+  @override
+  String get brandLabel => 'ব্র্যান্ড';
+
+  @override
+  String get categoryLabel => 'শ্রেণি';
+
+  @override
+  String get minimumStockLabel => 'পুনরায় আনুন';
+
+  @override
+  String get openingStockLabel => 'শুরুর স্টক';
+
+  @override
+  String get trackBatchLabel => 'ব্যাচ ও মেয়াদ রাখুন';
+
+  @override
+  String get genericNameLabel => 'জেনেরিক নাম';
+
+  @override
+  String get productNameLabel => 'নাম';
+
+  @override
+  String get inactiveBadge => 'বিক্রয়ে নেই';
+
+  @override
+  String get deletedBadge => 'মুছে ফেলা';
+
+  @override
+  String onShelf(String qty) {
+    return 'তাকে $qtyটি';
+  }
+
+  @override
+  String get changePrices => 'দাম বদলান';
+
+  @override
+  String get pricesSaved => 'দাম বদলেছে';
+
+  @override
+  String get pricesUnchanged => 'বদলানোর কিছু নেই';
+
+  @override
+  String get priceHistory => 'দামের ইতিহাস';
+
+  @override
+  String get stockHistory => 'স্টকের ইতিহাস';
+
+  @override
+  String get currentPrice => 'এখন';
+
+  @override
+  String get adjustStock => 'স্টক সমন্বয়';
+
+  @override
+  String get adjustQtyLabel => 'পরিবর্তন';
+
+  @override
+  String get adjustHelp =>
+      'চিহ্নসহ, শূন্য নয়। −৩ মানে তাক থেকে তিনটি কমল, ৩ মানে তিনটি ফিরল।';
+
+  @override
+  String get adjustReasonLabel => 'কারণ';
+
+  @override
+  String get adjustIsDamage => 'এটি ক্ষতি, সংশোধন নয়';
+
+  @override
+  String get adjustDone => 'স্টক সমন্বয় হয়েছে';
+
+  @override
+  String get deleteProduct => 'পণ্যটি মুছুন';
+
+  @override
+  String get deleteProductBody =>
+      'এটি বিক্রয়, তালিকা ও স্টকের হিসাব থেকে সরে যাবে। পুরোনো বিক্রয়ে নাম থাকবে, আর ফেরত আনা যাবে।';
+
+  @override
+  String deleteProductDone(String qty) {
+    return 'মোছা হয়েছে। তাক থেকে $qtyটি সরল।';
+  }
+
+  @override
+  String get restoreProduct => 'ফেরত আনুন';
+
+  @override
+  String restoreProductDone(String name) {
+    return '$name ফিরেছে';
+  }
+
+  @override
+  String deletedOn(String date) {
+    return '$date মোছা হয়েছে';
+  }
+
+  @override
+  String get noMovements => 'এখনও স্টক নড়েনি';
+
+  @override
+  String get noPrices => 'এখনও দাম বদলায়নি';
+
+  @override
+  String get movementOpening => 'শুরুর';
+
+  @override
+  String get movementPurchase => 'মাল এসেছে';
+
+  @override
+  String get movementSale => 'বিক্রি';
+
+  @override
+  String get movementReturn => 'ফেরত';
+
+  @override
+  String get movementAdjustment => 'সমন্বয়';
+
+  @override
+  String get movementDamage => 'ক্ষতি';
+
+  @override
+  String get movementTransfer => 'স্থানান্তর';
+
+  @override
+  String balanceAfter(String qty) {
+    return 'বাকি: $qty';
+  }
+
+  @override
+  String get priceBelowCost => 'ক্রয়মূল্যের কম';
+
+  @override
+  String get saleBelowPurchase => 'বিক্রয়মূল্য ক্রয়মূল্যের কম হতে পারে না।';
+
+  @override
+  String get costHidden => 'আপনার ভূমিকার জন্য ক্রয়মূল্য দেখানো হয় না।';
+
+  @override
+  String get yes => 'হ্যাঁ';
+
+  @override
+  String get trialEndsToday =>
+      'আজ আপনার ট্রায়াল শেষ। দোকান চালু রাখতে প্ল্যাটফর্মের সাথে যোগাযোগ করুন।';
+
+  @override
+  String trialDaysLeft(int days) {
+    return 'ট্রায়ালের আর $days দিন বাকি';
+  }
+
+  @override
+  String get profitPercentLabel => 'লাভ %';
+
+  @override
+  String get saleAboveMrp => 'ছাপা MRP-এর চেয়ে বেশি।';
+
+  @override
+  String get wholesaleBlankHelp => 'খালি = বিক্রয়মূল্য';
+
+  @override
+  String get markupLabel => 'মার্কআপ';
+
+  @override
+  String get stopSelling => 'বিক্রি বন্ধ করুন';
+
+  @override
+  String get resumeSelling => 'আবার বিক্রি করুন';
+
+  @override
+  String get stoppedSellingNote => 'ক্যাশে দেখানো হবে না। স্টক ও ইতিহাস থাকবে।';
+
+  @override
+  String get productStopped => 'ক্যাশে আর বিক্রি হবে না।';
+
+  @override
+  String get productResumed => 'আবার বিক্রিতে।';
+
+  @override
+  String get newProduct => 'নতুন পণ্য';
+
+  @override
+  String get lineBelowCost =>
+      'একটি পণ্যের দাম ক্রয়মূল্যের নিচে, বিক্রি বাতিল হবে। দাম বা ছাড় বদলান।';
+
+  @override
+  String get lineBelowCostShort => 'ক্রয়মূল্যের নিচে — বিক্রি বাতিল হবে।';
+
+  @override
+  String get discountBelowCost =>
+      'এই ছাড়ে বিলটি পণ্যের ক্রয়মূল্যের নিচে চলে যায়।';
+
+  @override
+  String get orderDiscountPercent => 'বিলে ছাড় (%)';
+
+  @override
+  String get previousDueLabel => 'আগের বাকি';
+
+  @override
+  String get collectPreviousDue => 'আগের বাকিও নিন';
+
+  @override
+  String get outstandingLabel => 'মোট বাকি';
+
+  @override
+  String get cashTaken => 'নগদ গ্রহণ';
+
+  @override
+  String get digitalTaken => 'ডিজিটাল পেমেন্ট';
+
+  @override
+  String get duesCollected => 'বাকি আদায়';
+
+  @override
+  String get dueGiven => 'বাকিতে দেওয়া';
+
+  @override
+  String shiftSpansDays(int count) {
+    return 'এই ক্যাশ ড্রয়ার $count দিন ধরে খোলা।';
+  }
+
+  @override
+  String get lineDiscounts => 'পণ্যে ছাড়';
+
+  @override
+  String get youSaved => 'আপনার সাশ্রয় (MRP থেকে)';
+
+  @override
+  String get openingBalance => 'প্রারম্ভিক বাকি';
+
+  @override
+  String get openingBalanceHelp => 'bizPOS ব্যবহারের আগে থেকে যা বাকি ছিল।';
+
+  @override
+  String get ledgerSale => 'বিক্রি';
+
+  @override
+  String get ledgerPayment => 'পরিশোধ';
+
+  @override
+  String get ledgerReturn => 'ফেরত';
+
+  @override
+  String get ledgerVoid => 'বাতিল';
+
+  @override
+  String get ledgerOpeningCorrection => 'প্রারম্ভিক বাকি সংশোধন';
+
+  @override
+  String get registerTitle => 'আপনার দোকান খুলুন';
+
+  @override
+  String get registerSubtitle =>
+      'দোকান নিবন্ধন করুন আর এখনই বিক্রি শুরু করুন — ক্যাশ, ড্রয়ার আর সাধারণ গ্রাহক আগে থেকেই তৈরি থাকবে।';
+
+  @override
+  String registerTrialNote(int days) {
+    return '$days দিন বিনামূল্যে। এরপর অ্যাডমিনকে মেয়াদ বাড়াতে হবে; কিছুই মুছে যাবে না।';
+  }
+
+  @override
+  String openShopTrialNote(int days) {
+    return 'নতুন দোকান যেকোনো নিবন্ধনের মতো $days দিন বিনামূল্যে চলবে।';
+  }
+
+  @override
+  String get registerShopSection => 'দোকান';
+
+  @override
+  String get registerOwnerSection => 'মালিক';
+
+  @override
+  String get shopName => 'দোকানের নাম';
+
+  @override
+  String get storeTypeLabel => 'দোকানের ধরন';
+
+  @override
+  String get storeTypeHelp => 'কোন পণ্য তালিকা থেকে শুরু করবেন তা ঠিক করে।';
+
+  @override
+  String get shopAddressOptional => 'ঠিকানা (ঐচ্ছিক)';
+
+  @override
+  String get branchNameOptional => 'শাখার নাম (ঐচ্ছিক)';
+
+  @override
+  String get branchNameHint => 'প্রধান শাখা';
+
+  @override
+  String get ownerName => 'আপনার নাম';
+
+  @override
+  String get phone => 'ফোন';
+
+  @override
+  String get shopPhoneHelp =>
+      'দোকান নিয়ে প্ল্যাটফর্ম আপনার সাথে এই নম্বরে যোগাযোগ করবে।';
+
+  @override
+  String get invalidPhone => 'এটা ফোন নম্বর মনে হচ্ছে না।';
+
+  @override
+  String get passwordRule => 'কমপক্ষে ৬ অক্ষর।';
+
+  @override
+  String get registerAction => 'দোকান খুলুন';
+
+  @override
+  String get registering => 'দোকান তৈরি হচ্ছে…';
+
+  @override
+  String get haveAccount => 'অ্যাকাউন্ট আছে? সাইন ইন করুন';
+
+  @override
+  String get signInInstead => 'সাইন ইন';
+
+  @override
+  String get registerCta => 'নতুন দোকান? অ্যাকাউন্ট খুলুন';
+
+  @override
+  String get signInThenAddShop =>
+      'সাইন ইনের পর প্রোফাইল → আরেকটি দোকান খুলুন থেকে নতুন দোকান খুলুন।';
+
+  @override
+  String get openAnotherShop => 'আরেকটি দোকান খুলুন';
+
+  @override
+  String get openShopAction => 'দোকান খুলুন';
+
+  @override
+  String shopOpened(String name) {
+    return '$name খোলা হয়েছে। এখন আপনি এই দোকানে আছেন।';
+  }
+
+  @override
+  String shopLocked(String name) {
+    return '$name প্ল্যাটফর্ম বন্ধ করে দিয়েছে।';
+  }
+
+  @override
+  String get packagesTitle => 'প্যাকেজ';
+
+  @override
+  String get newPackage => 'নতুন প্যাকেজ';
+
+  @override
+  String get packagesSearchHint => 'প্যাকেজ খুঁজুন';
+
+  @override
+  String get packagesEmpty => 'এখনো কোনো প্যাকেজ নেই';
+
+  @override
+  String get packagesEmptyBody =>
+      'একসাথে বিক্রি হয় এমন পণ্য এক দামে প্যাকেজ করুন।';
+
+  @override
+  String get deletePackage => 'প্যাকেজ মুছুন';
+
+  @override
+  String deletePackageBody(String name) {
+    return '$name মুছবেন? আগের বিক্রিতে থাকবে; ক্যাশে আর দেখাবে না।';
+  }
+
+  @override
+  String get delete => 'মুছুন';
+
+  @override
+  String get packageDeleted => 'প্যাকেজ মুছে ফেলা হয়েছে।';
+
+  @override
+  String get packageSaved => 'প্যাকেজ সংরক্ষিত।';
+
+  @override
+  String fromDate(String date) {
+    return '$date থেকে';
+  }
+
+  @override
+  String untilDate(String date) {
+    return '$date পর্যন্ত';
+  }
+
+  @override
+  String packageSaves(String amount) {
+    return '$amount সাশ্রয়';
+  }
+
+  @override
+  String packageBuildable(String count) {
+    return '$countটি বানানো যাবে';
+  }
+
+  @override
+  String get packageOnSale => 'বিক্রিতে আছে';
+
+  @override
+  String get availabilityLive => 'চালু';
+
+  @override
+  String get availabilityScheduled => 'নির্ধারিত';
+
+  @override
+  String get availabilityExpired => 'মেয়াদোত্তীর্ণ';
+
+  @override
+  String get availabilityInactive => 'বন্ধ';
+
+  @override
+  String get packageName => 'প্যাকেজের নাম';
+
+  @override
+  String get packagePrice => 'প্যাকেজের দাম';
+
+  @override
+  String get packageItems => 'ভেতরে যা আছে';
+
+  @override
+  String get packageNeedsItems => 'অন্তত একটি পণ্য যোগ করুন।';
+
+  @override
+  String get packageComponents => 'আলাদা দামে পণ্যগুলো';
+
+  @override
+  String get packageSaving => 'গ্রাহকের সাশ্রয়';
+
+  @override
+  String get packageAboveItems => 'আলাদা পণ্যের চেয়ে বেশি দাম';
+
+  @override
+  String get packageStartsAny => 'এখন থেকে';
+
+  @override
+  String get packageEndsNever => 'শেষ তারিখ নেই';
+
+  @override
+  String get packageClearDates => 'তারিখ মুছুন';
+
+  @override
+  String get packageWindowInvalid => 'শেষ তারিখ শুরুর পরে হতে হবে।';
+
+  @override
+  String get description => 'বিবরণ';
+
+  @override
+  String get addToPackage => 'প্যাকেজে যোগ করুন';
+
+  @override
+  String get catalogueTitle => 'পণ্য তালিকা';
+
+  @override
+  String get catalogueSearchHint => 'নাম, কোম্পানি বা জেনেরিক দিয়ে খুঁজুন';
+
+  @override
+  String get catalogueAll => 'সব';
+
+  @override
+  String catalogueMine(String count) {
+    return 'আমার দোকানে ($count)';
+  }
+
+  @override
+  String catalogueMissing(String count) {
+    return 'আমার দোকানে নেই ($count)';
+  }
+
+  @override
+  String get catalogueNoResults => 'এই নামে তালিকায় কিছু নেই';
+
+  @override
+  String get catalogueNoResultsBody =>
+      'পণ্যটি থাকলে প্রস্তাব করুন, তাহলে বিক্রি শুরু করা যাবে।';
+
+  @override
+  String get catalogueNothingMissing => 'তালিকার সব পণ্যই আপনার দোকানে আছে';
+
+  @override
+  String get suggestProduct => 'পণ্য প্রস্তাব করুন';
+
+  @override
+  String get inMyStore => 'আমার দোকানে';
+
+  @override
+  String get pendingBadge => 'অপেক্ষমাণ';
+
+  @override
+  String get addToStore => 'দোকানে যোগ করুন';
+
+  @override
+  String adoptedProduct(String name) {
+    return '$name আপনার দোকানে যোগ হয়েছে।';
+  }
+
+  @override
+  String get alreadyInStoreNote => 'এই পণ্য আপনার দোকানে আগেই আছে।';
+
+  @override
+  String get mrpHelp => 'প্যাকেটে ছাপা দাম।';
+
+  @override
+  String get adoptOpeningHelp => 'এখন কয়টি আছে।';
+
+  @override
+  String get localNameLabel => 'দোকানে যে নামে';
+
+  @override
+  String get localNameHelp => 'ঐচ্ছিক';
+
+  @override
+  String get suggestNameHelp => 'লেখার সাথে সাথে তালিকা মিলিয়ে দেখা হয়।';
+
+  @override
+  String get suggestReason => 'কেন রাখবেন? (ঐচ্ছিক)';
+
+  @override
+  String get suggestReasonHelp => 'যিনি অনুমোদন দেবেন তার সুবিধা হয়।';
+
+  @override
+  String get sendSuggestion => 'প্রস্তাব পাঠান';
+
+  @override
+  String get suggestionEndorsed =>
+      'এখন আপনার দোকানে বিক্রিতে। অন্য দোকানের জন্য প্ল্যাটফর্ম যাচাই করবে।';
+
+  @override
+  String get suggestionSent => 'অনুমোদনের জন্য পাঠানো হয়েছে।';
+
+  @override
+  String get alreadyInCatalogue => 'তালিকায় আগেই আছে';
+
+  @override
+  String alreadyInCatalogueBody(String name) {
+    return 'তালিকায় $name আগেই আছে। তবুও পাঠাবেন?';
+  }
+
+  @override
+  String get sendAnyway => 'তবুও পাঠান';
+
+  @override
+  String get verdictExists =>
+      'এটি তালিকায় আগেই আছে — প্রস্তাব না করে যোগ করুন।';
+
+  @override
+  String get verdictVariant =>
+      'অন্য মাত্রায় একই পণ্য আছে। আপনারটি আলাদা পণ্য।';
+
+  @override
+  String get verdictOtherBrand => 'অন্য কোম্পানির একই পণ্য আছে।';
+
+  @override
+  String get verdictSimilar => 'কাছাকাছি পণ্য আছে। আগে দেখে নিন।';
+
+  @override
+  String get verdictNew => 'তালিকায় এমন কিছু নেই — এটি নতুন।';
+
+  @override
+  String get adoptThisInstead => 'বরং এটি যোগ করুন';
+
+  @override
+  String get suggestionsTitle => 'প্রস্তাব';
+
+  @override
+  String suggestionsPending(int count) {
+    return '$countটি আপনার অপেক্ষায়';
+  }
+
+  @override
+  String get suggestionsEmpty => 'কোনো প্রস্তাব নেই';
+
+  @override
+  String get suggestionsEmptyBody =>
+      'কর্মীদের প্রস্তাবিত পণ্য অনুমোদনের জন্য এখানে আসবে।';
+
+  @override
+  String get statusPending => 'অপেক্ষমাণ';
+
+  @override
+  String get statusEndorsed => 'এখানে বিক্রিতে';
+
+  @override
+  String get statusApproved => 'তালিকায়';
+
+  @override
+  String get statusRejected => 'বাতিল';
+
+  @override
+  String askedBy(String name) {
+    return '$name চেয়েছেন';
+  }
+
+  @override
+  String get reject => 'বাতিল';
+
+  @override
+  String get approveAndStock => 'অনুমোদন';
+
+  @override
+  String get reviewNoteOptional => 'নোট (ঐচ্ছিক)';
+
+  @override
+  String get rejectReason => 'কেন নয়?';
+
+  @override
+  String get suggestionApproved => 'অনুমোদিত — আপনার দোকানে বিক্রিতে।';
+
+  @override
+  String get suggestionRejected => 'বাতিল করা হয়েছে।';
+
+  @override
+  String get purchaseTitle => 'ক্রয়';
+
+  @override
+  String get suppliers => 'সরবরাহকারী';
+
+  @override
+  String get supplier => 'সরবরাহকারী';
+
+  @override
+  String get goodsIn => 'মাল গ্রহণ';
+
+  @override
+  String get purchaseSearchHint => 'বিল নং বা সরবরাহকারী দিয়ে খুঁজুন';
+
+  @override
+  String get purchasesEmpty => 'এখনো কোনো ক্রয় নেই';
+
+  @override
+  String get purchasesEmptyBody =>
+      'মাল আসার সাথে সাথে লিখুন, স্টক নিজেই বাড়বে।';
+
+  @override
+  String billsCount(int count) {
+    return '$countটি বিল';
+  }
+
+  @override
+  String get owedToSuppliers => 'সরবরাহকারীদের পাওনা';
+
+  @override
+  String get owedToSupplier => 'সরবরাহকারীর পাওনা';
+
+  @override
+  String get noSupplier => 'সরবরাহকারী নেই';
+
+  @override
+  String photosUploaded(int count) {
+    return '$countটি ছবি যোগ হয়েছে';
+  }
+
+  @override
+  String get deletePhoto => 'ছবি সরান';
+
+  @override
+  String get deletePhotoBody => 'বিল থেকে এই ছবিটি সরাবেন? বিল নিজে বদলাবে না।';
+
+  @override
+  String billPhotos(int count, int max) {
+    return 'বিলের ছবি ($count/$max)';
+  }
+
+  @override
+  String get noBillPhotos => 'এই বিলের কোনো ছবি নেই।';
+
+  @override
+  String get billPhotosHelp =>
+      'কাগজের বিলের ছবি দিন — বিল সংরক্ষণের পরে আপলোড হবে।';
+
+  @override
+  String get takePhoto => 'ছবি তুলুন';
+
+  @override
+  String get chooseFromGallery => 'গ্যালারি থেকে নিন';
+
+  @override
+  String get photoPickFailed => 'ক্যামেরা বা গ্যালারি খোলা যায়নি।';
+
+  @override
+  String photosTooBig(int count) {
+    return '$countটি ছবি ৮ MB-এর বেশি, বাদ দেওয়া হয়েছে';
+  }
+
+  @override
+  String get addSupplier => 'সরবরাহকারী যোগ করুন';
+
+  @override
+  String get suppliersEmpty => 'এখনো কোনো সরবরাহকারী নেই';
+
+  @override
+  String get supplierSaved => 'সরবরাহকারী সংরক্ষিত।';
+
+  @override
+  String get supplierName => 'নাম';
+
+  @override
+  String get supplierCompany => 'কোম্পানি (ঐচ্ছিক)';
+
+  @override
+  String get supplierSearch => 'কার কাছ থেকে?';
+
+  @override
+  String newSupplierNote(String name) {
+    return '\"$name\" নতুন — এই বিলের সাথে সংরক্ষিত হবে।';
+  }
+
+  @override
+  String get pickSupplierFromList => 'তালিকা থেকে সরবরাহকারী বেছে নিন।';
+
+  @override
+  String get itemsReceived => 'যা এসেছে';
+
+  @override
+  String get noItemsReceived => 'এই বিলের পণ্যগুলো যোগ করুন।';
+
+  @override
+  String batchShort(String batch) {
+    return 'ব্যাচ $batch';
+  }
+
+  @override
+  String expiresShort(String date) {
+    return 'মেয়াদ $date';
+  }
+
+  @override
+  String get billDiscountPercent => 'বিলে ছাড়';
+
+  @override
+  String get paidToSupplier => 'এখন পরিশোধ';
+
+  @override
+  String get paidFollowsTotal => 'কম না লিখলে পুরো বিল।';
+
+  @override
+  String get paidOverTotal => 'বিলের চেয়ে বেশি।';
+
+  @override
+  String get payInFull => 'পুরো পরিশোধ';
+
+  @override
+  String get payNothing => 'কিছুই না';
+
+  @override
+  String get paidFrom => 'যে হিসাব থেকে';
+
+  @override
+  String get purchaseNote => 'নোট (ঐচ্ছিক)';
+
+  @override
+  String get purchaseNoteHint => 'সরবরাহকারীর ইনভয়েস নং';
+
+  @override
+  String get saveBill => 'বিল সংরক্ষণ';
+
+  @override
+  String purchaseSaved(String refNo) {
+    return 'বিল $refNo সংরক্ষিত। স্টক আপডেট হয়েছে।';
+  }
+
+  @override
+  String get photoUploadFailed => 'ছবি আপলোড হয়নি';
+
+  @override
+  String photoUploadFailedBody(String reason) {
+    return 'বিল সংরক্ষিত। ছবি আপলোড করা যায়নি: $reason';
+  }
+
+  @override
+  String get skipPhotos => 'বাদ দিন';
+
+  @override
+  String get pickProduct => 'পণ্য বেছে নিন';
+
+  @override
+  String get purchaseAddFromCatalogue =>
+      'দোকানে এখনো নেই? আগে তালিকা থেকে যোগ করুন।';
+
+  @override
+  String get tracksBatches => 'ব্যাচ ও মেয়াদ';
+
+  @override
+  String get quantityReceived => 'পরিমাণ';
+
+  @override
+  String get unitCost => 'প্রতিটির দাম';
+
+  @override
+  String get batchNo => 'ব্যাচ নং';
+
+  @override
+  String get expiryDate => 'মেয়াদ শেষ';
 }

@@ -219,6 +219,22 @@ class _CloseShiftSheetState extends ConsumerState<CloseShiftSheet> {
                 ),
                 const SizedBox(height: Insets.s4),
                 _Row(l10n.openingCash, money.format(widget.shift.openingCash)),
+                // What the drawer should hold, before the count rather than
+                // after it: counting against a visible figure is how a short
+                // drawer gets recounted instead of reported.
+                ref.watch(posShiftReportProvider).when(
+                      loading: () => const Padding(
+                        padding: EdgeInsets.symmetric(vertical: Insets.s8),
+                        child: LinearProgressIndicator(),
+                      ),
+                      // The close still works without it; the server does the
+                      // same arithmetic either way.
+                      error: (_, _) => const SizedBox.shrink(),
+                      data: (report) => _ReportSummary(
+                        report: report,
+                        money: money,
+                      ),
+                    ),
                 const SizedBox(height: Insets.s24),
                 AmountField(
                   controller: _counted,
@@ -242,6 +258,57 @@ class _CloseShiftSheetState extends ConsumerState<CloseShiftSheet> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ReportSummary extends StatelessWidget {
+  const _ReportSummary({required this.report, required this.money});
+
+  final ShiftReport report;
+  final Money money;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final palette = context.palette;
+    final totals = report.totals;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _Row(l10n.cashTaken, money.format(report.cashTaken)),
+        _Row(
+          l10n.expectedCash,
+          money.format(report.expected),
+          tone: palette.accent,
+        ),
+        Divider(color: palette.hairline, height: Insets.s16),
+        _Row(l10n.invoiceCount(totals.invoices.toString()), money.format(totals.sold)),
+        if (totals.digital > 0)
+          _Row(l10n.digitalTaken, money.format(totals.digital)),
+        if (totals.collected > 0)
+          _Row(l10n.duesCollected, money.format(totals.collected)),
+        if (totals.dueGiven > 0)
+          _Row(
+            l10n.dueGiven,
+            money.format(totals.dueGiven),
+            tone: palette.warning,
+          ),
+        // A drawer left open across days holds more than one; say so, since
+        // the figures above are then a week's and not a morning's.
+        if (report.days.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: Insets.s4),
+            child: Text(
+              l10n.shiftSpansDays(report.days.length),
+              style: Theme.of(context)
+                  .textTheme
+                  .labelSmall
+                  ?.copyWith(color: palette.muted),
+            ),
+          ),
+      ],
     );
   }
 }

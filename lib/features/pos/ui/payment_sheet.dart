@@ -13,6 +13,7 @@ import '../../../l10n/app_localizations.dart';
 import '../data/pos_models.dart';
 import '../data/pos_repository.dart';
 import '../state/cart.dart';
+import 'cart_sheet.dart' show BelowCostNotice;
 import 'checkout_done_sheet.dart';
 import 'customer_picker_sheet.dart';
 
@@ -29,6 +30,13 @@ import 'customer_picker_sheet.dart';
 /// * **The total the server returns is the sale.** Everything shown here is the
 ///   app's own estimate, so the amount fields start from it but the receipt
 ///   comes from the checkout response.
+///
+/// And one habit of the shop: **the khata is one figure.** A customer who owes
+/// 500 and buys 300 is asked for 800. "Collect previous due" sends
+/// `collectPrevious: true` and tenders against both; the server fills this bill
+/// first and walks the older debts oldest first. Without it, the same
+/// over-tender is change. Either way the tender is sent as typed — the server
+/// splits it, not the app.
 class PaymentSheet extends ConsumerStatefulWidget {
   const PaymentSheet({required this.lookups, super.key});
 
@@ -52,6 +60,9 @@ class PaymentSheet extends ConsumerStatefulWidget {
 class _PaymentSheetState extends ConsumerState<PaymentSheet> {
   final List<_PaymentDraft> _drafts = [];
   bool _busy = false;
+
+  /// Asking for the old debt along with today's goods.
+  bool _collectPrevious = false;
 
   @override
   void initState() {
@@ -93,10 +104,18 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
     final total = cart.estimatedTotal.toDouble();
     final pointsOff = loyalty.worthOf(cart.redeemPoints);
     final payable = (total - pointsOff).clamp(0, double.infinity);
-    final remaining = payable - _paid;
 
-    // Positive means a due is being left; negative means change is owed back.
-    final leavesDue = remaining > 0.001;
+    final previousDue =
+        cart.hasNamedCustomer ? (cart.customer!.due ?? 0) : 0;
+    final collecting = _collectPrevious && previousDue > 0;
+    final target = payable + (collecting ? previousDue : 0);
+    final remaining = target - _paid;
+
+    // A new due only exists when this bill itself is short. Paying the bill
+    // and part of the old debt leaves the rest of the old debt where it was,
+    // which is not a new credit sale.
+    final leavesDue = payable - _paid > 0.001;
+    final stillOwed = remaining > 0.001 ? remaining : 0;
     final change = remaining < -0.001 ? -remaining : 0;
 
     final creditBlocked = leavesDue &&
@@ -125,6 +144,23 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
                 money: money,
               ),
               const SizedBox(height: Insets.s16),
+
+              if (previousDue > 0)
+                _PreviousDueRow(
+                  due: previousDue,
+                  money: money,
+                  value: _collectPrevious,
+                  onChanged: (value) => setState(() {
+                    _collectPrevious = value;
+                    // The ordinary case is one payment for everything asked
+                    // for, so the single draft follows the figure.
+                    if (_drafts.length == 1) {
+                      final newTarget = payable + (value ? previousDue : 0);
+                      _drafts.first.amount.text =
+                          _PaymentDraft._trim(newTarget);
+                    }
+                  }),
+                ),
 
               if (mayRedeem)
                 _RedeemRow(
@@ -172,10 +208,10 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
                   value: money.format(change),
                   tone: palette.positive,
                 ),
-              if (leavesDue)
+              if (stillOwed > 0)
                 _Line(
                   label: l10n.remainingDue,
-                  value: money.format(remaining),
+                  value: money.format(stillOwed),
                   tone: creditBlocked ? palette.danger : palette.warning,
                 ),
               if (creditBlocked)
@@ -210,11 +246,21 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
           ),
         ),
         Divider(color: palette.hairline, height: 1),
+        if (cart.belowCost)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              Insets.gutter,
+              Insets.s12,
+              Insets.gutter,
+              0,
+            ),
+            child: BelowCostNotice(cart: cart),
+          ),
         SheetAction(
-          label: '${l10n.completeSale}  ${money.format(payable)}',
+          label: '${l10n.completeSale}  ${money.format(target)}',
           icon: Icons.check_circle_outline,
           busy: _busy,
-          onPressed: creditBlocked ? null : _checkout,
+          onPressed: creditBlocked || cart.belowCost ? null : _checkout,
         ),
       ],
     );
@@ -250,6 +296,8 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
     final body = cart.toCheckoutBody(
       mayChangePrice: mayChangePrice,
       mayDiscount: mayDiscount,
+      collectPrevious:
+          _collectPrevious && (cart.customer?.due ?? 0) > 0,
       payments: [
         for (final draft in _drafts)
           if ((draft.value ?? 0) > 0)
@@ -425,6 +473,48 @@ class _PaymentCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// The customer's old debt, and whether it is being asked for now.
+class _PreviousDueRow extends StatelessWidget {
+  const _PreviousDueRow({
+    required this.due,
+    required this.money,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final num due;
+  final Money money;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final palette = context.palette;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: Insets.s12),
+      decoration: BoxDecoration(
+        color: palette.surfaceAlt,
+        borderRadius: BorderRadius.circular(Radii.row),
+        border: Border.all(color: palette.hairline),
+      ),
+      child: SwitchListTile.adaptive(
+        value: value,
+        onChanged: onChanged,
+        title: Text(l10n.collectPreviousDue),
+        subtitle: Text(
+          '${l10n.previousDueLabel} ${money.format(due)}',
+          style: Theme.of(context)
+              .textTheme
+              .bodySmall
+              ?.copyWith(color: palette.warning),
+        ),
       ),
     );
   }

@@ -1,6 +1,6 @@
 /// Every permission string the server checks.
 ///
-/// These mirror the matrix in `docs/MOBILE-API.md` section 3. The app is built
+/// These mirror the matrix in `docs/MOBILE-API-NEW.md` section 3. The app is built
 /// from the list `GET /me` returns — **never** from `role.name`, because an
 /// owner can revoke a single permission while the role name stays `cashier`.
 class P {
@@ -79,12 +79,12 @@ class P {
   static const adminStoreImpersonate = 'admin.store.impersonate';
   static const adminSuggestionReview = 'admin.suggestion.review';
 
-  /// The updated spec (`docs/MOBILE-API-UPDATED.md`) gave the platform direct
+  /// The updated spec (`docs/MOBILE-API-NEW.md`) gave the platform direct
   /// control of the shared catalogue: `GET/POST/PATCH/DELETE /admin/catalog`.
   static const adminCatalogManage = 'admin.catalog.manage';
 
   // ---------------------------------------------------------------------------
-  // Added by docs/MOBILE-API-UPDATED.md — these used to be section 7 stubs and
+  // Added by docs/MOBILE-API-NEW.md — these used to be section 7 stubs and
   // now have real endpoints.
   // ---------------------------------------------------------------------------
 
@@ -98,7 +98,7 @@ class P {
   static const inventoryProductDelete = 'inventory.product.delete';
 
   // ---------------------------------------------------------------------------
-  // NO ENDPOINT — docs/MOBILE-API.md section 7.
+  // NO ENDPOINT — docs/MOBILE-API-NEW.md section 7.
   //
   // These appear in the role matrix, but nothing in the API serves them yet, in
   // the app or in the web workspace. They are listed so nobody has to guess why
@@ -108,7 +108,9 @@ class P {
   static const inventoryTransferCreate = 'inventory.transfer.create'; // §7
   static const inventoryTransferApprove = 'inventory.transfer.approve'; // §7
   static const inventoryAdjustApprove = 'inventory.adjust.approve'; // §7
-  static const purchaseBillUpdate = 'purchase.bill.update'; // §7
+  /// Editing a bill still has no endpoint, but removing a bill's photo does:
+  /// `DELETE /purchases/{id}/photos/{photoId}`.
+  static const purchaseBillUpdate = 'purchase.bill.update';
   static const purchaseBillDelete = 'purchase.bill.delete'; // §7
   static const purchasePaymentCreate = 'purchase.payment.create'; // §7
   static const purchaseReturnCreate = 'purchase.return.create'; // §7
