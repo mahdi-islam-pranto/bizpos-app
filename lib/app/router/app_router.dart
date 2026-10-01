@@ -3,8 +3,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/permissions/permission_set.dart';
+import '../../core/session/me.dart';
 import '../../core/session/session_controller.dart';
 import '../../core/session/session_state.dart';
+import '../../features/accounts/ui/accounts_screen.dart';
 import '../../features/auth/login_screen.dart';
 import '../../features/auth/no_store_screen.dart';
 import '../../features/auth/register_screen.dart';
@@ -13,6 +16,7 @@ import '../../features/catalogue/ui/catalogue_screen.dart';
 import '../../features/catalogue/ui/suggestions_screen.dart';
 import '../../features/customers/ui/customer_detail_screen.dart';
 import '../../features/customers/ui/customers_screen.dart';
+import '../../features/dashboard/ui/dashboard_screen.dart';
 import '../../features/home/not_allowed_screen.dart';
 import '../../features/home/placeholder_screen.dart';
 import '../../features/packages/ui/packages_screen.dart';
@@ -21,6 +25,7 @@ import '../../features/products/ui/products_screen.dart';
 import '../../features/pos/ui/pos_screen.dart';
 import '../../features/purchases/ui/goods_in_screen.dart';
 import '../../features/purchases/ui/purchases_screen.dart';
+import '../../features/reports/ui/reports_screen.dart';
 import '../../features/sales/ui/invoice_detail_screen.dart';
 import '../../features/sales/ui/invoices_screen.dart';
 import '../../features/settings/devices_screen.dart';
@@ -44,10 +49,26 @@ final routerProvider = Provider<GoRouter>((ref) {
   // go_router needs a Listenable to know when to re-run `redirect`; the session
   // is the only thing that changes the answer.
   final refresh = ValueNotifier<int>(0);
-  ref.listen(sessionControllerProvider, (_, _) => refresh.value++);
+  late final GoRouter router;
+  ref.listen(sessionControllerProvider, (previous, next) {
+    refresh.value++;
+
+    // A store or branch switch starts the day somewhere else, and both are
+    // made from Profile — which the redirect otherwise leaves alone, so the
+    // person stayed on Profile in the new shop. Go where signing in goes:
+    // Sell, for anyone who may sell.
+    final before = previous?.value;
+    final after = next.value;
+    if (before is SessionActive &&
+        after is SessionActive &&
+        (before.scope.storeId != after.scope.storeId ||
+            before.scope.branchId != after.scope.branchId)) {
+      router.go(homeFor(after.me.permissions));
+    }
+  });
   ref.onDispose(refresh.dispose);
 
-  return GoRouter(
+  return router = GoRouter(
     initialLocation: Routes.splash,
     refreshListenable: refresh,
     debugLogDiagnostics: kDebugMode,
@@ -165,10 +186,14 @@ final routerProvider = Provider<GoRouter>((ref) {
 /// The gate table is the single authority: a deep link into a screen this
 /// person does not hold the permission for lands on "not allowed" instead of
 /// rendering a screen that would only 403 on its first call.
-String? _redirectActive(Ref ref, dynamic me, String where) {
-  final permissions = ref.read(permissionsProvider);
-  final available = screensFor(permissions);
-  final home = _homeFor(available);
+///
+/// Permissions are read off the [Me] the session just produced, **not** through
+/// `permissionsProvider`. The redirect runs from inside the session's own change
+/// notification, and at that instant the derived provider can still hold the
+/// signed-out empty set — which made the landing screen "nowhere", i.e. Profile.
+String? _redirectActive(Ref ref, Me me, String where) {
+  final permissions = me.permissions;
+  final home = homeFor(permissions);
 
   // Nothing to do on the pre-session screens once we are in.
   if (where == Routes.splash ||
@@ -184,12 +209,11 @@ String? _redirectActive(Ref ref, dynamic me, String where) {
   return null;
 }
 
-
 /// The screen behind a gate, or a placeholder when its phase has not arrived.
 ///
 /// Phase 1 is the counter: Sell, Invoices and Customers. Phase 2 adds Products
 /// and stock, Packages, the Catalogue with its Suggestions queue, and
-/// Purchases. The rest still say so plainly rather than looking broken, and
+/// Purchases. Phase 3 adds the Dashboard, Accounts and Reports. The rest still say so plainly rather than looking broken, and
 /// swapping one in later is a line here — the gate table, the nav bar and the
 /// route guard need no edit.
 Widget screenFor(ScreenGate gate) => switch (gate.screen) {
@@ -201,6 +225,9 @@ Widget screenFor(ScreenGate gate) => switch (gate.screen) {
       AppScreen.catalogue => const CatalogueScreen(),
       AppScreen.suggestions => const SuggestionsScreen(),
       AppScreen.purchase => const PurchasesScreen(),
+      AppScreen.dashboard => const DashboardScreen(),
+      AppScreen.accounts => const AccountsScreen(),
+      AppScreen.reports => const ReportsScreen(),
       _ => PlaceholderScreen(gate: gate),
     };
 
@@ -215,17 +242,22 @@ const Set<AppScreen> builtScreens = {
   AppScreen.catalogue,
   AppScreen.suggestions,
   AppScreen.purchase,
+  AppScreen.dashboard,
+  AppScreen.accounts,
+  AppScreen.reports,
 };
 
 /// Where somebody lands when they sign in.
 ///
-/// The first gate a person passes is **not** always somewhere worth being: the
-/// Dashboard's gate opens on `inventory.stock.view`, which a cashier holds, so
-/// the counter app used to start on an empty "not built yet" page with the till
-/// one tab away. Opening on a screen that exists is worth more than opening in
-/// gate order, so an unbuilt screen is skipped — and once its phase lands it
-/// takes its place in the order again with no edit here.
-String _homeFor(List<ScreenGate> available) {
+/// **Sell comes first for anyone who may sell** — the till is the screen a
+/// shop opens on, owner included; the dashboard is one tab away. Everyone
+/// else starts on the first screen in gate order that has something built
+/// behind it, so a phase that has not landed is never the landing screen.
+String homeFor(PermissionSet permissions) {
+  final available = screensFor(permissions);
+  for (final gate in available) {
+    if (gate.screen == AppScreen.pos) return gate.path;
+  }
   for (final gate in available) {
     if (builtScreens.contains(gate.screen)) return gate.path;
   }

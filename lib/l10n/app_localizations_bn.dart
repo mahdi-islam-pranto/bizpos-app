@@ -1805,4 +1805,437 @@ class AppL10nBn extends AppL10n {
 
   @override
   String get expiryDate => 'মেয়াদ শেষ';
+
+  @override
+  String get notYours => 'আপনার অনুমতিতে নেই';
+
+  @override
+  String get sectionLocked => 'এই অংশ দেখার অনুমতি আপনার নেই।';
+
+  @override
+  String get scopeBranch => 'এই শাখা';
+
+  @override
+  String get scopeStore => 'পুরো দোকান';
+
+  @override
+  String get scopeMixed => 'শাখা ও দোকান';
+
+  @override
+  String get reportSales => 'বিক্রি';
+
+  @override
+  String get reportProfit => 'লাভ';
+
+  @override
+  String get reportStock => 'স্টক';
+
+  @override
+  String get reportDues => 'বাকি';
+
+  @override
+  String get reportWindow => 'সময়কাল';
+
+  @override
+  String lastDays(int days) {
+    return 'গত $days দিন';
+  }
+
+  @override
+  String lastMonths(int count) {
+    return '$count মাস';
+  }
+
+  @override
+  String get customRange => 'তারিখ বাছুন…';
+
+  @override
+  String rangeCapped(int days) {
+    return 'শেষ $days দিনে ছোট করা হয়েছে — ড্যাশবোর্ড এর বেশি দেখায় না।';
+  }
+
+  @override
+  String get revenue => 'বিক্রয়';
+
+  @override
+  String get averageSale => 'গড় বিক্রি';
+
+  @override
+  String get dailySales => 'দিনভিত্তিক বিক্রি';
+
+  @override
+  String get topProducts => 'সবচেয়ে বেশি বিক্রি';
+
+  @override
+  String get nothingSold => 'এই সময়ে কিছু বিক্রি হয়নি।';
+
+  @override
+  String qtySold(String qty) {
+    return '$qtyটি বিক্রি';
+  }
+
+  @override
+  String get profit => 'লাভ';
+
+  @override
+  String get byMethod => 'পেমেন্ট পদ্ধতি অনুযায়ী';
+
+  @override
+  String get byStaff => 'কর্মী অনুযায়ী';
+
+  @override
+  String get netProfit => 'নিট লাভ';
+
+  @override
+  String get grossProfit => 'মোট লাভ';
+
+  @override
+  String get howItAddsUp => 'হিসাব যেভাবে দাঁড়ায়';
+
+  @override
+  String get costOfGoods => 'পণ্যের ক্রয়মূল্য';
+
+  @override
+  String get returnsLabel => 'ফেরত';
+
+  @override
+  String get expensesLabel => 'খরচ';
+
+  @override
+  String get stockOnHand => 'স্টক';
+
+  @override
+  String get unitsOnHand => 'মজুদ একক';
+
+  @override
+  String get nothingLow => 'কোনো পণ্য কমে যায়নি।';
+
+  @override
+  String minimumIs(String qty) {
+    return 'ন্যূনতম $qty';
+  }
+
+  @override
+  String get expiringSoon => 'শীঘ্রই মেয়াদ শেষ';
+
+  @override
+  String get nothingExpiring => 'শীঘ্রই কোনো মেয়াদ শেষ হচ্ছে না।';
+
+  @override
+  String onHand(String qty) {
+    return 'মজুদ $qty';
+  }
+
+  @override
+  String get deadStock => '৯০ দিনে বিক্রি নেই';
+
+  @override
+  String get nothingDead => 'তাকের সব পণ্যই সম্প্রতি বিক্রি হয়েছে।';
+
+  @override
+  String get owedToShop => 'দোকানের পাওনা';
+
+  @override
+  String get whoOwes => 'কার কাছে পাওনা';
+
+  @override
+  String get nobodyOwes => 'কারো কাছে দোকানের পাওনা নেই।';
+
+  @override
+  String daysOld(int days) {
+    return '$days দিন পুরনো';
+  }
+
+  @override
+  String get overCreditLimit => 'বাকির সীমা পেরিয়েছে';
+
+  @override
+  String get headline => 'এক নজরে';
+
+  @override
+  String get discountGiven => 'দেওয়া ছাড়';
+
+  @override
+  String get dueRaised => 'বাকি রাখা';
+
+  @override
+  String get moneyIn => 'টাকা এসেছে';
+
+  @override
+  String get collectedTotal => 'মোট আদায়';
+
+  @override
+  String get onTodaysBills => 'এই সময়ের বিলে';
+
+  @override
+  String get onOldDues => 'পুরনো বাকিতে';
+
+  @override
+  String get onPreviousDue => 'বিলের সাথে পুরনো বাকি';
+
+  @override
+  String get billsSettledBy => 'বিল যেভাবে পরিশোধ হয়েছে';
+
+  @override
+  String get capital => 'টাকা এখন কোথায়';
+
+  @override
+  String get stockAtCost => 'ক্রয়মূল্যে স্টক';
+
+  @override
+  String get receivable => 'পাওনা';
+
+  @override
+  String get inAccounts => 'অ্যাকাউন্টে';
+
+  @override
+  String get payable => 'দেনা';
+
+  @override
+  String get invested => 'বিনিয়োগ';
+
+  @override
+  String get netWorth => 'নিট';
+
+  @override
+  String get dues => 'বাকি';
+
+  @override
+  String get total => 'মোট';
+
+  @override
+  String timesCount(int count) {
+    return '$count বার';
+  }
+
+  @override
+  String get cashDrawers => 'ক্যাশ ড্রয়ার';
+
+  @override
+  String get restockSoon => 'শীঘ্রই অর্ডার দিন';
+
+  @override
+  String get rising => 'বিক্রি বাড়ছে';
+
+  @override
+  String get falling => 'বিক্রি কমছে';
+
+  @override
+  String get moverNew => 'নতুন';
+
+  @override
+  String get moverStopped => 'বন্ধ';
+
+  @override
+  String perDay(String qty) {
+    return 'দিনে $qty';
+  }
+
+  @override
+  String daysCover(String days) {
+    return '$days দিন চলবে';
+  }
+
+  @override
+  String daysLeft(String days) {
+    return '$days দিন বাকি';
+  }
+
+  @override
+  String get overview => 'সারসংক্ষেপ';
+
+  @override
+  String get transactions => 'লেনদেন';
+
+  @override
+  String get transfer => 'স্থানান্তর';
+
+  @override
+  String get transferDone => 'টাকা স্থানান্তর হয়েছে।';
+
+  @override
+  String get fromAccount => 'থেকে';
+
+  @override
+  String get toAccount => 'তে';
+
+  @override
+  String get sameAccount => 'দুটি ভিন্ন অ্যাকাউন্ট বাছুন।';
+
+  @override
+  String get expenseTypes => 'খরচের ধরন';
+
+  @override
+  String get expenseType => 'খরচের ধরন';
+
+  @override
+  String get expenseTypeName => 'নাম';
+
+  @override
+  String get newExpenseType => 'নতুন ধরন…';
+
+  @override
+  String get editExpenseType => 'খরচের ধরন সম্পাদনা';
+
+  @override
+  String get newTypeHelp => 'এই খরচের সাথে নতুন ধরন হিসেবে সংরক্ষিত হবে।';
+
+  @override
+  String get noExpenseTypes => 'এখনো কোনো খরচের ধরন নেই।';
+
+  @override
+  String get expenseTypeSaved => 'খরচের ধরন সংরক্ষিত।';
+
+  @override
+  String get deleteExpenseType => 'ধরন মুছুন';
+
+  @override
+  String get deleteExpenseTypeBody =>
+      'যে ধরনে খরচ আছে সেটি মুছে না গিয়ে অবসরে যাবে, যাতে পুরনো খরচের নাম থাকে।';
+
+  @override
+  String get expenseTypeDeleted => 'খরচের ধরন মোছা হয়েছে।';
+
+  @override
+  String expenseTypeRetired(int count) {
+    return 'অবসরে গেছে — $countটি খরচে ব্যবহৃত।';
+  }
+
+  @override
+  String get retired => 'অবসরপ্রাপ্ত';
+
+  @override
+  String get iconLabel => 'আইকন';
+
+  @override
+  String get defaultAmount => 'নির্ধারিত পরিমাণ';
+
+  @override
+  String get defaultAmountHelp => 'কুইক টাইল এক চাপে যা লিখবে।';
+
+  @override
+  String get quickTile => 'কুইক টাইল';
+
+  @override
+  String get quickTileHelp => 'অ্যাকাউন্ট পাতায় এক চাপের টাইল হিসেবে দেখাবে।';
+
+  @override
+  String get salaryType => 'বেতন';
+
+  @override
+  String get salaryTypeHelp => 'কর্মীর নাম ও কোন মাসের বেতন তা জিজ্ঞেস করবে।';
+
+  @override
+  String get inUse => 'ব্যবহৃত হচ্ছে';
+
+  @override
+  String get recordExpense => 'খরচ';
+
+  @override
+  String get expense => 'খরচ';
+
+  @override
+  String expenseRecorded(String name, String amount) {
+    return '$name: $amount লেখা হয়েছে।';
+  }
+
+  @override
+  String get undo => 'ফিরিয়ে নিন';
+
+  @override
+  String get amount => 'পরিমাণ';
+
+  @override
+  String get employeeName => 'কর্মী';
+
+  @override
+  String get employeeNameHelp => 'নাম লিখুন — লগইন লাগবে না।';
+
+  @override
+  String get salaryMonth => 'কোন মাসের বেতন';
+
+  @override
+  String get salaryMonthHelp => 'যে মাসের বেতন, যেদিন দেওয়া হলো সেদিন নয়।';
+
+  @override
+  String get dateLabel => 'তারিখ';
+
+  @override
+  String get backdatedHelp => 'আগের তারিখে লেখা হবে।';
+
+  @override
+  String get note => 'নোট';
+
+  @override
+  String get recordedBy => 'লিখেছেন';
+
+  @override
+  String forMonth(String month) {
+    return '$month মাসের';
+  }
+
+  @override
+  String get noExpenses => 'এখনো কোনো খরচ নেই।';
+
+  @override
+  String get noTransactions => 'এখনো কোনো লেনদেন নেই।';
+
+  @override
+  String get deleteExpense => 'খরচ মুছুন';
+
+  @override
+  String deleteExpenseBody(String amount, String account) {
+    return '$amount আবার $account-এ ফিরে যাবে।';
+  }
+
+  @override
+  String get expenseDeleted => 'খরচ মোছা হয়েছে। টাকা অ্যাকাউন্টে ফিরেছে।';
+
+  @override
+  String get spentToday => 'আজকের খরচ';
+
+  @override
+  String get spentThisMonth => 'এ মাসের খরচ';
+
+  @override
+  String get salaryThisMonth => 'এ মাসের বেতন';
+
+  @override
+  String get quickExpenses => 'দ্রুত খরচ';
+
+  @override
+  String get salaryAsks => 'নাম জিজ্ঞেস করবে';
+
+  @override
+  String get typeAmount => 'পরিমাণ লিখুন';
+
+  @override
+  String get addAccount => 'অ্যাকাউন্ট যোগ করুন';
+
+  @override
+  String get accountAdded => 'অ্যাকাউন্ট যোগ হয়েছে।';
+
+  @override
+  String get accountName => 'অ্যাকাউন্টের নাম';
+
+  @override
+  String get accountNameHint => 'যেমন সিটি ব্যাংক, বিকাশ মার্চেন্ট';
+
+  @override
+  String get accountCash => 'নগদ';
+
+  @override
+  String get accountBank => 'ব্যাংক';
+
+  @override
+  String get accountMfs => 'মোবাইল ব্যাংকিং';
+
+  @override
+  String get txnSale => 'বিক্রি';
+
+  @override
+  String get txnDuePayment => 'বাকি আদায়';
+
+  @override
+  String get txnRefund => 'ফেরত';
 }

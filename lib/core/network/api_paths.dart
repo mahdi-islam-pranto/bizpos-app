@@ -107,7 +107,18 @@ class ApiPaths {
   static const supplierSearch = '/suppliers/search';
   static String supplier(int id) => '/suppliers/$id';
 
-  // Reports used by the counter
+  static const accountsTransfer = '/accounts/transfer';
+  static const expenses = '/expenses';
+  static String expense(int id) => '/expenses/$id';
+  static const expenseCategories = '/expense-categories';
+  static String expenseCategory(int id) => '/expense-categories/$id';
+
+  // Reports — section 5.8 and section 6, "Reports"
+  /// The owner's whole screen in one call. `report.sales.view`.
+  static const dashboard = '/dashboard';
+  static const reportSales = '/reports/sales';
+  static const reportProfit = '/reports/profit';
+  static const reportStock = '/reports/stock';
   static const reportDues = '/reports/dues';
 
   /// The two endpoints that need no token. The auth interceptor skips these.

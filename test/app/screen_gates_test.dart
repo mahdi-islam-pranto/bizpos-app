@@ -1,3 +1,4 @@
+import 'package:bizpos_app/app/router/app_router.dart';
 import 'package:bizpos_app/app/router/screen_gates.dart';
 import 'package:bizpos_app/core/permissions/permission_set.dart';
 import 'package:bizpos_app/core/permissions/permissions.dart';
@@ -18,8 +19,8 @@ void main() {
   group('each role gets exactly its own screens', () {
     test('store owner gets the whole app except the platform section', () {
       expect(screensOf(Roles.set(Roles.owner)), [
-        AppScreen.dashboard,
         AppScreen.pos,
+        AppScreen.dashboard,
         AppScreen.invoices,
         AppScreen.customers,
         AppScreen.products,
@@ -44,8 +45,8 @@ void main() {
 
     test('cashier gets a counter app and nothing else', () {
       expect(screensOf(Roles.set(Roles.cashier)), [
-        AppScreen.dashboard,
         AppScreen.pos,
+        AppScreen.dashboard,
         AppScreen.invoices,
         AppScreen.customers,
         AppScreen.products,
@@ -100,10 +101,29 @@ void main() {
   });
 
   group('the first screen a role lands on', () {
-    test('a cashier opens on the dashboard tile row, then Sell', () {
-      final cashier = screensFor(Roles.set(Roles.cashier));
-      expect(cashier.first.screen, AppScreen.dashboard);
-      expect(cashier[1].screen, AppScreen.pos);
+    test('Sell is the first tab for anyone who may sell, owner included', () {
+      for (final role in [Roles.owner, Roles.manager, Roles.cashier]) {
+        final screens = screensFor(Roles.set(role));
+        expect(screens.first.screen, AppScreen.pos);
+        expect(screens[1].screen, AppScreen.dashboard);
+      }
+    });
+
+    test('sign-in lands on Sell whenever the person may sell', () {
+      expect(homeFor(Roles.set(Roles.owner)), '/sell');
+      expect(homeFor(Roles.set(Roles.manager)), '/sell');
+      expect(homeFor(Roles.set(Roles.cashier)), '/sell');
+      expect(homeFor(Roles.superAdmin), '/sell');
+    });
+
+    test('someone who may not sell lands on the dashboard', () {
+      expect(homeFor(Roles.set(Roles.accountant)), '/dashboard');
+      expect(homeFor(Roles.set(Roles.stockKeeper)), '/dashboard');
+      expect(homeFor(Roles.set(Roles.auditor)), '/dashboard');
+    });
+
+    test('only somebody with no screens at all lands on Profile', () {
+      expect(homeFor(const PermissionSet.empty()), '/profile');
     });
 
     test('a stock keeper never sees a Sell tab', () {

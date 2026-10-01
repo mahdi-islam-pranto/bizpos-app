@@ -59,13 +59,13 @@ What the NEW doc changed over UPDATED, and where the app stands on each:
   sign_in_to_add_store` sends the person to `/login?email=`; opening a second
   shop is `OpenStoreSheet` (`POST /stores` then switch-store) on Profile and on
   the no-store screen, with `GET /stores` `meta.locked` named there.
-- **Later phases, not built**: `GET /dashboard?range=` (the whole owner's
-  screen in one call, sections `null` when not permitted — phase 3), salary
-  expenses (`isSalary`, `employeeName`, `salaryMonth`) and `employees[]` on
-  `GET /accounts` (phase 3), `GET /suppliers/search`, `supplierName` on
-  `POST /purchases`, `discountPercent` on purchases and bill photos
-  `PATCH /admin/stores/{id}` and `/extend` (phase 4). (Phase 2's catalogue
-  and purchase additions are built — see below.)
+- **`GET /dashboard?range=`** (the whole owner's screen in one call,
+  sections `null` when not permitted) and **salary expenses** (`isSalary`,
+  `employeeName`, `salaryMonth`, `employees[]` and `monthSalary` on
+  `GET /accounts`) — phase 3. Built.
+- **Later phases, not built**: `PATCH /admin/stores/{id}` and `/extend`
+  (phase 4). (Phase 2's catalogue and purchase additions are built — see
+  below.)
 
 What the UPDATED doc had already changed (all built where the phase is):
 
@@ -84,8 +84,8 @@ What the UPDATED doc had already changed (all built where the phase is):
 - **`/admin/catalog`** (`admin.catalog.manage`) gives the platform direct
   control of the shared catalogue. Phase 4.
 
-The build plan lives at `~/.claude/plans/piped-twirling-crab.md`. **Phases 0, 1
-and 2 are done**; phase 3 (money and insight) is next. Phase 0 is the
+The build plan lives at `~/.claude/plans/piped-twirling-crab.md`. **Phases 0, 1,
+2 and 3 are done**; phase 4 (team, store and platform) is next. Phase 0 is the
 transport/session/permission spine, login, a permission-built navigation shell
 and a profile screen. Phase 1 is the counter: POS with camera scanning, cart,
 customer picker, split payment, loyalty redemption, cash drawer and held carts;
@@ -118,12 +118,32 @@ Phase 2 details that are easy to break:
 - **The POS "added" confirmation lives in the cart bar**, not a snack bar: the
   shell's scaffold floats snack bars over the bar the cashier taps next.
 
-`builtScreens` in `app_router.dart` lists the gates that have a real screen
-behind them, and the landing screen after sign-in is the first *built* one a
-person may reach. Without that, a cashier opened the app on the Dashboard
-placeholder — its gate is `inventory.stock.view`, which a cashier holds — with
-the till one tab away. Landing a phase means adding its `AppScreen` to both
-`screenFor()` and `builtScreens`.
+Phase 3 is `lib/features/accounts/` (balances, one-tap quick tiles — a
+salary tile or one with no `defaultAmount` opens the form instead — the
+expense form with a new `categoryName`, backdated `date` and the salary
+fields, delete, transfers, new accounts, expense types), `lib/features/reports/`
+(sales, profit, stock and dues tabs, each by its own permission, each
+labelled branch or store scope) and `lib/features/dashboard/` (`GET
+/dashboard` for `report.sales.view`; the cashier / stock keeper get the
+smaller one from `/products/stats` plus the open drawer). Easy to break:
+
+- **`PATCH /expense-categories/{id}` sends every flag** — `CategoryDraft`
+  always writes `isQuick`, `isSalary`, `isActive`; an omitted one reads as
+  false.
+- **Salary fields travel only for a salary type** (`ExpenseDraft.toBody`).
+- **Expense and transfer POSTs use no scope cancel token**, like checkout.
+- **A dashboard section that is `null` renders as `LockedSection`**, and a
+  null profit in `headline` as a locked figure — never as zero.
+- **Report buckets go through `parseBucket`**, which never converts zones.
+
+**Landing is Sell for anyone who may sell** (owner included), and Sell is the
+first tab; others land on the first *built* screen in gate order (`homeFor()`
+in `app_router.dart`). A store or branch switch — made from Profile — sends
+the router to `homeFor()` too; before that it left the person on Profile in
+the new shop. `_redirectActive` reads permissions off the new `Me`, not the
+derived provider. `builtScreens` lists the gates with a real screen behind
+them; landing a phase means adding its `AppScreen` to both `screenFor()` and
+`builtScreens`.
 
 ## Commands
 
@@ -132,7 +152,7 @@ flutter pub get
 flutter gen-l10n                 # after editing lib/l10n/*.arb (also runs during build)
 flutter run --dart-define=BIZPOS_BASE_URL=http://10.0.2.2:8000/api/v1
 flutter analyze                  # lints via flutter_lints (analysis_options.yaml)
-flutter test                     # 169 tests
+flutter test                     # 202 tests
 flutter test test/app/screen_gates_test.dart --plain-name "cashier"   # one test
 flutter build apk --debug
 ```

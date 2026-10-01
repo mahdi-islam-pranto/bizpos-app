@@ -1035,5 +1035,250 @@
   "quantityReceived": "Quantity",
   "unitCost": "Cost each",
   "batchNo": "Batch no",
-  "expiryDate": "Expiry date"
+  "expiryDate": "Expiry date",
+  "notYours": "Not in your access",
+  "sectionLocked": "You don't have access to this section.",
+  "scopeBranch": "This branch",
+  "scopeStore": "Whole store",
+  "scopeMixed": "Branch and store",
+  "reportSales": "Sales",
+  "reportProfit": "Profit",
+  "reportStock": "Stock",
+  "reportDues": "Dues",
+  "reportWindow": "Period",
+  "lastDays": "Last {days} days",
+  "@lastDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "lastMonths": "{count, plural, =1{1 month} other{{count} months}}",
+  "@lastMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customRange": "Pick dates…",
+  "rangeCapped": "Trimmed to the last {days} days — the longest the dashboard shows.",
+  "@rangeCapped": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "revenue": "Revenue",
+  "averageSale": "Average sale",
+  "dailySales": "Sales by day",
+  "topProducts": "Best sellers",
+  "nothingSold": "Nothing sold in this period.",
+  "qtySold": "{qty} sold",
+  "@qtySold": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "profit": "Profit",
+  "byMethod": "By payment method",
+  "byStaff": "By staff",
+  "netProfit": "Net profit",
+  "grossProfit": "Gross profit",
+  "howItAddsUp": "How it adds up",
+  "costOfGoods": "Cost of goods",
+  "returnsLabel": "Returns",
+  "expensesLabel": "Expenses",
+  "stockOnHand": "Stock",
+  "unitsOnHand": "Units on hand",
+  "nothingLow": "Nothing is running low.",
+  "minimumIs": "Minimum {qty}",
+  "@minimumIs": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "expiringSoon": "Expiring soon",
+  "nothingExpiring": "Nothing expires soon.",
+  "onHand": "{qty} on hand",
+  "@onHand": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "deadStock": "No sale in 90 days",
+  "nothingDead": "Everything on the shelf has sold lately.",
+  "owedToShop": "Owed to the shop",
+  "whoOwes": "Who owes",
+  "nobodyOwes": "Nobody owes the shop anything.",
+  "daysOld": "{days} days old",
+  "@daysOld": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "overCreditLimit": "Over credit limit",
+  "headline": "At a glance",
+  "discountGiven": "Discount given",
+  "dueRaised": "Left as due",
+  "moneyIn": "Money in",
+  "collectedTotal": "Collected",
+  "onTodaysBills": "On this period's bills",
+  "onOldDues": "On older dues",
+  "onPreviousDue": "Old debt settled with a bill",
+  "billsSettledBy": "How the bills were paid",
+  "capital": "Where the money is now",
+  "stockAtCost": "Stock at cost",
+  "receivable": "Receivable",
+  "inAccounts": "In accounts",
+  "payable": "Payable",
+  "invested": "Invested",
+  "netWorth": "Net",
+  "dues": "Dues",
+  "total": "Total",
+  "timesCount": "{count, plural, =1{once} other{{count} times}}",
+  "@timesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cashDrawers": "Cash drawers",
+  "restockSoon": "Order soon",
+  "rising": "Selling more",
+  "falling": "Selling less",
+  "moverNew": "New",
+  "moverStopped": "Stopped",
+  "perDay": "{qty}/day",
+  "@perDay": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "daysCover": "lasts {days} days",
+  "@daysCover": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "daysLeft": "{days} days left",
+  "@daysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "overview": "Overview",
+  "transactions": "Transactions",
+  "transfer": "Transfer",
+  "transferDone": "Money moved.",
+  "fromAccount": "From",
+  "toAccount": "To",
+  "sameAccount": "Pick two different accounts.",
+  "expenseTypes": "Expense types",
+  "expenseType": "Expense type",
+  "expenseTypeName": "Name",
+  "newExpenseType": "New type…",
+  "editExpenseType": "Edit expense type",
+  "newTypeHelp": "Saved as a new expense type with this expense.",
+  "noExpenseTypes": "No expense types yet.",
+  "expenseTypeSaved": "Expense type saved.",
+  "deleteExpenseType": "Delete type",
+  "deleteExpenseTypeBody": "A type that has expenses behind it is retired instead, so the old expenses keep their name.",
+  "expenseTypeDeleted": "Expense type deleted.",
+  "expenseTypeRetired": "{count, plural, =0{Retired.} =1{Retired — 1 expense uses it.} other{Retired — {count} expenses use it.}}",
+  "@expenseTypeRetired": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "retired": "Retired",
+  "iconLabel": "Icon",
+  "defaultAmount": "Default amount",
+  "defaultAmountHelp": "What a quick tile records in one tap.",
+  "quickTile": "Quick tile",
+  "quickTileHelp": "Shown as a one-tap tile on the accounts screen.",
+  "salaryType": "Salary",
+  "salaryTypeHelp": "Asks for the employee's name and the month it covers.",
+  "inUse": "In use",
+  "recordExpense": "Expense",
+  "expense": "Expense",
+  "expenseRecorded": "{name}: {amount} recorded.",
+  "@expenseRecorded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "undo": "Undo",
+  "amount": "Amount",
+  "employeeName": "Employee",
+  "employeeNameHelp": "A name, not a login — anyone the shop pays.",
+  "salaryMonth": "Salary for",
+  "salaryMonthHelp": "The month it covers, not the day it was paid.",
+  "dateLabel": "Date",
+  "backdatedHelp": "Recorded on an earlier day.",
+  "note": "Note",
+  "recordedBy": "Recorded by",
+  "forMonth": "for {month}",
+  "@forMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "noExpenses": "No expenses yet.",
+  "noTransactions": "No transactions yet.",
+  "deleteExpense": "Delete expense",
+  "deleteExpenseBody": "{amount} goes back into {account}.",
+  "@deleteExpenseBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "expenseDeleted": "Expense deleted. The money is back in the account.",
+  "spentToday": "Spent today",
+  "spentThisMonth": "Spent this month",
+  "salaryThisMonth": "Salary this month",
+  "quickExpenses": "Quick expenses",
+  "salaryAsks": "Asks for a name",
+  "typeAmount": "Type amount",
+  "addAccount": "Add account",
+  "accountAdded": "Account added.",
+  "accountName": "Account name",
+  "accountNameHint": "e.g. City Bank, bKash merchant",
+  "accountCash": "Cash",
+  "accountBank": "Bank",
+  "accountMfs": "Mobile money",
+  "txnSale": "Sale",
+  "txnDuePayment": "Due collected",
+  "txnRefund": "Refund"
 }

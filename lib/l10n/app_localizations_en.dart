@@ -1841,4 +1841,458 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get expiryDate => 'Expiry date';
+
+  @override
+  String get notYours => 'Not in your access';
+
+  @override
+  String get sectionLocked => 'You don\'t have access to this section.';
+
+  @override
+  String get scopeBranch => 'This branch';
+
+  @override
+  String get scopeStore => 'Whole store';
+
+  @override
+  String get scopeMixed => 'Branch and store';
+
+  @override
+  String get reportSales => 'Sales';
+
+  @override
+  String get reportProfit => 'Profit';
+
+  @override
+  String get reportStock => 'Stock';
+
+  @override
+  String get reportDues => 'Dues';
+
+  @override
+  String get reportWindow => 'Period';
+
+  @override
+  String lastDays(int days) {
+    return 'Last $days days';
+  }
+
+  @override
+  String lastMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months',
+      one: '1 month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get customRange => 'Pick dates…';
+
+  @override
+  String rangeCapped(int days) {
+    return 'Trimmed to the last $days days — the longest the dashboard shows.';
+  }
+
+  @override
+  String get revenue => 'Revenue';
+
+  @override
+  String get averageSale => 'Average sale';
+
+  @override
+  String get dailySales => 'Sales by day';
+
+  @override
+  String get topProducts => 'Best sellers';
+
+  @override
+  String get nothingSold => 'Nothing sold in this period.';
+
+  @override
+  String qtySold(String qty) {
+    return '$qty sold';
+  }
+
+  @override
+  String get profit => 'Profit';
+
+  @override
+  String get byMethod => 'By payment method';
+
+  @override
+  String get byStaff => 'By staff';
+
+  @override
+  String get netProfit => 'Net profit';
+
+  @override
+  String get grossProfit => 'Gross profit';
+
+  @override
+  String get howItAddsUp => 'How it adds up';
+
+  @override
+  String get costOfGoods => 'Cost of goods';
+
+  @override
+  String get returnsLabel => 'Returns';
+
+  @override
+  String get expensesLabel => 'Expenses';
+
+  @override
+  String get stockOnHand => 'Stock';
+
+  @override
+  String get unitsOnHand => 'Units on hand';
+
+  @override
+  String get nothingLow => 'Nothing is running low.';
+
+  @override
+  String minimumIs(String qty) {
+    return 'Minimum $qty';
+  }
+
+  @override
+  String get expiringSoon => 'Expiring soon';
+
+  @override
+  String get nothingExpiring => 'Nothing expires soon.';
+
+  @override
+  String onHand(String qty) {
+    return '$qty on hand';
+  }
+
+  @override
+  String get deadStock => 'No sale in 90 days';
+
+  @override
+  String get nothingDead => 'Everything on the shelf has sold lately.';
+
+  @override
+  String get owedToShop => 'Owed to the shop';
+
+  @override
+  String get whoOwes => 'Who owes';
+
+  @override
+  String get nobodyOwes => 'Nobody owes the shop anything.';
+
+  @override
+  String daysOld(int days) {
+    return '$days days old';
+  }
+
+  @override
+  String get overCreditLimit => 'Over credit limit';
+
+  @override
+  String get headline => 'At a glance';
+
+  @override
+  String get discountGiven => 'Discount given';
+
+  @override
+  String get dueRaised => 'Left as due';
+
+  @override
+  String get moneyIn => 'Money in';
+
+  @override
+  String get collectedTotal => 'Collected';
+
+  @override
+  String get onTodaysBills => 'On this period\'s bills';
+
+  @override
+  String get onOldDues => 'On older dues';
+
+  @override
+  String get onPreviousDue => 'Old debt settled with a bill';
+
+  @override
+  String get billsSettledBy => 'How the bills were paid';
+
+  @override
+  String get capital => 'Where the money is now';
+
+  @override
+  String get stockAtCost => 'Stock at cost';
+
+  @override
+  String get receivable => 'Receivable';
+
+  @override
+  String get inAccounts => 'In accounts';
+
+  @override
+  String get payable => 'Payable';
+
+  @override
+  String get invested => 'Invested';
+
+  @override
+  String get netWorth => 'Net';
+
+  @override
+  String get dues => 'Dues';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String timesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count times',
+      one: 'once',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cashDrawers => 'Cash drawers';
+
+  @override
+  String get restockSoon => 'Order soon';
+
+  @override
+  String get rising => 'Selling more';
+
+  @override
+  String get falling => 'Selling less';
+
+  @override
+  String get moverNew => 'New';
+
+  @override
+  String get moverStopped => 'Stopped';
+
+  @override
+  String perDay(String qty) {
+    return '$qty/day';
+  }
+
+  @override
+  String daysCover(String days) {
+    return 'lasts $days days';
+  }
+
+  @override
+  String daysLeft(String days) {
+    return '$days days left';
+  }
+
+  @override
+  String get overview => 'Overview';
+
+  @override
+  String get transactions => 'Transactions';
+
+  @override
+  String get transfer => 'Transfer';
+
+  @override
+  String get transferDone => 'Money moved.';
+
+  @override
+  String get fromAccount => 'From';
+
+  @override
+  String get toAccount => 'To';
+
+  @override
+  String get sameAccount => 'Pick two different accounts.';
+
+  @override
+  String get expenseTypes => 'Expense types';
+
+  @override
+  String get expenseType => 'Expense type';
+
+  @override
+  String get expenseTypeName => 'Name';
+
+  @override
+  String get newExpenseType => 'New type…';
+
+  @override
+  String get editExpenseType => 'Edit expense type';
+
+  @override
+  String get newTypeHelp => 'Saved as a new expense type with this expense.';
+
+  @override
+  String get noExpenseTypes => 'No expense types yet.';
+
+  @override
+  String get expenseTypeSaved => 'Expense type saved.';
+
+  @override
+  String get deleteExpenseType => 'Delete type';
+
+  @override
+  String get deleteExpenseTypeBody =>
+      'A type that has expenses behind it is retired instead, so the old expenses keep their name.';
+
+  @override
+  String get expenseTypeDeleted => 'Expense type deleted.';
+
+  @override
+  String expenseTypeRetired(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Retired — $count expenses use it.',
+      one: 'Retired — 1 expense uses it.',
+      zero: 'Retired.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get retired => 'Retired';
+
+  @override
+  String get iconLabel => 'Icon';
+
+  @override
+  String get defaultAmount => 'Default amount';
+
+  @override
+  String get defaultAmountHelp => 'What a quick tile records in one tap.';
+
+  @override
+  String get quickTile => 'Quick tile';
+
+  @override
+  String get quickTileHelp => 'Shown as a one-tap tile on the accounts screen.';
+
+  @override
+  String get salaryType => 'Salary';
+
+  @override
+  String get salaryTypeHelp =>
+      'Asks for the employee\'s name and the month it covers.';
+
+  @override
+  String get inUse => 'In use';
+
+  @override
+  String get recordExpense => 'Expense';
+
+  @override
+  String get expense => 'Expense';
+
+  @override
+  String expenseRecorded(String name, String amount) {
+    return '$name: $amount recorded.';
+  }
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get amount => 'Amount';
+
+  @override
+  String get employeeName => 'Employee';
+
+  @override
+  String get employeeNameHelp => 'A name, not a login — anyone the shop pays.';
+
+  @override
+  String get salaryMonth => 'Salary for';
+
+  @override
+  String get salaryMonthHelp => 'The month it covers, not the day it was paid.';
+
+  @override
+  String get dateLabel => 'Date';
+
+  @override
+  String get backdatedHelp => 'Recorded on an earlier day.';
+
+  @override
+  String get note => 'Note';
+
+  @override
+  String get recordedBy => 'Recorded by';
+
+  @override
+  String forMonth(String month) {
+    return 'for $month';
+  }
+
+  @override
+  String get noExpenses => 'No expenses yet.';
+
+  @override
+  String get noTransactions => 'No transactions yet.';
+
+  @override
+  String get deleteExpense => 'Delete expense';
+
+  @override
+  String deleteExpenseBody(String amount, String account) {
+    return '$amount goes back into $account.';
+  }
+
+  @override
+  String get expenseDeleted =>
+      'Expense deleted. The money is back in the account.';
+
+  @override
+  String get spentToday => 'Spent today';
+
+  @override
+  String get spentThisMonth => 'Spent this month';
+
+  @override
+  String get salaryThisMonth => 'Salary this month';
+
+  @override
+  String get quickExpenses => 'Quick expenses';
+
+  @override
+  String get salaryAsks => 'Asks for a name';
+
+  @override
+  String get typeAmount => 'Type amount';
+
+  @override
+  String get addAccount => 'Add account';
+
+  @override
+  String get accountAdded => 'Account added.';
+
+  @override
+  String get accountName => 'Account name';
+
+  @override
+  String get accountNameHint => 'e.g. City Bank, bKash merchant';
+
+  @override
+  String get accountCash => 'Cash';
+
+  @override
+  String get accountBank => 'Bank';
+
+  @override
+  String get accountMfs => 'Mobile money';
+
+  @override
+  String get txnSale => 'Sale';
+
+  @override
+  String get txnDuePayment => 'Due collected';
+
+  @override
+  String get txnRefund => 'Refund';
 }

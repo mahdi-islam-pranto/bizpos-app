@@ -61,20 +61,22 @@ class ScreenGate {
       };
 }
 
-/// In the order a person should meet them. A cashier's first tab is Sell; an
-/// owner's is the dashboard. Both fall out of this one list plus the filter.
+/// In the order a person should meet them. Sell is first: anyone who may sell
+/// opens the app on the till, owner included, with the dashboard next to it.
+/// An accountant or a stock keeper, who may not sell, starts on the dashboard.
+/// Both fall out of this one list plus the filter.
 const List<ScreenGate> screenGates = [
-  ScreenGate(
-    screen: AppScreen.dashboard,
-    path: '/dashboard',
-    icon: Icons.insights_outlined,
-    anyOf: [P.reportSalesView, P.inventoryStockView],
-  ),
   ScreenGate(
     screen: AppScreen.pos,
     path: '/sell',
     icon: Icons.point_of_sale_outlined,
     anyOf: [P.posSaleCreate],
+  ),
+  ScreenGate(
+    screen: AppScreen.dashboard,
+    path: '/dashboard',
+    icon: Icons.insights_outlined,
+    anyOf: [P.reportSalesView, P.inventoryStockView],
   ),
   ScreenGate(
     screen: AppScreen.invoices,

@@ -1,6 +1,10 @@
 import 'package:bizpos_app/app/router/app_router.dart';
+import 'package:bizpos_app/core/session/session_controller.dart';
+import 'package:bizpos_app/core/session/session_scope.dart';
 import 'package:bizpos_app/core/session/session_state.dart';
 import 'package:bizpos_app/features/home/placeholder_screen.dart';
+import 'package:bizpos_app/features/pos/ui/pos_screen.dart';
+import 'package:bizpos_app/features/settings/profile_screen.dart';
 import 'package:bizpos_app/core/theme/app_theme.dart';
 import 'package:bizpos_app/core/theme/theme_controller.dart';
 import 'package:bizpos_app/core/theme/theme_variant.dart';
@@ -86,15 +90,18 @@ void main() {
       expect(tab('Sell'), findsNothing);
     });
 
-    testWidgets('an owner gets the dashboard tab, and lands on a built screen',
+    testWidgets('an owner lands on Sell, with the dashboard one tab away',
         (tester) async {
       await pumpApp(tester, session: activeSession(Roles.owner));
 
       expect(tab('Dashboard'), findsOneWidget);
       expect(tab('Sell'), findsOneWidget);
-      // Nobody opens the app on a placeholder. The Dashboard's phase has not
-      // landed, so the first tab that exists is where signing in goes; when the
-      // dashboard is built it takes the landing back with no change here.
+      // Sell is the first tab and the one selected: the till is where a shop
+      // opens, not the dashboard and never the profile.
+      final bar = tester.widget<NavigationBar>(find.byType(NavigationBar));
+      expect(bar.selectedIndex, 0);
+      expect(find.byType(PosScreen), findsOneWidget);
+      expect(find.byType(ProfileScreen), findsNothing);
       expect(find.byType(PlaceholderScreen), findsNothing);
     });
 
@@ -104,6 +111,83 @@ void main() {
 
       // No tabs to show, so the only place to be is the profile.
       expect(find.text('Profile'), findsWidgets);
+    });
+  });
+
+  group('signing in', () {
+    testWidgets('lands on Sell, not Profile, the moment the session arrives',
+        (tester) async {
+      // The real sign-in path: the app sits on the login form, then the
+      // session flips to active. The redirect runs inside that change, which
+      // is when a derived permission provider can still be the signed-out
+      // empty set — and an empty set lands on Profile.
+      final controller = _SwitchableSession(const SessionLoggedOut());
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [sessionControllerProvider.overrideWith(() => controller)],
+          child: Consumer(
+            builder: (context, ref, _) => MaterialApp.router(
+              routerConfig: ref.watch(routerProvider),
+              theme: AppTheme.of(ThemeVariant.daylight, locale: 'en'),
+              locale: localeEn,
+              supportedLocales: supportedLocales,
+              localizationsDelegates: const [
+                AppL10n.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Email'), findsOneWidget);
+
+      controller.become(activeSession(Roles.owner));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PosScreen), findsOneWidget);
+      expect(find.byType(ProfileScreen), findsNothing);
+    });
+
+    testWidgets('switching store from Profile lands on Sell in the new shop',
+        (tester) async {
+      final start = activeSession(Roles.owner) as SessionActive;
+      final controller = _SwitchableSession(start);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [sessionControllerProvider.overrideWith(() => controller)],
+          child: Consumer(
+            builder: (context, ref, _) => MaterialApp.router(
+              routerConfig: ref.watch(routerProvider),
+              theme: AppTheme.of(ThemeVariant.daylight, locale: 'en'),
+              locale: localeEn,
+              supportedLocales: supportedLocales,
+              localizationsDelegates: const [
+                AppL10n.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Store and branch pickers live on Profile.
+      tester.element(tab('Sell')).go('/profile');
+      await tester.pumpAndSettle();
+      expect(find.byType(ProfileScreen), findsOneWidget);
+
+      controller.become(
+        start.copyWith(scope: const SessionScope(storeId: 2, branchId: 5)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PosScreen), findsOneWidget);
+      expect(find.byType(ProfileScreen), findsNothing);
     });
   });
 
@@ -183,4 +267,15 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+}
+
+class _SwitchableSession extends SessionController {
+  _SwitchableSession(this._initial);
+
+  final SessionState _initial;
+
+  @override
+  Future<SessionState> build() async => _initial;
+
+  void become(SessionState next) => state = AsyncData(next);
 }

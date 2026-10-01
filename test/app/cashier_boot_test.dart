@@ -80,16 +80,30 @@ void main() {
     expect(find.text('Charge'), findsOneWidget);
   });
 
-  testWidgets('a stock keeper boots onto the shelves', (tester) async {
+  testWidgets('a stock keeper boots onto the stockroom dashboard',
+      (tester) async {
     SharedPreferences.setMockInitialValues(const {});
     final backend = PosBackend();
     await pumpApp(tester, backend, permissions: Roles.stockKeeper);
 
-    // The Dashboard gate opens on `inventory.stock.view`, which a stock keeper
-    // holds too — and its screen is still a later phase.
+    // No `report.sales.view`, so not `GET /dashboard`: the smaller version the
+    // doc gives the stockroom, built from `GET /products/stats`.
     expect(tester.takeException(), isNull);
-    expect(backend.hit, contains('GET /api/v1/products'));
-    expect(find.text('3 F 500(20 Pcs) 500 mg'), findsOneWidget);
+    expect(backend.hit, contains('GET /api/v1/products/stats'));
+    expect(backend.hit, isNot(contains('GET /api/v1/dashboard')));
+    expect(find.text('Folive 400mcg'), findsOneWidget);
+  });
+
+  testWidgets('an owner boots onto the till, not the dashboard',
+      (tester) async {
+    SharedPreferences.setMockInitialValues(const {});
+    final backend = PosBackend();
+    await pumpApp(tester, backend, permissions: Roles.owner);
+
+    expect(tester.takeException(), isNull);
+    expect(backend.hit, contains('GET /api/v1/pos/search'));
+    expect(backend.hit, isNot(contains('GET /api/v1/dashboard')));
+    expect(find.text(PosBackend.product['name']! as String), findsOneWidget);
   });
 
   testWidgets('the shelves render in Bangla and dark without overflowing',
