@@ -148,7 +148,8 @@ class BillPhotoThumb extends StatelessWidget {
 }
 
 /// The photo, full screen, for reading the supplier's handwriting.
-Future<void> showBillPhoto(BuildContext context, String url) => showDialog<void>(
+Future<void> showBillPhoto(BuildContext context, String url) =>
+    showDialog<void>(
       context: context,
       builder: (dialogContext) => Dialog.fullscreen(
         backgroundColor: Colors.black,

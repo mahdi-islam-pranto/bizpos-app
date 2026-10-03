@@ -105,11 +105,9 @@ class _SuggestSheetState extends ConsumerState<SuggestSheet> {
     }
     setState(() => _checking = true);
     try {
-      final check = await ref.read(catalogRepositoryProvider).check(
-            name: name,
-            brand: _text(_brand),
-            barcode: _text(_barcode),
-          );
+      final check = await ref
+          .read(catalogRepositoryProvider)
+          .check(name: name, brand: _text(_brand), barcode: _text(_barcode));
       // Only the answer to what is in the box now is worth showing.
       if (mounted && _name.text.trim() == name) setState(() => _check = check);
     } catch (_) {
@@ -122,18 +120,18 @@ class _SuggestSheetState extends ConsumerState<SuggestSheet> {
   bool get _canSend => _name.text.trim().isNotEmpty && _pricing.isComplete;
 
   SuggestionDraft get _draft => SuggestionDraft(
-        name: _name.text.trim(),
-        purchasePrice: _pricing.purchaseValue!,
-        salePrice: _pricing.saleValue!,
-        genericName: _text(_generic),
-        brand: _text(_brand),
-        barcode: _text(_barcode),
-        unit: _text(_unit),
-        profitPercent: _pricing.profitValue,
-        mrp: AmountField.read(_mrp),
-        openingStock: AmountField.read(_opening) ?? 1,
-        reason: _text(_reason),
-      );
+    name: _name.text.trim(),
+    purchasePrice: _pricing.purchaseValue!,
+    salePrice: _pricing.saleValue!,
+    genericName: _text(_generic),
+    brand: _text(_brand),
+    barcode: _text(_barcode),
+    unit: _text(_unit),
+    profitPercent: _pricing.profitValue,
+    mrp: AmountField.read(_mrp),
+    openingStock: AmountField.read(_opening) ?? 1,
+    reason: _text(_reason),
+  );
 
   Future<void> _send({bool confirmedNew = false}) async {
     if (_busy || !_canSend) return;
@@ -228,9 +226,8 @@ class _SuggestSheetState extends ConsumerState<SuggestSheet> {
                 const SizedBox(height: Insets.s12),
                 _CheckPanel(
                   check: _check!,
-                  onAdopt: ref
-                          .watch(permissionsProvider)
-                          .has(P.catalogProductImport)
+                  onAdopt:
+                      ref.watch(permissionsProvider).has(P.catalogProductImport)
                       ? _adoptInstead
                       : null,
                 ),
@@ -336,30 +333,30 @@ class _CheckPanel extends ConsumerWidget {
 
     final (message, tone, icon) = switch (check.verdict) {
       CheckVerdict.exists => (
-          l10n.verdictExists,
-          palette.danger,
-          Icons.content_copy_outlined,
-        ),
+        l10n.verdictExists,
+        palette.danger,
+        Icons.content_copy_outlined,
+      ),
       CheckVerdict.variant => (
-          l10n.verdictVariant,
-          palette.warning,
-          Icons.tune,
-        ),
+        l10n.verdictVariant,
+        palette.warning,
+        Icons.tune,
+      ),
       CheckVerdict.otherBrand => (
-          l10n.verdictOtherBrand,
-          palette.warning,
-          Icons.business_outlined,
-        ),
+        l10n.verdictOtherBrand,
+        palette.warning,
+        Icons.business_outlined,
+      ),
       CheckVerdict.similar => (
-          l10n.verdictSimilar,
-          palette.warning,
-          Icons.search,
-        ),
+        l10n.verdictSimilar,
+        palette.warning,
+        Icons.search,
+      ),
       CheckVerdict.isNew => (
-          l10n.verdictNew,
-          palette.positive,
-          Icons.check_circle_outline,
-        ),
+        l10n.verdictNew,
+        palette.positive,
+        Icons.check_circle_outline,
+      ),
     };
 
     return Container(

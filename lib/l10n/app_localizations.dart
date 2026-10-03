@@ -247,6 +247,24 @@ abstract class AppL10n {
   /// **'More'**
   String get more;
 
+  /// No description provided for @pressBackAgainToExit.
+  ///
+  /// In en, this message translates to:
+  /// **'Press back again to exit'**
+  String get pressBackAgainToExit;
+
+  /// No description provided for @menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get menu;
+
+  /// No description provided for @mainMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Main menu'**
+  String get mainMenu;
+
   /// No description provided for @profile.
   ///
   /// In en, this message translates to:
@@ -1962,6 +1980,24 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Reason'**
   String get adjustReasonLabel;
+
+  /// No description provided for @adjustReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a reason'**
+  String get adjustReasonHint;
+
+  /// No description provided for @adjustReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other (type a reason)'**
+  String get adjustReasonOther;
+
+  /// No description provided for @adjustReasonTyped.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the reason'**
+  String get adjustReasonTyped;
 
   /// No description provided for @adjustIsDamage.
   ///

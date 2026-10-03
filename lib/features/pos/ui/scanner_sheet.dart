@@ -20,13 +20,16 @@ class ScannerSheet extends StatefulWidget {
   const ScannerSheet({super.key});
 
   /// Returns the scanned or typed code, or null if the sheet was dismissed.
-  static Future<String?> show(BuildContext context) => showModalBottomSheet<String>(
+  static Future<String?> show(BuildContext context) =>
+      showModalBottomSheet<String>(
         context: context,
         isScrollControlled: true,
         useSafeArea: true,
         backgroundColor: context.palette.surface,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(Radii.sheet)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(Radii.sheet),
+          ),
         ),
         builder: (_) => const ScannerSheet(),
       );
@@ -156,8 +159,7 @@ class _ScannerSheetState extends State<ScannerSheet> {
                                   color: palette.accent,
                                   width: 2,
                                 ),
-                                borderRadius:
-                                    BorderRadius.circular(Radii.row),
+                                borderRadius: BorderRadius.circular(Radii.row),
                               ),
                             ),
                           ),
@@ -174,13 +176,11 @@ class _ScannerSheetState extends State<ScannerSheet> {
                               ),
                               decoration: BoxDecoration(
                                 color: palette.bg.withValues(alpha: 0.85),
-                                borderRadius:
-                                    BorderRadius.circular(Radii.pill),
+                                borderRadius: BorderRadius.circular(Radii.pill),
                               ),
                               child: Text(
                                 l10n.scanning,
-                                style:
-                                    Theme.of(context).textTheme.labelMedium,
+                                style: Theme.of(context).textTheme.labelMedium,
                               ),
                             ),
                           ),

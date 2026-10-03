@@ -30,10 +30,10 @@ class OpenStoreSheet extends ConsumerStatefulWidget {
   const OpenStoreSheet({super.key});
 
   static Future<void> show(BuildContext context) => showAppSheet<void>(
-        context,
-        title: AppL10n.of(context).openAnotherShop,
-        builder: (_) => const OpenStoreSheet(),
-      );
+    context,
+    title: AppL10n.of(context).openAnotherShop,
+    builder: (_) => const OpenStoreSheet(),
+  );
 
   @override
   ConsumerState<OpenStoreSheet> createState() => _OpenStoreSheetState();
@@ -77,7 +77,9 @@ class _OpenStoreSheetState extends ConsumerState<OpenStoreSheet> {
     final l10n = AppL10n.of(context);
     final name = _name.text.trim();
     try {
-      await ref.read(sessionControllerProvider.notifier).openStore(
+      await ref
+          .read(sessionControllerProvider.notifier)
+          .openStore(
             name: name,
             storeTypeId: _storeTypeId!,
             phone: _phone.text.trim(),
@@ -128,9 +130,7 @@ class _OpenStoreSheetState extends ConsumerState<OpenStoreSheet> {
                 if ((options.value?.trialDays ?? 0) > 0) ...[
                   Text(
                     l10n.openShopTrialNote(options.value!.trialDays),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
+                    style: Theme.of(context).textTheme.bodySmall
                         ?.copyWith(color: palette.muted),
                   ),
                   const SizedBox(height: Insets.s16),

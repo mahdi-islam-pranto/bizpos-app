@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/money.dart';
 import '../../../core/permissions/permission_gate.dart';
 import '../../../core/permissions/permissions.dart';
@@ -134,8 +135,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     final lookFor = created.barcode ?? created.name;
     ref.invalidate(posSearchProvider);
     try {
-      final found =
-          await ref.read(posSearchProvider(PosQuery(text: lookFor)).future);
+      final found = await ref.read(
+        posSearchProvider(PosQuery(text: lookFor)).future,
+      );
       if (!mounted) return;
       for (final item in found) {
         if (item.id == created.id) {
@@ -167,7 +169,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     final results = ref.watch(posSearchProvider(_query));
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ShellAppBar(
         title: Text(l10n.posTitle),
         actions: [
           lookups.maybeWhen(
@@ -215,9 +217,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
             PermissionGate(
               perm: P.inventoryPackageView,
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Insets.gutter,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: Insets.gutter),
                 child: Row(
                   children: [
                     ChoiceChip(
@@ -267,10 +267,8 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                           vertical: Insets.s8,
                         ),
                         itemCount: items.length,
-                        separatorBuilder: (_, _) => const Divider(
-                          height: 1,
-                          indent: Insets.gutter,
-                        ),
+                        separatorBuilder: (_, _) =>
+                            const Divider(height: 1, indent: Insets.gutter),
                         itemBuilder: (context, i) => _ProductRow(
                           item: items[i],
                           inCart: cart.lineFor(items[i])?.qty,
@@ -314,11 +312,11 @@ class _ProductRow extends ConsumerWidget {
       final s when s <= 0 => (l10n.outOfStock, palette.danger),
       _ when item.isLow => (l10n.lowStock, palette.warning),
       final s => (
-          item.isPackage
-              ? l10n.buildable(s.toStringAsFixed(0))
-              : l10n.inStock(s.toStringAsFixed(0)),
-          palette.muted,
-        ),
+        item.isPackage
+            ? l10n.buildable(s.toStringAsFixed(0))
+            : l10n.inStock(s.toStringAsFixed(0)),
+        palette.muted,
+      ),
     };
 
     return ListTile(
@@ -341,13 +339,9 @@ class _ProductRow extends ConsumerWidget {
       subtitle: Row(
         children: [
           if (stockLabel != null)
-            Text(
-              stockLabel,
-              style: text.bodySmall?.copyWith(color: stockTone),
-            ),
+            Text(stockLabel, style: text.bodySmall?.copyWith(color: stockTone)),
           if (item.brand != null) ...[
-            if (stockLabel != null)
-              Text(' · ', style: text.bodySmall),
+            if (stockLabel != null) Text(' · ', style: text.bodySmall),
             Flexible(
               child: Text(
                 item.brand!,
@@ -432,9 +426,7 @@ class _CartBar extends ConsumerWidget {
                               ? Text(
                                   l10n.cartItems(cart.lineCount),
                                   key: const ValueKey('count'),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelMedium
+                                  style: Theme.of(context).textTheme.labelMedium
                                       ?.copyWith(color: palette.muted),
                                 )
                               : Row(
@@ -454,9 +446,7 @@ class _CartBar extends ConsumerWidget {
                                         style: Theme.of(context)
                                             .textTheme
                                             .labelMedium
-                                            ?.copyWith(
-                                              color: palette.positive,
-                                            ),
+                                            ?.copyWith(color: palette.positive),
                                       ),
                                     ),
                                   ],
@@ -464,9 +454,7 @@ class _CartBar extends ConsumerWidget {
                         ),
                         Text(
                           money.format(cart.estimatedTotal.toDouble()),
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
+                          style: Theme.of(context).textTheme.titleLarge
                               ?.copyWith(
                                 fontFeatures: const [
                                   FontFeature.tabularFigures(),
@@ -490,8 +478,7 @@ class _CartBar extends ConsumerWidget {
               SizedBox(
                 height: 52,
                 child: FilledButton.icon(
-                  onPressed: () =>
-                      PaymentSheet.show(context, lookups: lookups),
+                  onPressed: () => PaymentSheet.show(context, lookups: lookups),
                   icon: const Icon(Icons.point_of_sale),
                   label: Text(l10n.charge),
                 ),

@@ -45,13 +45,12 @@ class PaymentSheet extends ConsumerStatefulWidget {
   static Future<void> show(
     BuildContext context, {
     required PosLookups lookups,
-  }) =>
-      showAppSheet<void>(
-        context,
-        title: AppL10n.of(context).payment,
-        dismissible: true,
-        builder: (_) => PaymentSheet(lookups: lookups),
-      );
+  }) => showAppSheet<void>(
+    context,
+    title: AppL10n.of(context).payment,
+    dismissible: true,
+    builder: (_) => PaymentSheet(lookups: lookups),
+  );
 
   @override
   ConsumerState<PaymentSheet> createState() => _PaymentSheetState();
@@ -105,8 +104,7 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
     final pointsOff = loyalty.worthOf(cart.redeemPoints);
     final payable = (total - pointsOff).clamp(0, double.infinity);
 
-    final previousDue =
-        cart.hasNamedCustomer ? (cart.customer!.due ?? 0) : 0;
+    final previousDue = cart.hasNamedCustomer ? (cart.customer!.due ?? 0) : 0;
     final collecting = _collectPrevious && previousDue > 0;
     final target = payable + (collecting ? previousDue : 0);
     final remaining = target - _paid;
@@ -118,15 +116,16 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
     final stillOwed = remaining > 0.001 ? remaining : 0;
     final change = remaining < -0.001 ? -remaining : 0;
 
-    final creditBlocked = leavesDue &&
-        (!widget.lookups.allowCredit || !cart.hasNamedCustomer);
+    final creditBlocked =
+        leavesDue && (!widget.lookups.allowCredit || !cart.hasNamedCustomer);
     final creditReason = !widget.lookups.allowCredit
         ? l10n.creditOff
         : (cart.customer?.isWalkIn ?? true)
-            ? l10n.walkInNoCredit
-            : l10n.dueNeedsCustomer;
+        ? l10n.walkInNoCredit
+        : l10n.dueNeedsCustomer;
 
-    final mayRedeem = permissions.has(P.posSaleRedeemPoints) &&
+    final mayRedeem =
+        permissions.has(P.posSaleRedeemPoints) &&
         loyalty.enabled &&
         loyalty.mayRedeem;
 
@@ -138,11 +137,7 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
             shrinkWrap: true,
             padding: const EdgeInsets.all(Insets.gutter),
             children: [
-              _Summary(
-                total: total,
-                pointsOff: pointsOff,
-                money: money,
-              ),
+              _Summary(total: total, pointsOff: pointsOff, money: money),
               const SizedBox(height: Insets.s16),
 
               if (previousDue > 0)
@@ -156,8 +151,9 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
                     // for, so the single draft follows the figure.
                     if (_drafts.length == 1) {
                       final newTarget = payable + (value ? previousDue : 0);
-                      _drafts.first.amount.text =
-                          _PaymentDraft._trim(newTarget);
+                      _drafts.first.amount.text = _PaymentDraft._trim(
+                        newTarget,
+                      );
                     }
                   }),
                 ),
@@ -219,18 +215,12 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
                   padding: const EdgeInsets.only(top: Insets.s8),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.info_outline,
-                        size: 16,
-                        color: palette.danger,
-                      ),
+                      Icon(Icons.info_outline, size: 16, color: palette.danger),
                       const SizedBox(width: Insets.s8),
                       Expanded(
                         child: Text(
                           creditReason,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
+                          style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: palette.danger),
                         ),
                       ),
@@ -296,8 +286,7 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
     final body = cart.toCheckoutBody(
       mayChangePrice: mayChangePrice,
       mayDiscount: mayDiscount,
-      collectPrevious:
-          _collectPrevious && (cart.customer?.due ?? 0) > 0,
+      collectPrevious: _collectPrevious && (cart.customer?.due ?? 0) > 0,
       payments: [
         for (final draft in _drafts)
           if ((draft.value ?? 0) > 0)
@@ -311,8 +300,7 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
     );
 
     try {
-      final result =
-          await ref.read(posRepositoryProvider).checkout(body);
+      final result = await ref.read(posRepositoryProvider).checkout(body);
       if (!mounted) return;
 
       ref.read(cartProvider.notifier).clear();
@@ -338,9 +326,7 @@ class _PaymentDraft {
     required this.account,
     required this.method,
     required num amount,
-  }) : amount = TextEditingController(
-          text: amount <= 0 ? '' : _trim(amount),
-        );
+  }) : amount = TextEditingController(text: amount <= 0 ? '' : _trim(amount));
 
   PosAccount? account;
   PayMethod method;
@@ -377,13 +363,13 @@ class _PaymentCard extends StatelessWidget {
   final VoidCallback onRemove;
 
   String _methodLabel(AppL10n l10n, PayMethod method) => switch (method) {
-        PayMethod.cash => l10n.payMethodCash,
-        PayMethod.card => l10n.payMethodCard,
-        PayMethod.bkash => l10n.payMethodBkash,
-        PayMethod.nagad => l10n.payMethodNagad,
-        PayMethod.rocket => l10n.payMethodRocket,
-        PayMethod.bank => l10n.payMethodBank,
-      };
+    PayMethod.cash => l10n.payMethodCash,
+    PayMethod.card => l10n.payMethodCard,
+    PayMethod.bkash => l10n.payMethodBkash,
+    PayMethod.nagad => l10n.payMethodNagad,
+    PayMethod.rocket => l10n.payMethodRocket,
+    PayMethod.bank => l10n.payMethodBank,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -510,9 +496,7 @@ class _PreviousDueRow extends StatelessWidget {
         title: Text(l10n.collectPreviousDue),
         subtitle: Text(
           '${l10n.previousDueLabel} ${money.format(due)}',
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
+          style: Theme.of(context).textTheme.bodySmall
               ?.copyWith(color: palette.warning),
         ),
       ),
@@ -538,7 +522,11 @@ class _Summary extends StatelessWidget {
 
     return Column(
       children: [
-        _Line(label: l10n.estimatedTotal, value: money.format(total), strong: true),
+        _Line(
+          label: l10n.estimatedTotal,
+          value: money.format(total),
+          strong: true,
+        ),
         if (pointsOff > 0)
           _Line(
             label: l10n.redeemPoints,
@@ -656,9 +644,7 @@ class _RedeemRow extends ConsumerWidget {
               Expanded(
                 child: Text(
                   cart.redeemPoints > 0
-                      ? l10n.pointsBalance(
-                          cart.redeemPoints.toStringAsFixed(0),
-                        )
+                      ? l10n.pointsBalance(cart.redeemPoints.toStringAsFixed(0))
                       : l10n.redeemPoints,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
@@ -684,9 +670,7 @@ class _RedeemRow extends ConsumerWidget {
           ),
           Text(
             l10n.redeemCapNote,
-            style: Theme.of(context)
-                .textTheme
-                .labelSmall
+            style: Theme.of(context).textTheme.labelSmall
                 ?.copyWith(color: palette.muted),
           ),
         ],

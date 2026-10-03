@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../app/router/shell_nav.dart';
 import '../../app/router/app_router.dart';
 import '../../core/network/api_exception.dart';
 import '../../core/session/me.dart';
@@ -32,7 +33,7 @@ class ProfileScreen extends ConsumerWidget {
 
     if (session is! SessionActive || preferences == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(l10n.profile)),
+        appBar: ShellAppBar(title: Text(l10n.profile)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -42,7 +43,7 @@ class ProfileScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.profile)),
+      appBar: ShellAppBar(title: Text(l10n.profile)),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: Insets.gutter),
         children: [
@@ -233,9 +234,7 @@ class ProfileScreen extends ConsumerWidget {
     return Builder(
       builder: (context) => Text(
         AppL10n.of(context).shopLocked(locked),
-        style: Theme.of(context)
-            .textTheme
-            .bodySmall
+        style: Theme.of(context).textTheme.bodySmall
             ?.copyWith(color: context.palette.warning),
       ),
     );
@@ -382,23 +381,20 @@ class _Notice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(Insets.s12),
-        decoration: BoxDecoration(
-          color: tone.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(Radii.row),
-          border: Border.all(color: tone.withValues(alpha: 0.35)),
+    padding: const EdgeInsets.all(Insets.s12),
+    decoration: BoxDecoration(
+      color: tone.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(Radii.row),
+      border: Border.all(color: tone.withValues(alpha: 0.35)),
+    ),
+    child: Row(
+      children: [
+        Icon(icon, size: 18, color: tone),
+        const SizedBox(width: Insets.s8),
+        Expanded(
+          child: Text(text, style: Theme.of(context).textTheme.bodySmall),
         ),
-        child: Row(
-          children: [
-            Icon(icon, size: 18, color: tone),
-            const SizedBox(width: Insets.s8),
-            Expanded(
-              child: Text(
-                text,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          ],
-        ),
-      );
+      ],
+    ),
+  );
 }

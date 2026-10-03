@@ -56,16 +56,12 @@ class Money {
 
   /// Whole taka lose the `.00`: a counter reads `৳120` faster than `৳120.00`,
   /// and the paisa are still shown the moment they exist.
-  static bool _hasPaisa(num value) =>
-      (value * 100).round() % 100 != 0;
+  static bool _hasPaisa(num value) => (value * 100).round() % 100 != 0;
 }
 
 final moneyProvider = Provider<Money>((ref) {
   final me = ref.watch(meProvider);
-  return Money(
-    me?.store?.currency ?? 'BDT',
-    locale: me?.user.locale ?? 'en',
-  );
+  return Money(me?.store?.currency ?? 'BDT', locale: me?.user.locale ?? 'en');
 });
 
 /// Exact arithmetic for anything the app adds up itself.
@@ -88,6 +84,5 @@ class Exact {
   static double toDouble(Decimal value) => value.toDouble();
 
   /// Rounds to paisa, the smallest unit anyone can actually pay.
-  static Decimal paisa(Decimal value) =>
-      value.round(scale: 2);
+  static Decimal paisa(Decimal value) => value.round(scale: 2);
 }

@@ -128,16 +128,16 @@ class AuthApi {
   /// The branch resets to the new store's default, and permissions may differ,
   /// so the caller must refetch [me] afterwards.
   Future<void> switchStore(int storeId) => _client.post<void>(
-        ApiPaths.switchStore,
-        body: {'storeId': storeId},
-        parse: parseNothing,
-      );
+    ApiPaths.switchStore,
+    body: {'storeId': storeId},
+    parse: parseNothing,
+  );
 
   Future<void> switchBranch(int branchId) => _client.post<void>(
-        ApiPaths.switchBranch,
-        body: {'branchId': branchId},
-        parse: parseNothing,
-      );
+    ApiPaths.switchBranch,
+    body: {'branchId': branchId},
+    parse: parseNothing,
+  );
 
   /// `locale` is `bn` or `en`; `theme` is one of the five the API accepts. Both
   /// are optional and saved on the account, so the web workspace sees them too.
@@ -157,14 +157,10 @@ class AuthApi {
   }
 
   /// Signs that phone out — what to do with a lost one.
-  Future<void> revokeDevice(int id) => _client.delete<void>(
-        ApiPaths.device(id),
-        parse: parseNothing,
-      );
+  Future<void> revokeDevice(int id) =>
+      _client.delete<void>(ApiPaths.device(id), parse: parseNothing);
 
   /// Signs *this* device out. The token stops working immediately.
-  Future<void> logout() => _client.post<void>(
-        ApiPaths.logout,
-        parse: parseNothing,
-      );
+  Future<void> logout() =>
+      _client.post<void>(ApiPaths.logout, parse: parseNothing);
 }

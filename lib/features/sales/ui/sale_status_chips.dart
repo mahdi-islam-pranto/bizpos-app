@@ -13,30 +13,30 @@ import '../data/sale_models.dart';
 /// would make a cancelled sale look collectable.
 extension SaleStatusPresentation on SaleStatus {
   String label(AppL10n l10n) => switch (this) {
-        SaleStatus.completed => l10n.statusCompleted,
-        SaleStatus.returned => l10n.statusReturned,
-        SaleStatus.isVoid => l10n.statusVoid,
-      };
+    SaleStatus.completed => l10n.statusCompleted,
+    SaleStatus.returned => l10n.statusReturned,
+    SaleStatus.isVoid => l10n.statusVoid,
+  };
 
   Color tone(AppPalette palette) => switch (this) {
-        SaleStatus.completed => palette.positive,
-        SaleStatus.returned => palette.warning,
-        SaleStatus.isVoid => palette.danger,
-      };
+    SaleStatus.completed => palette.positive,
+    SaleStatus.returned => palette.warning,
+    SaleStatus.isVoid => palette.danger,
+  };
 }
 
 extension PaymentStatusPresentation on PaymentStatus {
   String label(AppL10n l10n) => switch (this) {
-        PaymentStatus.paid => l10n.statusPaid,
-        PaymentStatus.partial => l10n.statusPartial,
-        PaymentStatus.unpaid => l10n.statusUnpaid,
-      };
+    PaymentStatus.paid => l10n.statusPaid,
+    PaymentStatus.partial => l10n.statusPartial,
+    PaymentStatus.unpaid => l10n.statusUnpaid,
+  };
 
   Color tone(AppPalette palette) => switch (this) {
-        PaymentStatus.paid => palette.positive,
-        PaymentStatus.partial => palette.warning,
-        PaymentStatus.unpaid => palette.danger,
-      };
+    PaymentStatus.paid => palette.positive,
+    PaymentStatus.partial => palette.warning,
+    PaymentStatus.unpaid => palette.danger,
+  };
 }
 
 class PaymentStatusChip extends StatelessWidget {
@@ -46,9 +46,9 @@ class PaymentStatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => StatusChip(
-        label: status.label(AppL10n.of(context)),
-        tone: status.tone(context.palette),
-      );
+    label: status.label(AppL10n.of(context)),
+    tone: status.tone(context.palette),
+  );
 }
 
 /// Only drawn when the sale is not an ordinary completed one — a chip saying

@@ -87,20 +87,19 @@ class CustomersRepository {
     String? address,
     num? creditLimit,
     num? openingBalance,
-  }) =>
-      _client.patch(
-        ApiPaths.customer(id),
-        parse: parseNothing,
-        body: {
-          'name': name,
-          'phone': ?phone,
-          'email': ?email,
-          'address': ?address,
-          'creditLimit': ?creditLimit,
-          'openingBalance': ?openingBalance,
-        },
-        cancelToken: _cancel,
-      );
+  }) => _client.patch(
+    ApiPaths.customer(id),
+    parse: parseNothing,
+    body: {
+      'name': name,
+      'phone': ?phone,
+      'email': ?email,
+      'address': ?address,
+      'creditLimit': ?creditLimit,
+      'openingBalance': ?openingBalance,
+    },
+    cancelToken: _cancel,
+  );
 
   Future<List<LedgerEntry>> ledger(int id) async {
     final response = await _client.get(
@@ -163,8 +162,8 @@ class CustomerQueryController extends Notifier<String?> {
 
 final customerQueryProvider =
     NotifierProvider<CustomerQueryController, String?>(
-  CustomerQueryController.new,
-);
+      CustomerQueryController.new,
+    );
 
 final customersProvider = FutureProvider<CustomerPage>((ref) {
   ref.watch(sessionScopeProvider);
@@ -172,14 +171,18 @@ final customersProvider = FutureProvider<CustomerPage>((ref) {
   return ref.watch(customersRepositoryProvider).list(query: query);
 });
 
-final customerLedgerProvider =
-    FutureProvider.family<List<LedgerEntry>, int>((ref, id) {
+final customerLedgerProvider = FutureProvider.family<List<LedgerEntry>, int>((
+  ref,
+  id,
+) {
   ref.watch(sessionScopeProvider);
   return ref.watch(customersRepositoryProvider).ledger(id);
 });
 
-final customerPointsProvider =
-    FutureProvider.family<PointsAccount, int>((ref, id) {
+final customerPointsProvider = FutureProvider.family<PointsAccount, int>((
+  ref,
+  id,
+) {
   ref.watch(sessionScopeProvider);
   return ref.watch(customersRepositoryProvider).points(id);
 });

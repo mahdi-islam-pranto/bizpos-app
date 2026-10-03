@@ -3,19 +3,19 @@ import '../../../core/network/envelope.dart';
 import '../../reports/data/report_models.dart';
 
 int _int(Object? v) => switch (v) {
-      final int x => x,
-      final num x => x.toInt(),
-      final String x => int.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final int x => x,
+  final num x => x.toInt(),
+  final String x => int.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 int? _intOrNull(Object? v) => v == null ? null : _int(v);
 
 num _num(Object? v) => switch (v) {
-      final num x => x,
-      final String x => num.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final num x => x,
+  final String x => num.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 num? _numOrNull(Object? v) => v == null ? null : _num(v);
 
@@ -91,12 +91,12 @@ class DashboardQuery {
   static const maxDays = 62;
 
   Map<String, dynamic> toQuery() => {
-        'range': range.key,
-        if (range == DashboardRange.custom && from != null)
-          'from': AppDates.bucket(from!),
-        if (range == DashboardRange.custom && to != null)
-          'to': AppDates.bucket(to!),
-      };
+    'range': range.key,
+    if (range == DashboardRange.custom && from != null)
+      'from': AppDates.bucket(from!),
+    if (range == DashboardRange.custom && to != null)
+      'to': AppDates.bucket(to!),
+  };
 
   @override
   bool operator ==(Object other) =>
@@ -152,16 +152,16 @@ class Headline {
   final num? netProfit;
 
   factory Headline.fromJson(Map<String, dynamic> json) => Headline(
-        revenue: _num(json['revenue']),
-        invoices: _int(json['invoices']),
-        averageSale: _num(json['averageSale']),
-        discountGiven: _num(json['discountGiven']),
-        dueRaised: _num(json['dueRaised']),
-        returned: _num(json['returned']),
-        expenses: _num(json['expenses']),
-        grossProfit: _numOrNull(json['grossProfit']),
-        netProfit: _numOrNull(json['netProfit']),
-      );
+    revenue: _num(json['revenue']),
+    invoices: _int(json['invoices']),
+    averageSale: _num(json['averageSale']),
+    discountGiven: _num(json['discountGiven']),
+    dueRaised: _num(json['dueRaised']),
+    returned: _num(json['returned']),
+    expenses: _num(json['expenses']),
+    grossProfit: _numOrNull(json['grossProfit']),
+    netProfit: _numOrNull(json['netProfit']),
+  );
 }
 
 /// Where the money is standing **now**, whatever the window.
@@ -185,19 +185,21 @@ class Capital {
   final List<Tally> accounts;
 
   factory Capital.fromJson(Map<String, dynamic> json) => Capital(
-        stock: _num(json['stock']),
-        receivable: _num(json['receivable']),
-        inAccounts: _num(json['inAccounts']),
-        invested: _num(json['invested']),
-        payable: _num(json['payable']),
-        net: _num(json['net']),
-        accounts: _rows(json['accounts'])
-            .map((a) => Tally(
-                  label: _str(a['name']),
-                  total: _num(a['balance'] ?? a['total']),
-                ))
-            .toList(),
-      );
+    stock: _num(json['stock']),
+    receivable: _num(json['receivable']),
+    inAccounts: _num(json['inAccounts']),
+    invested: _num(json['invested']),
+    payable: _num(json['payable']),
+    net: _num(json['net']),
+    accounts: _rows(json['accounts'])
+        .map(
+          (a) => Tally(
+            label: _str(a['name']),
+            total: _num(a['balance'] ?? a['total']),
+          ),
+        )
+        .toList(),
+  );
 }
 
 class DashboardDay {
@@ -214,11 +216,11 @@ class DashboardDay {
   final num expenses;
 
   factory DashboardDay.fromJson(Map<String, dynamic> json) => DashboardDay(
-        date: parseBucket(json['date']),
-        sales: _num(json['sales'] ?? json['total']),
-        invoices: _int(json['invoices'] ?? json['count']),
-        expenses: _num(json['expenses']),
-      );
+    date: parseBucket(json['date']),
+    sales: _num(json['sales'] ?? json['total']),
+    invoices: _int(json['invoices'] ?? json['count']),
+    expenses: _num(json['expenses']),
+  );
 }
 
 /// Money that **arrived** in the window, whatever it settled. Not the same
@@ -239,12 +241,12 @@ class Collections {
   final List<Tally> byMethod;
 
   factory Collections.fromJson(Map<String, dynamic> json) => Collections(
-        total: _num(json['total']),
-        onSales: _num(json['onSales']),
-        onDues: _num(json['onDues']),
-        onPreviousDue: _num(json['onPreviousDue']),
-        byMethod: _tallies(json['byMethod']),
-      );
+    total: _num(json['total']),
+    onSales: _num(json['onSales']),
+    onDues: _num(json['onDues']),
+    onPreviousDue: _num(json['onPreviousDue']),
+    byMethod: _tallies(json['byMethod']),
+  );
 }
 
 /// `rising`, `new`, `steady`, `falling` or `stopped`.
@@ -281,18 +283,18 @@ class Mover {
   final num? daysCover;
 
   factory Mover.fromJson(Map<String, dynamic> json) => Mover(
-        id: _intOrNull(json['id'] ?? json['storeProductId']),
-        name: _str(json['name']),
-        qty: _num(json['qty']),
-        wasQty: _num(json['wasQty']),
-        revenue: _num(json['revenue']),
-        wasRevenue: _num(json['wasRevenue']),
-        changePercent: _numOrNull(json['changePercent']),
-        verdict: _strOrNull(json['verdict']),
-        perDay: _numOrNull(json['perDay']),
-        onHand: _numOrNull(json['onHand']),
-        daysCover: _numOrNull(json['daysCover']),
-      );
+    id: _intOrNull(json['id'] ?? json['storeProductId']),
+    name: _str(json['name']),
+    qty: _num(json['qty']),
+    wasQty: _num(json['wasQty']),
+    revenue: _num(json['revenue']),
+    wasRevenue: _num(json['wasRevenue']),
+    changePercent: _numOrNull(json['changePercent']),
+    verdict: _strOrNull(json['verdict']),
+    perDay: _numOrNull(json['perDay']),
+    onHand: _numOrNull(json['onHand']),
+    daysCover: _numOrNull(json['daysCover']),
+  );
 }
 
 class Movers {
@@ -311,15 +313,15 @@ class Movers {
   final DashboardWindow? previous;
 
   factory Movers.fromJson(Map<String, dynamic> json) => Movers(
-        rising: _rows(json['rising']).map(Mover.fromJson).toList(),
-        falling: _rows(json['falling']).map(Mover.fromJson).toList(),
-        restock: json['restock'] == null
-            ? null
-            : _rows(json['restock']).map(Mover.fromJson).toList(),
-        previous: _obj(json['previous']) == null
-            ? null
-            : DashboardWindow.fromJson(_obj(json['previous'])),
-      );
+    rising: _rows(json['rising']).map(Mover.fromJson).toList(),
+    falling: _rows(json['falling']).map(Mover.fromJson).toList(),
+    restock: json['restock'] == null
+        ? null
+        : _rows(json['restock']).map(Mover.fromJson).toList(),
+    previous: _obj(json['previous']) == null
+        ? null
+        : DashboardWindow.fromJson(_obj(json['previous'])),
+  );
 }
 
 class StaffRow {
@@ -342,14 +344,14 @@ class StaffRow {
   final num? profit;
 
   factory StaffRow.fromJson(Map<String, dynamic> json) => StaffRow(
-        name: _str(json['name']),
-        invoices: _int(json['invoices']),
-        revenue: _num(json['revenue']),
-        discount: _num(json['discount']),
-        dueRaised: _num(json['dueRaised']),
-        averageSale: _num(json['averageSale']),
-        profit: _numOrNull(json['profit']),
-      );
+    name: _str(json['name']),
+    invoices: _int(json['invoices']),
+    revenue: _num(json['revenue']),
+    discount: _num(json['discount']),
+    dueRaised: _num(json['dueRaised']),
+    averageSale: _num(json['averageSale']),
+    profit: _numOrNull(json['profit']),
+  );
 }
 
 /// A party and what is owed — a customer to the shop, or the shop to a
@@ -363,11 +365,11 @@ class OwedRow {
   final num due;
 
   factory OwedRow.fromJson(Map<String, dynamic> json) => OwedRow(
-        id: _intOrNull(json['id']),
-        name: _str(json['name']),
-        phone: _strOrNull(json['phone']),
-        due: _num(json['due'] ?? json['total']),
-      );
+    id: _intOrNull(json['id']),
+    name: _str(json['name']),
+    phone: _strOrNull(json['phone']),
+    due: _num(json['due'] ?? json['total']),
+  );
 }
 
 class DuesSection {
@@ -384,11 +386,11 @@ class DuesSection {
   final List<OwedRow> suppliers;
 
   factory DuesSection.fromJson(Map<String, dynamic> json) => DuesSection(
-        receivableTotal: _num(json['receivableTotal']),
-        payableTotal: _num(json['payableTotal']),
-        customers: _rows(json['customers']).map(OwedRow.fromJson).toList(),
-        suppliers: _rows(json['suppliers']).map(OwedRow.fromJson).toList(),
-      );
+    receivableTotal: _num(json['receivableTotal']),
+    payableTotal: _num(json['payableTotal']),
+    customers: _rows(json['customers']).map(OwedRow.fromJson).toList(),
+    suppliers: _rows(json['suppliers']).map(OwedRow.fromJson).toList(),
+  );
 }
 
 class ExpensesSection {
@@ -401,11 +403,13 @@ class ExpensesSection {
       ExpensesSection(
         total: _num(json['total']),
         byCategory: _rows(json['byCategory'])
-            .map((c) => Tally(
-                  label: _str(c['name'] ?? c['category'] ?? c['label']),
-                  total: _num(c['total'] ?? c['amount']),
-                  count: _intOrNull(c['count']),
-                ))
+            .map(
+              (c) => Tally(
+                label: _str(c['name'] ?? c['category'] ?? c['label']),
+                total: _num(c['total'] ?? c['amount']),
+                count: _intOrNull(c['count']),
+              ),
+            )
             .toList(),
       );
 }
@@ -445,12 +449,12 @@ class StockSection {
   final List<StockLine> expiring;
 
   factory StockSection.fromJson(Map<String, dynamic> json) => StockSection(
-        value: _numOrNull(json['value']),
-        units: _num(json['units']),
-        outOfStock: _int(json['outOfStock']),
-        low: _rows(json['low']).map(StockLine.fromJson).toList(),
-        expiring: _rows(json['expiring']).map(StockLine.fromJson).toList(),
-      );
+    value: _numOrNull(json['value']),
+    units: _num(json['units']),
+    outOfStock: _int(json['outOfStock']),
+    low: _rows(json['low']).map(StockLine.fromJson).toList(),
+    expiring: _rows(json['expiring']).map(StockLine.fromJson).toList(),
+  );
 }
 
 /// A cash drawer as the dashboard lists it.
@@ -482,16 +486,16 @@ class ShiftRow {
   final num? sold;
 
   factory ShiftRow.fromJson(Map<String, dynamic> json) => ShiftRow(
-        id: _intOrNull(json['id']),
-        userName: _strOrNull(json['userName'] ?? json['user'] ?? json['name']),
-        openedAt: AppDates.parse(json['openedAt']),
-        closedAt: AppDates.parse(json['closedAt']),
-        openingCash: _num(json['openingCash']),
-        expected: _numOrNull(json['expected']),
-        counted: _numOrNull(json['counted']),
-        difference: _numOrNull(json['difference']),
-        sold: _numOrNull(json['sold']),
-      );
+    id: _intOrNull(json['id']),
+    userName: _strOrNull(json['userName'] ?? json['user'] ?? json['name']),
+    openedAt: AppDates.parse(json['openedAt']),
+    closedAt: AppDates.parse(json['closedAt']),
+    openingCash: _num(json['openingCash']),
+    expected: _numOrNull(json['expected']),
+    counted: _numOrNull(json['counted']),
+    difference: _numOrNull(json['difference']),
+    sold: _numOrNull(json['sold']),
+  );
 }
 
 /// `GET /dashboard` — the owner's whole screen in one call.

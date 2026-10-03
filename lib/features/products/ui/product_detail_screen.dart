@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/money.dart';
 import '../../../core/permissions/permission_gate.dart';
@@ -39,7 +40,7 @@ class ProductDetailScreen extends ConsumerWidget {
       // The list has not been loaded, or the id belongs to another store —
       // where it is not forbidden, it simply does not exist.
       return Scaffold(
-        appBar: AppBar(title: Text(l10n.productsTitle)),
+        appBar: ShellAppBar(title: Text(l10n.productsTitle)),
         body: MessageState(
           icon: Icons.inventory_2_outlined,
           title: l10n.productsNoResults,
@@ -54,7 +55,7 @@ class ProductDetailScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ShellAppBar(
         title: Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis),
         actions: [
           if (!product.isDeleted)
@@ -155,7 +156,8 @@ class _RestoreButtonState extends ConsumerState<_RestoreButton> {
       await ref.read(productsRepositoryProvider).restore(widget.product.id);
       ref.invalidate(productsListProvider);
       ref.invalidate(productStatsProvider);
-      if (mounted) showNote(context, l10n.restoreProductDone(widget.product.name));
+      if (mounted)
+        showNote(context, l10n.restoreProductDone(widget.product.name));
     } catch (e) {
       if (mounted) showApiError(context, e);
     } finally {
@@ -165,9 +167,9 @@ class _RestoreButtonState extends ConsumerState<_RestoreButton> {
 
   @override
   Widget build(BuildContext context) => TextButton(
-        onPressed: _busy ? null : _restore,
-        child: Text(AppL10n.of(context).restoreProduct),
-      );
+    onPressed: _busy ? null : _restore,
+    child: Text(AppL10n.of(context).restoreProduct),
+  );
 }
 
 /// `PATCH /products/{id}` with `isActive` and nothing else.
@@ -201,7 +203,10 @@ class _SellingToggleState extends ConsumerState<_SellingToggle> {
       ref.invalidate(productsListProvider);
       ref.invalidate(productStatsProvider);
       if (mounted) {
-        showNote(context, nowActive ? l10n.productResumed : l10n.productStopped);
+        showNote(
+          context,
+          nowActive ? l10n.productResumed : l10n.productStopped,
+        );
       }
     } catch (e) {
       if (mounted) showApiError(context, e);
@@ -219,16 +224,16 @@ class _SellingToggleState extends ConsumerState<_SellingToggle> {
       children: [
         TextButton.icon(
           onPressed: _busy ? null : _toggle,
-          icon: Icon(active ? Icons.pause_circle_outline : Icons.play_circle_outline),
+          icon: Icon(
+            active ? Icons.pause_circle_outline : Icons.play_circle_outline,
+          ),
           label: Text(active ? l10n.stopSelling : l10n.resumeSelling),
         ),
         if (active)
           Text(
             l10n.stoppedSellingNote,
             textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .labelSmall
+            style: Theme.of(context).textTheme.labelSmall
                 ?.copyWith(color: context.palette.muted),
           ),
         const SizedBox(height: Insets.s16),
@@ -268,8 +273,9 @@ class _DeleteButtonState extends ConsumerState<_DeleteButton> {
 
     setState(() => _busy = true);
     try {
-      final outcome =
-          await ref.read(productsRepositoryProvider).softDelete(widget.product.id);
+      final outcome = await ref
+          .read(productsRepositoryProvider)
+          .softDelete(widget.product.id);
       ref.invalidate(productsListProvider);
       ref.invalidate(productStatsProvider);
       if (!mounted) return;
@@ -292,10 +298,7 @@ class _DeleteButtonState extends ConsumerState<_DeleteButton> {
     return TextButton.icon(
       onPressed: _busy ? null : _delete,
       icon: Icon(Icons.delete_outline, color: palette.danger),
-      label: Text(
-        l10n.deleteProduct,
-        style: TextStyle(color: palette.danger),
-      ),
+      label: Text(l10n.deleteProduct, style: TextStyle(color: palette.danger)),
     );
   }
 }
@@ -318,10 +321,7 @@ class _Identity extends StatelessWidget {
         _Line(label: l10n.barcodeLabel, value: product.barcode),
         _Line(label: l10n.skuLabel, value: product.sku),
         if (product.vatPercent > 0)
-          _Line(
-            label: l10n.vatLabel,
-            value: '${product.vatPercent}%',
-          ),
+          _Line(label: l10n.vatLabel, value: '${product.vatPercent}%'),
         if (product.trackBatch)
           _Line(label: l10n.trackBatchLabel, value: l10n.yes),
       ],
@@ -372,9 +372,7 @@ class _Prices extends ConsumerWidget {
             padding: const EdgeInsets.only(top: Insets.s8),
             child: Text(
               l10n.costHidden,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelSmall
+              style: Theme.of(context).textTheme.labelSmall
                   ?.copyWith(color: palette.muted),
             ),
           ),
@@ -401,8 +399,8 @@ class _StockCard extends StatelessWidget {
     final tone = product.isOut
         ? palette.danger
         : product.isLow
-            ? palette.warning
-            : palette.positive;
+        ? palette.warning
+        : palette.positive;
 
     return AppCard(
       padding: const EdgeInsets.all(Insets.gutter),
@@ -412,9 +410,7 @@ class _StockCard extends StatelessWidget {
             Expanded(
               child: Text(
                 l10n.onShelf(stock.toStringAsFixed(0)),
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
+                style: Theme.of(context).textTheme.titleLarge
                     ?.copyWith(color: tone),
               ),
             ),
@@ -473,8 +469,7 @@ class _History extends ConsumerWidget {
                 else
                   AppCard(
                     children: [
-                      for (final price in data.prices)
-                        _PriceRow(price: price),
+                      for (final price in data.prices) _PriceRow(price: price),
                     ],
                   ),
               ],
@@ -590,16 +585,14 @@ class _Quiet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: Insets.s16),
-        child: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: context.palette.muted),
-        ),
-      );
+    padding: const EdgeInsets.symmetric(vertical: Insets.s16),
+    child: Text(
+      message,
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.bodySmall
+          ?.copyWith(color: context.palette.muted),
+    ),
+  );
 }
 
 class _Line extends StatelessWidget {
@@ -654,7 +647,8 @@ class _Actions extends ConsumerWidget {
 
     // The price set cannot be sent without the cost, and a role that may not
     // see the cost would write back a blank one.
-    final mayPrice = permissions.has(P.inventoryProductUpdate) &&
+    final mayPrice =
+        permissions.has(P.inventoryProductUpdate) &&
         permissions.has(P.inventoryProductViewCost) &&
         !product.isDeleted;
     final mayAdjust =

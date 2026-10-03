@@ -176,15 +176,63 @@ void main() {
 
       final fields = find.descendant(of: sheet, matching: find.byType(TextField));
       await tester.enterText(fields.first, '3');
-      await tester.enterText(fields.last, 'Broken box');
+      await tester.pumpAndSettle();
+
+      // A quantity without a reason is not enough.
+      expect(tester.widget<FilledButton>(action).onPressed, isNull);
+
+      await tester.tap(find.text('Choose a reason'));
+      await tester.pumpAndSettle();
+      // Only reasons that fit adding: damage is not offered.
+      expect(find.text('Damaged'), findsNothing);
+      await tester.tap(find.text('Found extra stock').last);
       await tester.pumpAndSettle();
 
       await tester.tap(action);
       await tester.pumpAndSettle();
 
-      // Taking stock off is the default, so three typed means minus three sent.
+      // Adding is the default, so three typed means plus three sent.
       expect(backend.adjustBody, isNotNull);
-      expect(backend.adjustBody!['qty'], -3);
+      expect(backend.adjustBody!['qty'], 3);
+      expect(backend.adjustBody!['reason'], 'Found extra stock');
+      expect(backend.adjustBody!['isDamage'], false);
+    });
+
+    testWidgets('taking stock off with a reason of its own', (tester) async {
+      await openDetail(tester);
+
+      await tester.tap(find.text('Adjust stock'));
+      await tester.pumpAndSettle();
+
+      final sheet = find.byType(AdjustStockSheet);
+      await tester.tap(
+        find.descendant(of: sheet, matching: find.text('Remove')),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.descendant(of: sheet, matching: find.byType(TextField)).first,
+        '2',
+      );
+      await tester.tap(find.text('Choose a reason'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Other (type a reason)').last);
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.descendant(of: sheet, matching: find.byType(TextField)).last,
+        'Broken box',
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(
+        find.descendant(
+          of: sheet,
+          matching: find.widgetWithText(FilledButton, 'Adjust stock'),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(backend.adjustBody!['qty'], -2);
       expect(backend.adjustBody!['reason'], 'Broken box');
     });
 

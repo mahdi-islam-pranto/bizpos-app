@@ -35,11 +35,7 @@ class MessageState extends StatelessWidget {
           children: [
             Icon(icon, size: 40, color: tone ?? palette.muted),
             const SizedBox(height: Insets.s16),
-            Text(
-              title,
-              style: text.titleMedium,
-              textAlign: TextAlign.center,
-            ),
+            Text(title, style: text.titleMedium, textAlign: TextAlign.center),
             if (body != null) ...[
               const SizedBox(height: Insets.s8),
               Text(body!, style: text.bodySmall, textAlign: TextAlign.center),
@@ -64,10 +60,10 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MessageState(
-        icon: icon ?? Icons.inbox_outlined,
-        title: title,
-        body: body,
-      );
+    icon: icon ?? Icons.inbox_outlined,
+    title: title,
+    body: body,
+  );
 }
 
 /// Presents an [ApiException] the way its type deserves.
@@ -90,7 +86,11 @@ class ErrorView extends StatelessWidget {
       ValidationException() => (Icons.error_outline, palette.warning, false),
       BusinessRuleException() => (Icons.info_outline, palette.warning, false),
       RateLimitedException() => (Icons.timer_outlined, palette.warning, true),
-      MethodOverrideException() => (Icons.bug_report_outlined, palette.danger, false),
+      MethodOverrideException() => (
+        Icons.bug_report_outlined,
+        palette.danger,
+        false,
+      ),
       _ => (Icons.error_outline, palette.danger, true),
     };
 
@@ -140,27 +140,25 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(
-          left: Insets.s4,
-          right: Insets.s4,
-          top: Insets.s24,
-          bottom: Insets.s8,
+    padding: const EdgeInsets.only(
+      left: Insets.s4,
+      right: Insets.s4,
+      top: Insets.s24,
+      bottom: Insets.s8,
+    ),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(
+            title.toUpperCase(),
+            style: Theme.of(context).textTheme.labelSmall
+                ?.copyWith(color: context.palette.muted, letterSpacing: 0.6),
+          ),
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                title.toUpperCase(),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: context.palette.muted,
-                      letterSpacing: 0.6,
-                    ),
-              ),
-            ),
-            ?trailing,
-          ],
-        ),
-      );
+        ?trailing,
+      ],
+    ),
+  );
 }
 
 /// A bordered group of rows — this design's stand-in for a card with a shadow.

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/router/shell_nav.dart';
 import '../../app/router/screen_gates.dart';
 import '../../core/theme/palette.dart';
 import '../../core/theme/tokens.dart';
@@ -23,7 +24,7 @@ class PlaceholderScreen extends StatelessWidget {
     final palette = context.palette;
 
     return Scaffold(
-      appBar: AppBar(title: Text(label)),
+      appBar: ShellAppBar(title: Text(label)),
       body: MessageState(
         icon: gate.icon,
         title: l10n.comingSoonTitle,
@@ -39,9 +40,7 @@ class PlaceholderScreen extends StatelessWidget {
           ),
           child: Text(
             gate.anyOf.join(' · '),
-            style: Theme.of(context)
-                .textTheme
-                .labelSmall
+            style: Theme.of(context).textTheme.labelSmall
                 ?.copyWith(color: palette.accent),
           ),
         ),

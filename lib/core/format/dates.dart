@@ -48,9 +48,11 @@ class AppDates {
     if (at == null) return '';
     final now = DateTime.now();
     final thatDay = DateTime(at.year, at.month, at.day);
-    final days = DateTime(now.year, now.month, now.day)
-        .difference(thatDay)
-        .inDays;
+    final days = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).difference(thatDay).inDays;
     if (days == 0) return today;
     if (days == 1) return yesterday;
     return day(at, locale: locale);

@@ -32,11 +32,7 @@ final class SessionNoStore extends SessionState {
 
 /// Signed in and working in a store.
 final class SessionActive extends SessionState {
-  const SessionActive({
-    required this.me,
-    required this.scope,
-    this.expiresAt,
-  });
+  const SessionActive({required this.me, required this.scope, this.expiresAt});
 
   final Me me;
   final SessionScope scope;
@@ -51,8 +47,8 @@ final class SessionActive extends SessionState {
   }
 
   SessionActive copyWith({Me? me, SessionScope? scope}) => SessionActive(
-        me: me ?? this.me,
-        scope: scope ?? this.scope,
-        expiresAt: expiresAt,
-      );
+    me: me ?? this.me,
+    scope: scope ?? this.scope,
+    expiresAt: expiresAt,
+  );
 }

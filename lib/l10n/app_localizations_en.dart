@@ -85,6 +85,15 @@ class AppL10nEn extends AppL10n {
   String get more => 'More';
 
   @override
+  String get pressBackAgainToExit => 'Press back again to exit';
+
+  @override
+  String get menu => 'Menu';
+
+  @override
+  String get mainMenu => 'Main menu';
+
+  @override
   String get profile => 'Profile';
 
   @override
@@ -1089,6 +1098,15 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get adjustReasonLabel => 'Reason';
+
+  @override
+  String get adjustReasonHint => 'Choose a reason';
+
+  @override
+  String get adjustReasonOther => 'Other (type a reason)';
+
+  @override
+  String get adjustReasonTyped => 'Type the reason';
 
   @override
   String get adjustIsDamage => 'This is damage, not a correction';

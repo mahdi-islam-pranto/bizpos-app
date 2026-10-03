@@ -33,15 +33,11 @@ class CustomerPickerSheet extends ConsumerStatefulWidget {
     BuildContext context, {
     required PosLookups lookups,
     PosCustomer? selected,
-  }) =>
-      showAppSheet<PosCustomer?>(
-        context,
-        title: AppL10n.of(context).chooseCustomer,
-        builder: (_) => CustomerPickerSheet(
-          lookups: lookups,
-          selected: selected,
-        ),
-      );
+  }) => showAppSheet<PosCustomer?>(
+    context,
+    title: AppL10n.of(context).chooseCustomer,
+    builder: (_) => CustomerPickerSheet(lookups: lookups, selected: selected),
+  );
 
   @override
   ConsumerState<CustomerPickerSheet> createState() =>
@@ -95,7 +91,9 @@ class _CustomerPickerSheetState extends ConsumerState<CustomerPickerSheet> {
     final navigator = Navigator.of(context);
     num? balance;
     try {
-      balance = await ref.read(posRepositoryProvider).pointsBalance(customer.id);
+      balance = await ref
+          .read(posRepositoryProvider)
+          .pointsBalance(customer.id);
     } catch (_) {
       // Not knowing the balance is not a reason to refuse the sale: the picker
       // returns the customer as it found them and the redeem row stays away.
@@ -131,8 +129,9 @@ class _CustomerPickerSheetState extends ConsumerState<CustomerPickerSheet> {
     final palette = context.palette;
     final money = ref.watch(moneyProvider);
     final recent = widget.lookups.customers;
-    final results =
-        _query.isEmpty ? null : ref.watch(posCustomerSearchProvider(_query));
+    final results = _query.isEmpty
+        ? null
+        : ref.watch(posCustomerSearchProvider(_query));
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -280,9 +279,7 @@ class _RecentList extends StatelessWidget {
                   l10n.pointsBalance(
                     customer.loyaltyPoints!.toStringAsFixed(0),
                   ),
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelSmall
+                  style: Theme.of(context).textTheme.labelSmall
                       ?.copyWith(color: palette.muted),
                 ),
               ],

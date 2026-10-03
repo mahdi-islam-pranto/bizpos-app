@@ -4,17 +4,17 @@ import '../../../core/format/dates.dart';
 import '../../../core/format/money.dart';
 
 int _int(Object? v) => switch (v) {
-      final int x => x,
-      final num x => x.toInt(),
-      final String x => int.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final int x => x,
+  final num x => x.toInt(),
+  final String x => int.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 num _num(Object? v) => switch (v) {
-      final num x => x,
-      final String x => num.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final num x => x,
+  final String x => num.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 /// Null is "not told", not zero.
 ///
@@ -119,28 +119,28 @@ class Product {
   num? get margin => purchasePrice == null ? null : salePrice - purchasePrice!;
 
   factory Product.fromJson(Map<String, dynamic> json) => Product(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        salePrice: _num(json['salePrice']),
-        barcode: _strOrNull(json['barcode']),
-        sku: _strOrNull(json['sku']),
-        unit: _strOrNull(json['unit']),
-        brand: _strOrNull(json['brand']),
-        category: _strOrNull(json['category']),
-        purchasePrice: _numOrNull(json['purchasePrice']),
-        wholesalePrice: _numOrNull(json['wholesalePrice']),
-        mrp: _numOrNull(json['mrp']),
-        profitPercent: _numOrNull(json['profitPercent']),
-        profitRate: _numOrNull(json['profitRate']),
-        vatPercent: _num(json['vatPercent']),
-        minimumStock: _numOrNull(json['minimumStock']),
-        stock: _numOrNull(json['stock']),
-        isActive: json['isActive'] == null || _bool(json['isActive']),
-        trackBatch: _bool(json['trackBatch']),
-        deletedAt: AppDates.parse(json['deletedAt']),
-        addedBy: _strOrNull(json['addedBy']),
-        changedBy: _strOrNull(json['changedBy']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    salePrice: _num(json['salePrice']),
+    barcode: _strOrNull(json['barcode']),
+    sku: _strOrNull(json['sku']),
+    unit: _strOrNull(json['unit']),
+    brand: _strOrNull(json['brand']),
+    category: _strOrNull(json['category']),
+    purchasePrice: _numOrNull(json['purchasePrice']),
+    wholesalePrice: _numOrNull(json['wholesalePrice']),
+    mrp: _numOrNull(json['mrp']),
+    profitPercent: _numOrNull(json['profitPercent']),
+    profitRate: _numOrNull(json['profitRate']),
+    vatPercent: _num(json['vatPercent']),
+    minimumStock: _numOrNull(json['minimumStock']),
+    stock: _numOrNull(json['stock']),
+    isActive: json['isActive'] == null || _bool(json['isActive']),
+    trackBatch: _bool(json['trackBatch']),
+    deletedAt: AppDates.parse(json['deletedAt']),
+    addedBy: _strOrNull(json['addedBy']),
+    changedBy: _strOrNull(json['changedBy']),
+  );
 }
 
 /// One line of the `movements` in `GET /products/{id}/history`.
@@ -177,15 +177,15 @@ class StockMovement {
   num get delta => qtyIn - qtyOut;
 
   factory StockMovement.fromJson(Map<String, dynamic> json) => StockMovement(
-        id: _int(json['id']),
-        type: _str(json['type']),
-        qtyIn: _num(json['qtyIn']),
-        qtyOut: _num(json['qtyOut']),
-        balanceAfter: _num(json['balanceAfter']),
-        movedAt: AppDates.parse(json['movedAt']),
-        note: _strOrNull(json['note']),
-        user: _strOrNull(json['user']),
-      );
+    id: _int(json['id']),
+    type: _str(json['type']),
+    qtyIn: _num(json['qtyIn']),
+    qtyOut: _num(json['qtyOut']),
+    balanceAfter: _num(json['balanceAfter']),
+    movedAt: AppDates.parse(json['movedAt']),
+    note: _strOrNull(json['note']),
+    user: _strOrNull(json['user']),
+  );
 }
 
 /// One row of the price history. `effectiveTo` is null on the current one.
@@ -214,14 +214,14 @@ class PriceChange {
   bool get isCurrent => effectiveTo == null;
 
   factory PriceChange.fromJson(Map<String, dynamic> json) => PriceChange(
-        id: _int(json['id']),
-        salePrice: _num(json['salePrice']),
-        purchasePrice: _numOrNull(json['purchasePrice']),
-        wholesalePrice: _numOrNull(json['wholesalePrice']),
-        profitPercent: _numOrNull(json['profitPercent']),
-        effectiveFrom: AppDates.parse(json['effectiveFrom']),
-        effectiveTo: AppDates.parse(json['effectiveTo']),
-      );
+    id: _int(json['id']),
+    salePrice: _num(json['salePrice']),
+    purchasePrice: _numOrNull(json['purchasePrice']),
+    wholesalePrice: _numOrNull(json['wholesalePrice']),
+    profitPercent: _numOrNull(json['profitPercent']),
+    effectiveFrom: AppDates.parse(json['effectiveFrom']),
+    effectiveTo: AppDates.parse(json['effectiveTo']),
+  );
 }
 
 /// `GET /products/{id}/history` — the last 40 movements and 20 prices.
@@ -232,9 +232,9 @@ class ProductHistory {
   final List<PriceChange> prices;
 
   factory ProductHistory.fromJson(Map<String, dynamic> json) => ProductHistory(
-        movements: _listOf(json['movements'], StockMovement.fromJson),
-        prices: _listOf(json['prices'], PriceChange.fromJson),
-      );
+    movements: _listOf(json['movements'], StockMovement.fromJson),
+    prices: _listOf(json['prices'], PriceChange.fromJson),
+  );
 }
 
 /// A name and a number, as the `low` and `expiring` lists in the stats give
@@ -255,12 +255,12 @@ class StockAlert {
   final DateTime? expiresAt;
 
   factory StockAlert.fromJson(Map<String, dynamic> json) => StockAlert(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        quantity: _numOrNull(json['quantity']),
-        minimum: _numOrNull(json['minimum']),
-        expiresAt: AppDates.parse(json['expiresAt'] ?? json['expiryDate']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    quantity: _numOrNull(json['quantity']),
+    minimum: _numOrNull(json['minimum']),
+    expiresAt: AppDates.parse(json['expiresAt'] ?? json['expiryDate']),
+  );
 }
 
 /// `GET /products/stats` — the top of the products screen.
@@ -289,32 +289,130 @@ class ProductStats {
   final num? stockValue;
 
   factory ProductStats.fromJson(Map<String, dynamic> json) => ProductStats(
-        total: _int(json['total']),
-        active: _int(json['active']),
-        lowCount: _int(json['lowCount']),
-        low: _listOf(json['low'], StockAlert.fromJson),
-        expiringCount: _int(json['expiringCount']),
-        expiring: _listOf(json['expiring'], StockAlert.fromJson),
-        canSeeCost: _bool(json['canSeeCost']),
-        stockValue: _numOrNull(json['stockValue']),
-      );
+    total: _int(json['total']),
+    active: _int(json['active']),
+    lowCount: _int(json['lowCount']),
+    low: _listOf(json['low'], StockAlert.fromJson),
+    expiringCount: _int(json['expiringCount']),
+    expiring: _listOf(json['expiring'], StockAlert.fromJson),
+    canSeeCost: _bool(json['canSeeCost']),
+    stockValue: _numOrNull(json['stockValue']),
+  );
 }
 
 /// `GET /products/lookups` — what the Company and Unit boxes offer, so neither
 /// is blank paper. Both stay free text: a company nobody has saved yet simply
 /// works, and an unknown unit becomes this store's own.
 class ProductLookups {
-  const ProductLookups({required this.brands, required this.units});
+  const ProductLookups({
+    required this.brands,
+    required this.units,
+    this.adjustReasons = const [],
+  });
 
   final List<String> brands;
   final List<ProductUnit> units;
 
+  /// `adjustReasons[]`, the stock adjustment reasons the shop picks from.
+  /// Not in the spec yet: read when the server sends it, and empty otherwise,
+  /// in which case the form offers [AdjustReason.defaults].
+  final List<AdjustReason> adjustReasons;
+
   factory ProductLookups.fromJson(Map<String, dynamic> json) => ProductLookups(
-        brands: (json['brands'] is List)
-            ? (json['brands'] as List).map((b) => b.toString()).toList()
-            : const [],
-        units: _listOf(json['units'], ProductUnit.fromJson),
+    brands: (json['brands'] is List)
+        ? (json['brands'] as List).map((b) => b.toString()).toList()
+        : const [],
+    units: _listOf(json['units'], ProductUnit.fromJson),
+    adjustReasons: (json['adjustReasons'] is List)
+        ? (json['adjustReasons'] as List)
+              .map(AdjustReason.tryParse)
+              .whereType<AdjustReason>()
+              .toList()
+        : const [],
+  );
+}
+
+/// One choice in the adjust-stock reason box. What goes to the server is the
+/// [label] text — `reason` on `POST /products/{id}/adjust` is free text.
+class AdjustReason {
+  const AdjustReason({
+    required this.label,
+    this.labelBn,
+    this.direction,
+    this.isDamage = false,
+  });
+
+  final String label;
+  final String? labelBn;
+
+  /// `in` or `out` when the reason only makes sense one way; null for both.
+  final String? direction;
+
+  /// Ticks "this is damage" when picked.
+  final bool isDamage;
+
+  String labelFor(String locale) =>
+      locale == 'bn' && (labelBn ?? '').isNotEmpty ? labelBn! : label;
+
+  bool fits({required bool adding}) =>
+      direction == null || direction == (adding ? 'in' : 'out');
+
+  /// A plain string or `{label, labelBn, direction, isDamage}`; anything else
+  /// is skipped rather than failing the whole lookup.
+  static AdjustReason? tryParse(Object? raw) {
+    if (raw is String && raw.trim().isNotEmpty) {
+      return AdjustReason(label: raw.trim());
+    }
+    if (raw is Map) {
+      final label = _str(raw['label'] ?? raw['name']).trim();
+      if (label.isEmpty) return null;
+      final direction = _strOrNull(raw['direction']);
+      return AdjustReason(
+        label: label,
+        labelBn: _strOrNull(raw['labelBn'] ?? raw['label_bn']),
+        direction: direction == 'in' || direction == 'out' ? direction : null,
+        isDamage: raw['isDamage'] == true,
       );
+    }
+    return null;
+  }
+
+  /// What the form offers until the server supplies its own list.
+  static const List<AdjustReason> defaults = [
+    AdjustReason(label: 'Stock count correction', labelBn: 'স্টক গণনা সংশোধন'),
+    AdjustReason(
+      label: 'Found extra stock',
+      labelBn: 'অতিরিক্ত স্টক পাওয়া গেছে',
+      direction: 'in',
+    ),
+    AdjustReason(
+      label: 'Returned by customer',
+      labelBn: 'গ্রাহক ফেরত দিয়েছেন',
+      direction: 'in',
+    ),
+    AdjustReason(
+      label: 'Damaged',
+      labelBn: 'নষ্ট হয়েছে',
+      direction: 'out',
+      isDamage: true,
+    ),
+    AdjustReason(
+      label: 'Expired',
+      labelBn: 'মেয়াদোত্তীর্ণ',
+      direction: 'out',
+      isDamage: true,
+    ),
+    AdjustReason(
+      label: 'Lost or stolen',
+      labelBn: 'হারিয়ে গেছে বা চুরি',
+      direction: 'out',
+    ),
+    AdjustReason(
+      label: 'Used in the shop',
+      labelBn: 'দোকানে ব্যবহৃত',
+      direction: 'out',
+    ),
+  ];
 }
 
 class ProductUnit {
@@ -329,10 +427,10 @@ class ProductUnit {
       locale == 'bn' && (labelBn ?? '').isNotEmpty ? labelBn! : label;
 
   factory ProductUnit.fromJson(Map<String, dynamic> json) => ProductUnit(
-        short: _str(json['short']),
-        label: _str(json['label']),
-        labelBn: _strOrNull(json['labelBn']),
-      );
+    short: _str(json['short']),
+    label: _str(json['label']),
+    labelBn: _strOrNull(json['labelBn']),
+  );
 }
 
 /// Cost plus [percent], to the paisa: a cost of 90 at 5% is 94.50.
@@ -340,8 +438,8 @@ class ProductUnit {
 /// Exact arithmetic, because this figure is sent as the selling price and a
 /// stray `94.49999999` would be a different price.
 num markupPrice(num cost, num percent) => Exact.paisa(
-      (Exact.of(cost) * (Decimal.fromInt(100) + Exact.of(percent))).shift(-2),
-    ).toDouble();
+  (Exact.of(cost) * (Decimal.fromInt(100) + Exact.of(percent))).shift(-2),
+).toDouble();
 
 /// The rule the server does not bend on, anywhere a price is set: a selling
 /// price under the cost is refused with a `422`. Checked on the form as well so

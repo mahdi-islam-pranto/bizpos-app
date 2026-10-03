@@ -1,19 +1,19 @@
 import '../../../core/format/dates.dart';
 
 int _int(Object? v) => switch (v) {
-      final int x => x,
-      final num x => x.toInt(),
-      final String x => int.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final int x => x,
+  final num x => x.toInt(),
+  final String x => int.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 int? _intOrNull(Object? v) => v == null ? null : _int(v);
 
 num _num(Object? v) => switch (v) {
-      final num x => x,
-      final String x => num.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final num x => x,
+  final String x => num.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 num? _numOrNull(Object? v) => v == null ? null : _num(v);
 
@@ -91,32 +91,32 @@ class CatalogEntry {
   bool get isInStore => alreadyInStore != null && alreadyInStore! > 0;
 
   factory CatalogEntry.fromJson(Map<String, dynamic> json) => CatalogEntry(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        pending: _bool(json['pending']),
-        genericName: _strOrNull(json['genericName']),
-        barcode: _strOrNull(json['barcode']),
-        brand: _strOrNull(json['brand']),
-        unit: _strOrNull(json['unit']),
-        category: _strOrNull(json['category']),
-        defaultPurchasePrice: _numOrNull(json['defaultPurchasePrice']),
-        defaultSalePrice: _numOrNull(json['defaultSalePrice']),
-        defaultMrp: _numOrNull(json['defaultMrp']),
-        vatPercent: _num(json['vatPercent']),
-        alreadyInStore: _intOrNull(json['alreadyInStore']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    pending: _bool(json['pending']),
+    genericName: _strOrNull(json['genericName']),
+    barcode: _strOrNull(json['barcode']),
+    brand: _strOrNull(json['brand']),
+    unit: _strOrNull(json['unit']),
+    category: _strOrNull(json['category']),
+    defaultPurchasePrice: _numOrNull(json['defaultPurchasePrice']),
+    defaultSalePrice: _numOrNull(json['defaultSalePrice']),
+    defaultMrp: _numOrNull(json['defaultMrp']),
+    vatPercent: _num(json['vatPercent']),
+    alreadyInStore: _intOrNull(json['alreadyInStore']),
+  );
 
   /// A match from `/catalog/check` is a catalogue entry in another spelling,
   /// so "add this one instead" can open the same adopt form.
   factory CatalogEntry.fromMatch(CatalogMatch match) => CatalogEntry(
-        id: match.id,
-        name: match.name,
-        pending: false,
-        genericName: match.genericName,
-        brand: match.brand,
-        defaultPurchasePrice: match.purchase,
-        defaultSalePrice: match.sale,
-      );
+    id: match.id,
+    name: match.name,
+    pending: false,
+    genericName: match.genericName,
+    brand: match.brand,
+    defaultPurchasePrice: match.purchase,
+    defaultSalePrice: match.sale,
+  );
 }
 
 /// The body of `POST /catalog/{id}/adopt`.
@@ -146,15 +146,15 @@ class AdoptDraft {
   final num? minimumStock;
 
   Map<String, dynamic> toBody() => {
-        'purchasePrice': purchasePrice,
-        'salePrice': salePrice,
-        'wholesalePrice': ?wholesalePrice,
-        'profitPercent': ?profitPercent,
-        'mrp': ?mrp,
-        'localName': ?localName,
-        'openingStock': ?openingStock,
-        'minimumStock': ?minimumStock,
-      };
+    'purchasePrice': purchasePrice,
+    'salePrice': salePrice,
+    'wholesalePrice': ?wholesalePrice,
+    'profitPercent': ?profitPercent,
+    'mrp': ?mrp,
+    'localName': ?localName,
+    'openingStock': ?openingStock,
+    'minimumStock': ?minimumStock,
+  };
 }
 
 /// What adopting answered: `201 created: true`, or `200 created: false` when
@@ -201,17 +201,17 @@ class CatalogMatch {
       locale == 'bn' && (reasonBn ?? '').isNotEmpty ? reasonBn : reasonEn;
 
   factory CatalogMatch.fromJson(Map<String, dynamic> json) => CatalogMatch(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        match: _str(json['match']),
-        genericName: _strOrNull(json['generic_name'] ?? json['genericName']),
-        brand: _strOrNull(json['brand']),
-        purchase: _numOrNull(json['purchase']),
-        sale: _numOrNull(json['sale']),
-        strength: _strOrNull(json['strength']),
-        reasonEn: _strOrNull(json['reason_en'] ?? json['reasonEn']),
-        reasonBn: _strOrNull(json['reason_bn'] ?? json['reasonBn']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    match: _str(json['match']),
+    genericName: _strOrNull(json['generic_name'] ?? json['genericName']),
+    brand: _strOrNull(json['brand']),
+    purchase: _numOrNull(json['purchase']),
+    sale: _numOrNull(json['sale']),
+    strength: _strOrNull(json['strength']),
+    reasonEn: _strOrNull(json['reason_en'] ?? json['reasonEn']),
+    reasonBn: _strOrNull(json['reason_bn'] ?? json['reasonBn']),
+  );
 }
 
 /// What the catalogue says about a name while it is being typed.
@@ -232,12 +232,12 @@ enum CheckVerdict {
   isNew;
 
   static CheckVerdict parse(String value) => switch (value) {
-        'exists' => exists,
-        'variant' => variant,
-        'other_brand' => otherBrand,
-        'similar' => similar,
-        _ => isNew,
-      };
+    'exists' => exists,
+    'variant' => variant,
+    'other_brand' => otherBrand,
+    'similar' => similar,
+    _ => isNew,
+  };
 }
 
 /// `GET /catalog/check`.
@@ -255,10 +255,10 @@ class CatalogCheck {
   final int? alreadyInStore;
 
   factory CatalogCheck.fromJson(Map<String, dynamic> json) => CatalogCheck(
-        verdict: CheckVerdict.parse(_str(json['verdict'])),
-        matches: _listOf(json['matches'], CatalogMatch.fromJson),
-        alreadyInStore: _intOrNull(json['alreadyInStore']),
-      );
+    verdict: CheckVerdict.parse(_str(json['verdict'])),
+    matches: _listOf(json['matches'], CatalogMatch.fromJson),
+    alreadyInStore: _intOrNull(json['alreadyInStore']),
+  );
 }
 
 /// The body of `POST /catalog/suggestions`.
@@ -297,21 +297,21 @@ class SuggestionDraft {
   final String? reason;
 
   Map<String, dynamic> toBody({bool confirmedNew = false}) => {
-        'name': name,
-        'purchasePrice': purchasePrice,
-        'salePrice': salePrice,
-        'genericName': ?genericName,
-        'brand': ?brand,
-        'barcode': ?barcode,
-        'unit': ?unit,
-        'profitPercent': ?profitPercent,
-        'mrp': ?mrp,
-        'vatPercent': ?vatPercent,
-        'minimumStock': ?minimumStock,
-        'openingStock': ?openingStock,
-        'reason': ?reason,
-        if (confirmedNew) 'confirmedNew': true,
-      };
+    'name': name,
+    'purchasePrice': purchasePrice,
+    'salePrice': salePrice,
+    'genericName': ?genericName,
+    'brand': ?brand,
+    'barcode': ?barcode,
+    'unit': ?unit,
+    'profitPercent': ?profitPercent,
+    'mrp': ?mrp,
+    'vatPercent': ?vatPercent,
+    'minimumStock': ?minimumStock,
+    'openingStock': ?openingStock,
+    'reason': ?reason,
+    if (confirmedNew) 'confirmedNew': true,
+  };
 }
 
 /// What sending a suggestion answered.
@@ -333,11 +333,11 @@ class SuggestResult {
   final String? name;
 
   factory SuggestResult.fromJson(Map<String, dynamic> json) => SuggestResult(
-        id: _int(json['id']),
-        endorsed: _bool(json['endorsed']),
-        storeProductId: _intOrNull(json['storeProductId']),
-        name: _strOrNull(json['name']),
-      );
+    id: _int(json['id']),
+    endorsed: _bool(json['endorsed']),
+    storeProductId: _intOrNull(json['storeProductId']),
+    name: _strOrNull(json['name']),
+  );
 }
 
 enum SuggestionStatus {
@@ -347,11 +347,11 @@ enum SuggestionStatus {
   rejected;
 
   static SuggestionStatus parse(String value) => switch (value) {
-        'endorsed' => endorsed,
-        'approved' => approved,
-        'rejected' => rejected,
-        _ => pending,
-      };
+    'endorsed' => endorsed,
+    'approved' => approved,
+    'rejected' => rejected,
+    _ => pending,
+  };
 }
 
 /// A row of the owner's review queue, `GET /catalog/suggestions`.
@@ -417,8 +417,9 @@ class Suggestion {
       askedAt: AppDates.parse(json['askedAt']),
       endorsedBy: _strOrNull(json['endorsedBy']),
       reviewNote: _strOrNull(json['reviewNote']),
-      storeProductName:
-          product is Map ? _strOrNull(product['name']) : _strOrNull(product),
+      storeProductName: product is Map
+          ? _strOrNull(product['name'])
+          : _strOrNull(product),
     );
   }
 }

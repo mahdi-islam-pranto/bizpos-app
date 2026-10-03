@@ -85,6 +85,15 @@ class AppL10nBn extends AppL10n {
   String get more => 'আরও';
 
   @override
+  String get pressBackAgainToExit => 'বের হতে আবার ব্যাক চাপুন';
+
+  @override
+  String get menu => 'মেনু';
+
+  @override
+  String get mainMenu => 'প্রধান মেনু';
+
+  @override
   String get profile => 'প্রোফাইল';
 
   @override
@@ -1081,6 +1090,15 @@ class AppL10nBn extends AppL10n {
 
   @override
   String get adjustReasonLabel => 'কারণ';
+
+  @override
+  String get adjustReasonHint => 'একটি কারণ বেছে নিন';
+
+  @override
+  String get adjustReasonOther => 'অন্য (কারণ লিখুন)';
+
+  @override
+  String get adjustReasonTyped => 'কারণ লিখুন';
 
   @override
   String get adjustIsDamage => 'এটি ক্ষতি, সংশোধন নয়';

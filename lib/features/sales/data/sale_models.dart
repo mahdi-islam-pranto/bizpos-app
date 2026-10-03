@@ -2,17 +2,17 @@ import '../../../core/format/dates.dart';
 import '../../../core/network/envelope.dart';
 
 int _int(Object? v) => switch (v) {
-      final int x => x,
-      final num x => x.toInt(),
-      final String x => int.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final int x => x,
+  final num x => x.toInt(),
+  final String x => int.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 num _num(Object? v) => switch (v) {
-      final num x => x,
-      final String x => num.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final num x => x,
+  final String x => num.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 num? _numOrNull(Object? v) => v == null ? null : _num(v);
 
@@ -34,10 +34,10 @@ enum SaleStatus {
   isVoid;
 
   static SaleStatus parse(String value) => switch (value) {
-        'returned' => SaleStatus.returned,
-        'void' => SaleStatus.isVoid,
-        _ => SaleStatus.completed,
-      };
+    'returned' => SaleStatus.returned,
+    'void' => SaleStatus.isVoid,
+    _ => SaleStatus.completed,
+  };
 
   bool get isCancelled => this == SaleStatus.isVoid;
 }
@@ -50,10 +50,10 @@ enum PaymentStatus {
   unpaid;
 
   static PaymentStatus parse(String value) => switch (value) {
-        'paid' => PaymentStatus.paid,
-        'partial' => PaymentStatus.partial,
-        _ => PaymentStatus.unpaid,
-      };
+    'paid' => PaymentStatus.paid,
+    'partial' => PaymentStatus.partial,
+    _ => PaymentStatus.unpaid,
+  };
 }
 
 /// A row in the invoice list.
@@ -112,24 +112,24 @@ class SaleListItem {
   final String? branch;
 
   factory SaleListItem.fromJson(Map<String, dynamic> json) => SaleListItem(
-        id: _int(json['id']),
-        invoiceNo: _str(json['invoiceNo']),
-        subtotal: _numOrNull(json['subtotal']),
-        discount: _numOrNull(json['discount']),
-        discountPercent: _numOrNull(json['discountPercent']),
-        discountRate: _numOrNull(json['discountRate']),
-        previousDue: _numOrNull(json['previousDue']),
-        total: _num(json['total']),
-        paid: _num(json['paid']),
-        due: _num(json['due']),
-        status: SaleStatus.parse(_str(json['status'])),
-        paymentStatus: PaymentStatus.parse(_str(json['paymentStatus'])),
-        itemCount: _int(json['itemCount']),
-        saleDate: AppDates.parse(json['saleDate']),
-        customer: _strOrNull(json['customer']),
-        seller: _strOrNull(json['seller']),
-        branch: _strOrNull(json['branch']),
-      );
+    id: _int(json['id']),
+    invoiceNo: _str(json['invoiceNo']),
+    subtotal: _numOrNull(json['subtotal']),
+    discount: _numOrNull(json['discount']),
+    discountPercent: _numOrNull(json['discountPercent']),
+    discountRate: _numOrNull(json['discountRate']),
+    previousDue: _numOrNull(json['previousDue']),
+    total: _num(json['total']),
+    paid: _num(json['paid']),
+    due: _num(json['due']),
+    status: SaleStatus.parse(_str(json['status'])),
+    paymentStatus: PaymentStatus.parse(_str(json['paymentStatus'])),
+    itemCount: _int(json['itemCount']),
+    saleDate: AppDates.parse(json['saleDate']),
+    customer: _strOrNull(json['customer']),
+    seller: _strOrNull(json['seller']),
+    branch: _strOrNull(json['branch']),
+  );
 }
 
 /// `meta.summary` on the list — the strip above it.
@@ -205,19 +205,19 @@ class SaleItem {
   final num? vat;
 
   factory SaleItem.fromJson(Map<String, dynamic> json) => SaleItem(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        qty: _num(json['qty']),
-        unitPrice: _num(json['unitPrice']),
-        total: _num(json['total']),
-        unit: _strOrNull(json['unit']),
-        discount: _numOrNull(json['discount']),
-        discountPercent: _numOrNull(json['discountPercent']),
-        mrp: _numOrNull(json['mrp']),
-        mrpDiscount: _numOrNull(json['mrpDiscount']),
-        mrpDiscountPercent: _numOrNull(json['mrpDiscountPercent']),
-        vat: _numOrNull(json['vat']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    qty: _num(json['qty']),
+    unitPrice: _num(json['unitPrice']),
+    total: _num(json['total']),
+    unit: _strOrNull(json['unit']),
+    discount: _numOrNull(json['discount']),
+    discountPercent: _numOrNull(json['discountPercent']),
+    mrp: _numOrNull(json['mrp']),
+    mrpDiscount: _numOrNull(json['mrpDiscount']),
+    mrpDiscountPercent: _numOrNull(json['mrpDiscountPercent']),
+    vat: _numOrNull(json['vat']),
+  );
 }
 
 class SalePayment {
@@ -234,11 +234,11 @@ class SalePayment {
   final String? reference;
 
   factory SalePayment.fromJson(Map<String, dynamic> json) => SalePayment(
-        method: _str(json['method']),
-        amount: _num(json['amount']),
-        account: _strOrNull(json['account']),
-        reference: _strOrNull(json['reference']),
-      );
+    method: _str(json['method']),
+    amount: _num(json['amount']),
+    account: _strOrNull(json['account']),
+    reference: _strOrNull(json['reference']),
+  );
 }
 
 /// A name, address and phone on the receipt. Used for both the branch and the
@@ -251,10 +251,10 @@ class ReceiptParty {
   final String? phone;
 
   factory ReceiptParty.fromJson(Map<String, dynamic>? json) => ReceiptParty(
-        name: _str(json?['name']),
-        address: _strOrNull(json?['address']),
-        phone: _strOrNull(json?['phone']),
-      );
+    name: _str(json?['name']),
+    address: _strOrNull(json?['address']),
+    phone: _strOrNull(json?['phone']),
+  );
 }
 
 /// Everything a detail screen and a receipt need, from `GET /sales/{id}`.
@@ -394,10 +394,10 @@ class VoidResult {
   final num restored;
 
   factory VoidResult.fromJson(Map<String, dynamic> json) => VoidResult(
-        id: _int(json['id']),
-        invoiceNo: _str(json['invoiceNo']),
-        restored: _num(json['restored']),
-      );
+    id: _int(json['id']),
+    invoiceNo: _str(json['invoiceNo']),
+    restored: _num(json['restored']),
+  );
 }
 
 /// What `POST /sales/{id}/returns` answers with.
@@ -413,10 +413,10 @@ class ReturnResult {
   final num total;
 
   factory ReturnResult.fromJson(Map<String, dynamic> json) => ReturnResult(
-        id: _int(json['id']),
-        returnNo: _str(json['returnNo']),
-        total: _num(json['total']),
-      );
+    id: _int(json['id']),
+    returnNo: _str(json['returnNo']),
+    total: _num(json['total']),
+  );
 }
 
 List<T> _listOf<T>(Object? raw, T Function(Map<String, dynamic>) parse) {

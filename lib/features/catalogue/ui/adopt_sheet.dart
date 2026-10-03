@@ -41,7 +41,9 @@ class _AdoptSheetState extends ConsumerState<AdoptSheet> {
     purchasePrice: widget.entry.defaultPurchasePrice,
     salePrice: widget.entry.defaultSalePrice,
   );
-  late final _mrp = TextEditingController(text: _plain(widget.entry.defaultMrp));
+  late final _mrp = TextEditingController(
+    text: _plain(widget.entry.defaultMrp),
+  );
   final _opening = TextEditingController(text: '1');
   final _minimum = TextEditingController();
   final _localName = TextEditingController();
@@ -70,7 +72,9 @@ class _AdoptSheetState extends ConsumerState<AdoptSheet> {
     final l10n = AppL10n.of(context);
     final localName = _localName.text.trim();
     try {
-      final result = await ref.read(catalogRepositoryProvider).adopt(
+      final result = await ref
+          .read(catalogRepositoryProvider)
+          .adopt(
             widget.entry.id,
             AdoptDraft(
               purchasePrice: _pricing.purchaseValue!,
@@ -121,9 +125,7 @@ class _AdoptSheetState extends ConsumerState<AdoptSheet> {
                   padding: const EdgeInsets.only(bottom: Insets.s16),
                   child: Text(
                     [?entry.brand, ?entry.genericName].join(' · '),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
+                    style: Theme.of(context).textTheme.bodySmall
                         ?.copyWith(color: palette.muted),
                   ),
                 ),

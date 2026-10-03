@@ -69,7 +69,10 @@ class PosRepository {
     return response.data;
   }
 
-  Future<int> hold({required String label, required Map<String, dynamic> cart}) async {
+  Future<int> hold({
+    required String label,
+    required Map<String, dynamic> cart,
+  }) async {
     final response = await _client.post(
       ApiPaths.posHold,
       parse: parseObject((json) => json),
@@ -90,19 +93,19 @@ class PosRepository {
   }
 
   Future<void> discardHold(int id) => _client.delete(
-        ApiPaths.posHoldDiscard(id),
-        parse: parseNothing,
-        cancelToken: _cancel,
-      );
+    ApiPaths.posHoldDiscard(id),
+    parse: parseNothing,
+    cancelToken: _cancel,
+  );
 
   /// `422 shift_open` when one is already open — surfaced as the server's own
   /// sentence, not as a code.
   Future<void> openShift(num openingCash) => _client.post(
-        ApiPaths.posShiftOpen,
-        parse: parseNothing,
-        body: {'openingCash': openingCash},
-        cancelToken: _cancel,
-      );
+    ApiPaths.posShiftOpen,
+    parse: parseNothing,
+    body: {'openingCash': openingCash},
+    cancelToken: _cancel,
+  );
 
   Future<ShiftReport> shiftReport() async {
     final response = await _client.get(
@@ -206,11 +209,9 @@ class PosQuery {
   final String text;
   final bool packages;
 
-  PosQuery withText(String value) =>
-      PosQuery(text: value, packages: packages);
+  PosQuery withText(String value) => PosQuery(text: value, packages: packages);
 
-  PosQuery withPackages(bool value) =>
-      PosQuery(text: text, packages: value);
+  PosQuery withPackages(bool value) => PosQuery(text: text, packages: value);
 
   @override
   bool operator ==(Object other) =>
@@ -233,25 +234,22 @@ class PosQuery {
 /// leaving the counter staring at a spinner it could not retry: no products, no
 /// sale. Asking through a provider means Riverpod re-runs the search against
 /// the new repository the instant the scope moves, so the list heals itself.
-final posSearchProvider =
-    FutureProvider.autoDispose.family<List<SellableItem>, PosQuery>((
-  ref,
-  query,
-) {
-  ref.watch(sessionScopeProvider);
-  final repository = ref.watch(posRepositoryProvider);
-  // Held briefly so flicking between Products and Packages, or backspacing a
-  // query, does not refetch what was on screen a second ago.
-  ref.keepAlive();
-  final timer = Timer(const Duration(seconds: 30), ref.invalidateSelf);
-  ref.onDispose(timer.cancel);
+final posSearchProvider = FutureProvider.autoDispose
+    .family<List<SellableItem>, PosQuery>((ref, query) {
+      ref.watch(sessionScopeProvider);
+      final repository = ref.watch(posRepositoryProvider);
+      // Held briefly so flicking between Products and Packages, or backspacing a
+      // query, does not refetch what was on screen a second ago.
+      ref.keepAlive();
+      final timer = Timer(const Duration(seconds: 30), ref.invalidateSelf);
+      ref.onDispose(timer.cancel);
 
-  return query.packages
-      ? repository.sellablePackages(query.text.isEmpty ? null : query.text)
-      // An empty query still asks the server, which answers with a recent
-      // window — so the till opens showing something rather than a blank.
-      : repository.search(query.text);
-});
+      return query.packages
+          ? repository.sellablePackages(query.text.isEmpty ? null : query.text)
+          // An empty query still asks the server, which answers with a recent
+          // window — so the till opens showing something rather than a blank.
+          : repository.search(query.text);
+    });
 
 /// `GET /customers/search`, for the counter's customer picker.
 ///
@@ -259,8 +257,8 @@ final posSearchProvider =
 /// reason as [posSearchProvider]: the repository's cancel token dies with the
 /// session scope, and a hand-rolled future that loses that race becomes a
 /// spinner nothing can clear.
-final posCustomerSearchProvider =
-    FutureProvider.autoDispose.family<List<PosCustomer>, String>((ref, query) {
-  ref.watch(sessionScopeProvider);
-  return ref.watch(posRepositoryProvider).searchCustomers(query);
-});
+final posCustomerSearchProvider = FutureProvider.autoDispose
+    .family<List<PosCustomer>, String>((ref, query) {
+      ref.watch(sessionScopeProvider);
+      return ref.watch(posRepositoryProvider).searchCustomers(query);
+    });

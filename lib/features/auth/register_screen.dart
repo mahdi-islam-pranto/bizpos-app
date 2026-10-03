@@ -89,7 +89,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     setState(() => _busy = true);
     try {
       // On success the session changes and the router takes this screen away.
-      await ref.read(sessionControllerProvider.notifier).register(
+      await ref
+          .read(sessionControllerProvider.notifier)
+          .register(
             name: _shop.text.trim(),
             storeTypeId: _storeTypeId!,
             ownerName: _owner.text.trim(),
@@ -190,7 +192,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     options.when(
                       loading: () => const LinearProgressIndicator(),
                       error: (e, _) => _Notice(
-                        message: e is ApiException ? e.message : l10n.genericError,
+                        message: e is ApiException
+                            ? e.message
+                            : l10n.genericError,
                         action: TextButton(
                           onPressed: () =>
                               ref.invalidate(signupOptionsProvider),
@@ -296,8 +300,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                                 ? Icons.visibility_outlined
                                 : Icons.visibility_off_outlined,
                           ),
-                          onPressed: () =>
-                              setState(() => _obscure = !_obscure),
+                          onPressed: () => setState(() => _obscure = !_obscure),
                         ),
                       ),
                       validator: (v) {
@@ -395,9 +398,7 @@ class _Notice extends StatelessWidget {
               Expanded(
                 child: Text(
                   message,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
+                  style: Theme.of(context).textTheme.bodySmall
                       ?.copyWith(color: palette.text),
                 ),
               ),

@@ -34,13 +34,14 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   );
 });
 
-final authApiProvider =
-    Provider<AuthApi>((ref) => AuthApi(ref.watch(apiClientProvider)));
+final authApiProvider = Provider<AuthApi>(
+  (ref) => AuthApi(ref.watch(apiClientProvider)),
+);
 
 final sessionControllerProvider =
     AsyncNotifierProvider<SessionController, SessionState>(
-  SessionController.new,
-);
+      SessionController.new,
+    );
 
 /// The current store and branch, or null when no store is active.
 ///
@@ -141,10 +142,7 @@ class SessionController extends AsyncNotifier<SessionState> {
     );
   }
 
-  Future<void> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> signIn({required String email, required String password}) async {
     state = const AsyncValue.loading();
     try {
       final result = await _api.login(
@@ -252,14 +250,15 @@ class SessionController extends AsyncNotifier<SessionState> {
     if (bumpEpoch) _epoch++;
     try {
       final me = await _api.me();
-      final expiresAt =
-          current is SessionActive ? current.expiresAt : null;
+      final expiresAt = current is SessionActive ? current.expiresAt : null;
       state = AsyncValue.data(await _stateFor(me, expiresAt: expiresAt));
     } on UnauthenticatedException {
       // The interceptor is already signing us out.
     } on ApiException catch (e) {
-      developer.log('could not refresh the session: ${e.message}',
-          name: 'session');
+      developer.log(
+        'could not refresh the session: ${e.message}',
+        name: 'session',
+      );
     }
   }
 
@@ -302,8 +301,10 @@ class SessionController extends AsyncNotifier<SessionState> {
         await refreshMe();
       }
     } on ApiException catch (e) {
-      developer.log('could not save preferences: ${e.message}',
-          name: 'session');
+      developer.log(
+        'could not save preferences: ${e.message}',
+        name: 'session',
+      );
     }
   }
 

@@ -122,5 +122,10 @@ class ApiPaths {
   static const reportDues = '/reports/dues';
 
   /// The two endpoints that need no token. The auth interceptor skips these.
-  static const anonymous = {login, register, publicPermissions, publicStoreTypes};
+  static const anonymous = {
+    login,
+    register,
+    publicPermissions,
+    publicStoreTypes,
+  };
 }

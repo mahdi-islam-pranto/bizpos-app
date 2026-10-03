@@ -100,21 +100,20 @@ class AppPalette extends ThemeExtension<AppPalette> {
     Color? positive,
     Color? warning,
     Color? danger,
-  }) =>
-      AppPalette(
-        bg: bg ?? this.bg,
-        surface: surface ?? this.surface,
-        surfaceAlt: surfaceAlt ?? this.surfaceAlt,
-        accent: accent ?? this.accent,
-        accentSoft: accentSoft ?? this.accentSoft,
-        onAccent: onAccent ?? this.onAccent,
-        hairline: hairline ?? this.hairline,
-        text: text ?? this.text,
-        muted: muted ?? this.muted,
-        positive: positive ?? this.positive,
-        warning: warning ?? this.warning,
-        danger: danger ?? this.danger,
-      );
+  }) => AppPalette(
+    bg: bg ?? this.bg,
+    surface: surface ?? this.surface,
+    surfaceAlt: surfaceAlt ?? this.surfaceAlt,
+    accent: accent ?? this.accent,
+    accentSoft: accentSoft ?? this.accentSoft,
+    onAccent: onAccent ?? this.onAccent,
+    hairline: hairline ?? this.hairline,
+    text: text ?? this.text,
+    muted: muted ?? this.muted,
+    positive: positive ?? this.positive,
+    warning: warning ?? this.warning,
+    danger: danger ?? this.danger,
+  );
 
   @override
   AppPalette lerp(ThemeExtension<AppPalette>? other, double t) {

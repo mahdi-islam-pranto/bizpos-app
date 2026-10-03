@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/money.dart';
 import '../../../core/network/paged.dart';
 import '../../../core/permissions/permission_gate.dart';
@@ -76,12 +77,11 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
     final meta = list.value?.meta;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.catalogueTitle)),
+      appBar: ShellAppBar(title: Text(l10n.catalogueTitle)),
       floatingActionButton: PermissionGate(
         perm: P.catalogProductSuggest,
         child: FloatingActionButton.extended(
-          onPressed: () =>
-              SuggestSheet.show(context, initialName: filter.text),
+          onPressed: () => SuggestSheet.show(context, initialName: filter.text),
           icon: const Icon(Icons.add_box_outlined),
           label: Text(l10n.suggestProduct),
         ),
@@ -121,11 +121,11 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
                         // Both counts ignore `q`, so they stay put while the
                         // person types.
                         CatalogScope.mine => l10n.catalogueMine(
-                            '${meta?.intValue('mineCount') ?? '–'}',
-                          ),
+                          '${meta?.intValue('mineCount') ?? '–'}',
+                        ),
                         CatalogScope.missing => l10n.catalogueMissing(
-                            '${meta?.intValue('missingCount') ?? '–'}',
-                          ),
+                          '${meta?.intValue('missingCount') ?? '–'}',
+                        ),
                       }),
                     ),
                   ),
@@ -141,7 +141,8 @@ class _CatalogueScreenState extends ConsumerState<CatalogueScreen> {
                 if (page.items.isEmpty) {
                   return MessageState(
                     icon: Icons.menu_book_outlined,
-                    title: filter.scope == CatalogScope.missing &&
+                    title:
+                        filter.scope == CatalogScope.missing &&
                             (filter.text ?? '').isEmpty
                         ? l10n.catalogueNothingMissing
                         : l10n.catalogueNoResults,
@@ -199,7 +200,9 @@ class _EntryRow extends ConsumerWidget {
     final palette = context.palette;
     final text = Theme.of(context).textTheme;
     final money = ref.watch(moneyProvider);
-    final mayImport = ref.watch(permissionsProvider).has(P.catalogProductImport);
+    final mayImport = ref
+        .watch(permissionsProvider)
+        .has(P.catalogProductImport);
 
     return ListTile(
       onTap: !entry.isInStore && mayImport
@@ -273,9 +276,7 @@ class _Footer extends ConsumerWidget {
           children: [
             Text(
               l10n.showingOf('${page.items.length}', '${page.total}'),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
+              style: Theme.of(context).textTheme.bodySmall
                   ?.copyWith(color: context.palette.muted),
             ),
             if (page.hasMore) ...[

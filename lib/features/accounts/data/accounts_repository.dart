@@ -81,10 +81,8 @@ class AccountsRepository {
       createExpense(ExpenseDraft(categoryId: categoryId));
 
   /// The money goes back into the account it left.
-  Future<void> deleteExpense(int id) => _client.delete(
-        ApiPaths.expense(id),
-        parse: parseNothing,
-      );
+  Future<void> deleteExpense(int id) =>
+      _client.delete(ApiPaths.expense(id), parse: parseNothing);
 
   Future<int> createCategory(CategoryDraft draft) async {
     final response = await _client.post(
@@ -98,11 +96,11 @@ class AccountsRepository {
   }
 
   Future<void> updateCategory(int id, CategoryDraft draft) => _client.patch(
-        ApiPaths.expenseCategory(id),
-        parse: parseNothing,
-        body: draft.toBody(),
-        cancelToken: _cancel,
-      );
+    ApiPaths.expenseCategory(id),
+    parse: parseNothing,
+    body: draft.toBody(),
+    cancelToken: _cancel,
+  );
 
   Future<CategoryRemoval> deleteCategory(int id) async {
     final response = await _client.delete(
@@ -124,8 +122,9 @@ final accountsRepositoryProvider = Provider<AccountsRepository>((ref) {
   );
 });
 
-final accountsOverviewProvider =
-    FutureProvider.autoDispose<AccountsOverview>((ref) {
+final accountsOverviewProvider = FutureProvider.autoDispose<AccountsOverview>((
+  ref,
+) {
   ref.watch(sessionScopeProvider);
   return ref.watch(accountsRepositoryProvider).overview();
 });

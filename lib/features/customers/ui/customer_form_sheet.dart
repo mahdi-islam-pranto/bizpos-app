@@ -53,10 +53,12 @@ class _CustomerFormSheetState extends ConsumerState<CustomerFormSheet> {
   late final _name = TextEditingController(text: widget.customer?.name ?? '');
   late final _phone = TextEditingController(text: widget.customer?.phone ?? '');
   late final _email = TextEditingController(text: widget.customer?.email ?? '');
-  late final _address =
-      TextEditingController(text: widget.customer?.address ?? '');
+  late final _address = TextEditingController(
+    text: widget.customer?.address ?? '',
+  );
   late final _credit = TextEditingController(
-    text: widget.customer?.creditLimit == null ||
+    text:
+        widget.customer?.creditLimit == null ||
             widget.customer!.creditLimit == 0
         ? ''
         : widget.customer!.creditLimit!.toString(),

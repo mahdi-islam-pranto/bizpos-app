@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/money.dart';
 import '../../../core/network/api_exception.dart';
@@ -73,22 +74,22 @@ class _GoodsInScreenState extends ConsumerState<GoodsInScreen> {
   }
 
   PurchaseDraft _draft() => PurchaseDraft(
-        lines: _lines,
-        supplierId: _supplier?.id,
-        supplierName: _newPartyName,
-        discountPercent: AmountField.read(_discount),
-        paidAmount: _paidTouched
-            ? (AmountField.read(_paid) ?? 0)
-            : _draftTotal().toDouble(),
-        accountId: _account?.id,
-        note: _note.text.trim(),
-      );
+    lines: _lines,
+    supplierId: _supplier?.id,
+    supplierName: _newPartyName,
+    discountPercent: AmountField.read(_discount),
+    paidAmount: _paidTouched
+        ? (AmountField.read(_paid) ?? 0)
+        : _draftTotal().toDouble(),
+    accountId: _account?.id,
+    note: _note.text.trim(),
+  );
 
   /// The total with no paid figure in it, so [_draft] can default to it.
   num _draftTotal() => PurchaseDraft(
-        lines: _lines,
-        discountPercent: AmountField.read(_discount),
-      ).total.toDouble();
+    lines: _lines,
+    discountPercent: AmountField.read(_discount),
+  ).total.toDouble();
 
   Future<void> _addLine() async {
     final product = await _PurchaseProductPicker.show(context);
@@ -196,7 +197,7 @@ class _GoodsInScreenState extends ConsumerState<GoodsInScreen> {
 
     if (!permissions.has(P.purchaseBillCreate)) {
       return Scaffold(
-        appBar: AppBar(title: Text(l10n.goodsIn)),
+        appBar: ShellAppBar(title: Text(l10n.goodsIn)),
         body: MessageState(
           icon: Icons.lock_outline,
           title: l10n.notAllowedTitle,
@@ -218,17 +219,15 @@ class _GoodsInScreenState extends ConsumerState<GoodsInScreen> {
     final total = draft.total.toDouble();
     final paid = draft.paidAmount ?? 0;
     final owed = total - paid;
-    final ready = draft.hasParty &&
+    final ready =
+        draft.hasParty &&
         _lines.isNotEmpty &&
         (_supplier != null || mayCreateParty) &&
         paid >= 0 &&
         paid <= total + 0.001;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(onPressed: () => context.go('/purchase')),
-        title: Text(l10n.goodsIn),
-      ),
+      appBar: ShellAppBar(title: Text(l10n.goodsIn)),
       body: ListView(
         padding: const EdgeInsets.all(Insets.gutter),
         children: [
@@ -418,9 +417,7 @@ class _GoodsInScreenState extends ConsumerState<GoodsInScreen> {
         label: '${l10n.saveBill}  ${money.format(total)}',
         icon: Icons.inventory_outlined,
         busy: _busy,
-        onPressed: ready
-            ? () => _save(mayCreateParty: mayCreateParty)
-            : null,
+        onPressed: ready ? () => _save(mayCreateParty: mayCreateParty) : null,
       ),
     );
   }
@@ -445,7 +442,10 @@ class _Line extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(label, style: strong ? text.titleMedium : text.bodyMedium),
+            child: Text(
+              label,
+              style: strong ? text.titleMedium : text.bodyMedium,
+            ),
           ),
           Text(
             value,
@@ -644,12 +644,11 @@ class _LineSheet extends ConsumerStatefulWidget {
     BuildContext context, {
     required PurchaseLine line,
     bool isNew = false,
-  }) =>
-      showAppSheet<PurchaseLine>(
-        context,
-        title: line.product.name,
-        builder: (_) => _LineSheet(line: line, isNew: isNew),
-      );
+  }) => showAppSheet<PurchaseLine>(
+    context,
+    title: line.product.name,
+    builder: (_) => _LineSheet(line: line, isNew: isNew),
+  );
 
   @override
   ConsumerState<_LineSheet> createState() => _LineSheetState();
@@ -756,10 +755,12 @@ class _LineSheetState extends ConsumerState<_LineSheet> {
               ],
               if (!widget.isNew)
                 TextButton.icon(
-                  onPressed: () => Navigator.of(context).pop(
-                    widget.line.copyWith(qty: 0),
+                  onPressed: () =>
+                      Navigator.of(context).pop(widget.line.copyWith(qty: 0)),
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: context.palette.danger,
                   ),
-                  icon: Icon(Icons.delete_outline, color: context.palette.danger),
                   label: Text(
                     l10n.removeLine,
                     style: TextStyle(color: context.palette.danger),
@@ -773,14 +774,14 @@ class _LineSheetState extends ConsumerState<_LineSheet> {
           icon: Icons.check,
           onPressed: ready
               ? () => Navigator.of(context).pop(
-                    PurchaseLine(
-                      product: widget.line.product,
-                      qty: qty,
-                      unitCost: cost,
-                      batchNo: tracks ? _batch.text.trim() : null,
-                      expiryDate: tracks ? _expiry : null,
-                    ),
-                  )
+                  PurchaseLine(
+                    product: widget.line.product,
+                    qty: qty,
+                    unitCost: cost,
+                    batchNo: tracks ? _batch.text.trim() : null,
+                    expiryDate: tracks ? _expiry : null,
+                  ),
+                )
               : null,
         ),
       ],

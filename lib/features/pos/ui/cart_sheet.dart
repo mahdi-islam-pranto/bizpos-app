@@ -71,6 +71,7 @@ class CartSheet extends ConsumerWidget {
                   money: money,
                   mayEdit: mayDiscount || mayChangePrice,
                   onQty: (qty) => controller.setQty(line.key, qty),
+                  onRemove: () => controller.remove(line.key),
                   onEdit: () => _editLine(
                     context,
                     ref,
@@ -112,9 +113,7 @@ class CartSheet extends ConsumerWidget {
                       alignment: AlignmentDirectional.centerEnd,
                       child: Text(
                         l10n.estimatedNote,
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelSmall
+                        style: Theme.of(context).textTheme.labelSmall
                             ?.copyWith(color: palette.muted),
                       ),
                     ),
@@ -126,7 +125,8 @@ class CartSheet extends ConsumerWidget {
         ),
         Divider(color: palette.hairline, height: 1),
         SheetAction(
-          label: '${l10n.charge}  ${money.format(cart.estimatedTotal.toDouble())}',
+          label:
+              '${l10n.charge}  ${money.format(cart.estimatedTotal.toDouble())}',
           icon: Icons.point_of_sale,
           // The server refuses a sale below cost. Taking the money first and
           // being refused after is the one order a counter cannot afford.
@@ -147,16 +147,15 @@ class CartSheet extends ConsumerWidget {
     CartLine line, {
     required bool mayChangePrice,
     required bool mayDiscount,
-  }) =>
-      showAppSheet<void>(
-        context,
-        title: AppL10n.of(context).editLine(line.item.name),
-        builder: (_) => _EditLineSheet(
-          line: line,
-          mayChangePrice: mayChangePrice,
-          mayDiscount: mayDiscount,
-        ),
-      );
+  }) => showAppSheet<void>(
+    context,
+    title: AppL10n.of(context).editLine(line.item.name),
+    builder: (_) => _EditLineSheet(
+      line: line,
+      mayChangePrice: mayChangePrice,
+      mayDiscount: mayDiscount,
+    ),
+  );
 }
 
 class _CartRow extends StatelessWidget {
@@ -165,6 +164,7 @@ class _CartRow extends StatelessWidget {
     required this.money,
     required this.mayEdit,
     required this.onQty,
+    required this.onRemove,
     required this.onEdit,
   });
 
@@ -172,6 +172,7 @@ class _CartRow extends StatelessWidget {
   final Money money;
   final bool mayEdit;
   final ValueChanged<num> onQty;
+  final VoidCallback onRemove;
   final VoidCallback onEdit;
 
   @override
@@ -180,114 +181,136 @@ class _CartRow extends StatelessWidget {
     final palette = context.palette;
     final text = Theme.of(context).textTheme;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Insets.gutter,
-        vertical: Insets.s8,
+    // A line can go in one tap (or a swipe), without stepping its quantity
+    // down to zero first.
+    return Dismissible(
+      key: ValueKey(line.key),
+      direction: DismissDirection.endToStart,
+      onDismissed: (_) => onRemove(),
+      background: Container(
+        color: palette.danger,
+        alignment: AlignmentDirectional.centerEnd,
+        padding: const EdgeInsets.symmetric(horizontal: Insets.gutter),
+        child: Icon(Icons.delete_outline, color: palette.surface),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: mayEdit ? onEdit : null,
-                  behavior: HitTestBehavior.opaque,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              line.item.name,
-                              style: text.bodyLarge,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.only(
+          start: Insets.gutter,
+          end: Insets.s4,
+          top: Insets.s8,
+          bottom: Insets.s8,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: mayEdit ? onEdit : null,
+                    behavior: HitTestBehavior.opaque,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                line.item.name,
+                                style: text.bodyLarge,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                          if (line.item.isPackage) ...[
-                            const SizedBox(width: Insets.s8),
-                            StatusChip(
-                              label: l10n.packageBadge,
-                              tone: palette.accent,
-                            ),
+                            if (line.item.isPackage) ...[
+                              const SizedBox(width: Insets.s8),
+                              StatusChip(
+                                label: l10n.packageBadge,
+                                tone: palette.accent,
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                      const SizedBox(height: Insets.s4),
-                      Row(
-                        children: [
-                          Text(
-                            money.format(line.effectivePrice),
-                            style: text.bodySmall?.copyWith(
-                              color: palette.muted,
-                              // A changed price is worth seeing at a glance.
-                              fontWeight: line.unitPrice != null
-                                  ? FontWeight.w600
-                                  : null,
-                            ),
-                          ),
-                          if (line.item.unit != null)
+                        ),
+                        const SizedBox(height: Insets.s4),
+                        Row(
+                          children: [
                             Text(
-                              ' / ${line.item.unit}',
-                              style: text.bodySmall
-                                  ?.copyWith(color: palette.muted),
+                              money.format(line.effectivePrice),
+                              style: text.bodySmall?.copyWith(
+                                color: palette.muted,
+                                // A changed price is worth seeing at a glance.
+                                fontWeight: line.unitPrice != null
+                                    ? FontWeight.w600
+                                    : null,
+                              ),
                             ),
-                          if (line.lineDiscount != null &&
-                              line.lineDiscount! > 0) ...[
-                            const SizedBox(width: Insets.s8),
-                            StatusChip(
-                              label: '−${money.format(line.lineDiscount)}',
-                              tone: palette.accent,
-                            ),
+                            if (line.item.unit != null)
+                              Text(
+                                ' / ${line.item.unit}',
+                                style: text.bodySmall?.copyWith(
+                                  color: palette.muted,
+                                ),
+                              ),
+                            if (line.lineDiscount != null &&
+                                line.lineDiscount! > 0) ...[
+                              const SizedBox(width: Insets.s8),
+                              StatusChip(
+                                label: '−${money.format(line.lineDiscount)}',
+                                tone: palette.accent,
+                              ),
+                            ],
                           ],
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: Insets.s8),
-              QtyStepper(
-                qty: line.qty,
-                max: line.item.stock,
-                onChanged: onQty,
-                compact: true,
-              ),
-              SizedBox(
-                width: 84,
+                const SizedBox(width: Insets.s8),
+                QtyStepper(
+                  qty: line.qty,
+                  max: line.item.stock,
+                  onChanged: onQty,
+                  compact: true,
+                ),
+                SizedBox(
+                  width: 76,
+                  child: Text(
+                    money.format(line.subtotal.toDouble()),
+                    textAlign: TextAlign.end,
+                    style: text.titleSmall?.copyWith(
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: onRemove,
+                  tooltip: l10n.removeLine,
+                  visualDensity: VisualDensity.compact,
+                  icon: Icon(Icons.close, size: 20, color: palette.danger),
+                ),
+              ],
+            ),
+            if (line.overStock)
+              Padding(
+                padding: const EdgeInsets.only(top: Insets.s4),
                 child: Text(
-                  money.format(line.subtotal.toDouble()),
-                  textAlign: TextAlign.end,
-                  style: text.titleSmall?.copyWith(
-                    fontFeatures: const [FontFeature.tabularFigures()],
+                  l10n.overStockWarning(
+                    (line.item.stock ?? 0).toStringAsFixed(0),
                   ),
+                  style: text.labelSmall?.copyWith(color: palette.warning),
                 ),
               ),
-            ],
-          ),
-          if (line.overStock)
-            Padding(
-              padding: const EdgeInsets.only(top: Insets.s4),
-              child: Text(
-                l10n.overStockWarning(
-                  (line.item.stock ?? 0).toStringAsFixed(0),
+            if (line.belowCost)
+              Padding(
+                padding: const EdgeInsets.only(top: Insets.s4),
+                child: Text(
+                  l10n.lineBelowCostShort,
+                  style: text.labelSmall?.copyWith(color: palette.danger),
                 ),
-                style: text.labelSmall?.copyWith(color: palette.warning),
               ),
-            ),
-          if (line.belowCost)
-            Padding(
-              padding: const EdgeInsets.only(top: Insets.s4),
-              child: Text(
-                l10n.lineBelowCostShort,
-                style: text.labelSmall?.copyWith(color: palette.danger),
-              ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -310,16 +333,14 @@ class _CustomerRow extends ConsumerWidget {
         cart.hasNamedCustomer ? Icons.person : Icons.person_outline,
         color: cart.hasNamedCustomer ? palette.accent : palette.muted,
       ),
-      title: Text(
-        cart.hasNamedCustomer ? customer!.name : l10n.walkInCustomer,
-      ),
+      title: Text(cart.hasNamedCustomer ? customer!.name : l10n.walkInCustomer),
       // The khata is one figure: what they owed walking in sits beside the
       // cart, because the next question is whether they are paying it.
       subtitle: cart.hasNamedCustomer
           ? Text(
               (customer!.due ?? 0) > 0
                   ? '${customer.phone ?? l10n.noPhone} · '
-                      '${l10n.previousDueLabel} ${ref.watch(moneyProvider).format(customer.due)}'
+                        '${l10n.previousDueLabel} ${ref.watch(moneyProvider).format(customer.due)}'
                   : customer.phone ?? l10n.noPhone,
               style: (customer.due ?? 0) > 0
                   ? TextStyle(color: palette.warning)
@@ -379,7 +400,7 @@ class _DiscountRow extends ConsumerWidget {
             (cart.orderDiscountPercent ?? 0) <= 0
                 ? l10n.add
                 : '${_rate(cart.orderDiscountPercent!)}%  '
-                    '−${money.format(cart.orderDiscountAmount.toDouble())}',
+                      '−${money.format(cart.orderDiscountAmount.toDouble())}',
             style: TextStyle(color: palette.accent),
           ),
         ),
@@ -497,9 +518,7 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
                   width: double.infinity,
                   child: TextButton.icon(
                     onPressed: () {
-                      ref
-                          .read(cartProvider.notifier)
-                          .remove(widget.line.key);
+                      ref.read(cartProvider.notifier).remove(widget.line.key);
                       Navigator.of(context).pop();
                     },
                     icon: Icon(
@@ -515,11 +534,7 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
               ],
             ),
           ),
-          SheetAction(
-            label: l10n.apply,
-            icon: Icons.check,
-            onPressed: _apply,
-          ),
+          SheetAction(label: l10n.apply, icon: Icons.check, onPressed: _apply),
         ],
       ),
     );
@@ -533,16 +548,11 @@ Future<num?> _askAmount(
   required String title,
   num? initial,
   String? suffix,
-}) =>
-    showAppSheet<num?>(
-      context,
-      title: title,
-      builder: (_) => _AmountPrompt(
-        title: title,
-        initial: initial,
-        suffix: suffix,
-      ),
-    );
+}) => showAppSheet<num?>(
+  context,
+  title: title,
+  builder: (_) => _AmountPrompt(title: title, initial: initial, suffix: suffix),
+);
 
 /// The prompt owns its controller, so the controller dies with the sheet.
 ///
@@ -583,28 +593,28 @@ class _AmountPromptState extends State<_AmountPrompt> {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(Insets.gutter),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AmountField(
-              controller: _controller,
-              label: widget.title,
-              prefix: widget.suffix,
-              autofocus: true,
-              onSubmitted: (_) => _submit(),
-            ),
-            const SizedBox(height: Insets.s24),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _submit,
-                child: Text(AppL10n.of(context).apply),
-              ),
-            ),
-          ],
+    padding: const EdgeInsets.all(Insets.gutter),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AmountField(
+          controller: _controller,
+          label: widget.title,
+          prefix: widget.suffix,
+          autofocus: true,
+          onSubmitted: (_) => _submit(),
         ),
-      );
+        const SizedBox(height: Insets.s24),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton(
+            onPressed: _submit,
+            child: Text(AppL10n.of(context).apply),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 String _rate(num value) => value == value.roundToDouble()
@@ -630,12 +640,8 @@ class BelowCostNotice extends StatelessWidget {
         const SizedBox(width: Insets.s8),
         Expanded(
           child: Text(
-            cart.hasBelowCostLine
-                ? l10n.lineBelowCost
-                : l10n.discountBelowCost,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
+            cart.hasBelowCostLine ? l10n.lineBelowCost : l10n.discountBelowCost,
+            style: Theme.of(context).textTheme.bodySmall
                 ?.copyWith(color: palette.danger),
           ),
         ),

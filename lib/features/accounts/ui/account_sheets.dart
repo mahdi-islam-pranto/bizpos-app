@@ -35,12 +35,11 @@ class ExpenseFormSheet extends ConsumerStatefulWidget {
     BuildContext context, {
     required AccountsOverview overview,
     ExpenseCategory? category,
-  }) =>
-      showAppSheet<void>(
-        context,
-        title: AppL10n.of(context).recordExpense,
-        builder: (_) => ExpenseFormSheet(overview: overview, category: category),
-      );
+  }) => showAppSheet<void>(
+    context,
+    title: AppL10n.of(context).recordExpense,
+    builder: (_) => ExpenseFormSheet(overview: overview, category: category),
+  );
 
   @override
   ConsumerState<ExpenseFormSheet> createState() => _ExpenseFormSheetState();
@@ -131,7 +130,9 @@ class _ExpenseFormSheetState extends ConsumerState<ExpenseFormSheet> {
 
   Future<void> _save() async {
     setState(() => _tried = true);
-    if (_categoryError != null || _amountError != null || _employeeError != null) {
+    if (_categoryError != null ||
+        _amountError != null ||
+        _employeeError != null) {
       return;
     }
     setState(() => _busy = true);
@@ -151,7 +152,9 @@ class _ExpenseFormSheetState extends ConsumerState<ExpenseFormSheet> {
     );
 
     try {
-      final created = await ref.read(accountsRepositoryProvider).createExpense(draft);
+      final created = await ref
+          .read(accountsRepositoryProvider)
+          .createExpense(draft);
       refreshMoney(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
@@ -179,7 +182,9 @@ class _ExpenseFormSheetState extends ConsumerState<ExpenseFormSheet> {
     final locale = ref.watch(meProvider)?.user.locale ?? 'en';
     final o = widget.overview;
     final categories = o.activeCategories;
-    final mayNewType = ref.watch(permissionsProvider).has(P.accountsExpenseCreate);
+    final mayNewType = ref
+        .watch(permissionsProvider)
+        .has(P.accountsExpenseCreate);
 
     final typed = _employee.text.trim().toLowerCase();
     final suggestions = o.employees
@@ -298,8 +303,10 @@ class _ExpenseFormSheetState extends ConsumerState<ExpenseFormSheet> {
                         DropdownMenuItem(
                           value: m,
                           child: Text(
-                            DateFormat('MMMM y', locale == 'bn' ? 'bn_BD' : 'en_US')
-                                .format(m),
+                            DateFormat(
+                              'MMMM y',
+                              locale == 'bn' ? 'bn_BD' : 'en_US',
+                            ).format(m),
                           ),
                         ),
                     ],
@@ -378,12 +385,11 @@ class TransferSheet extends ConsumerStatefulWidget {
   static Future<void> show(
     BuildContext context, {
     required AccountsOverview overview,
-  }) =>
-      showAppSheet<void>(
-        context,
-        title: AppL10n.of(context).transfer,
-        builder: (_) => TransferSheet(overview: overview),
-      );
+  }) => showAppSheet<void>(
+    context,
+    title: AppL10n.of(context).transfer,
+    builder: (_) => TransferSheet(overview: overview),
+  );
 
   @override
   ConsumerState<TransferSheet> createState() => _TransferSheetState();
@@ -420,7 +426,9 @@ class _TransferSheetState extends ConsumerState<TransferSheet> {
     setState(() => _busy = true);
     final l10n = AppL10n.of(context);
     try {
-      await ref.read(accountsRepositoryProvider).transfer(
+      await ref
+          .read(accountsRepositoryProvider)
+          .transfer(
             fromAccountId: _from!,
             toAccountId: _to!,
             amount: amount,
@@ -446,12 +454,12 @@ class _TransferSheetState extends ConsumerState<TransferSheet> {
     final amount = AmountField.read(_amount);
 
     DropdownMenuItem<int> item(MoneyAccount a) => DropdownMenuItem(
-          value: a.id,
-          child: Text(
-            '${a.name} · ${money.format(a.balance)}',
-            overflow: TextOverflow.ellipsis,
-          ),
-        );
+      value: a.id,
+      child: Text(
+        '${a.name} · ${money.format(a.balance)}',
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -518,10 +526,10 @@ class AccountFormSheet extends ConsumerStatefulWidget {
   const AccountFormSheet({super.key});
 
   static Future<void> show(BuildContext context) => showAppSheet<void>(
-        context,
-        title: AppL10n.of(context).addAccount,
-        builder: (_) => const AccountFormSheet(),
-      );
+    context,
+    title: AppL10n.of(context).addAccount,
+    builder: (_) => const AccountFormSheet(),
+  );
 
   @override
   ConsumerState<AccountFormSheet> createState() => _AccountFormSheetState();
@@ -547,7 +555,9 @@ class _AccountFormSheetState extends ConsumerState<AccountFormSheet> {
     setState(() => _busy = true);
     final l10n = AppL10n.of(context);
     try {
-      await ref.read(accountsRepositoryProvider).createAccount(
+      await ref
+          .read(accountsRepositoryProvider)
+          .createAccount(
             name: _name.text,
             type: _type,
             openingBalance: AmountField.read(_opening),
@@ -630,10 +640,10 @@ class CategoriesSheet extends ConsumerWidget {
   const CategoriesSheet({super.key});
 
   static Future<void> show(BuildContext context) => showAppSheet<void>(
-        context,
-        title: AppL10n.of(context).expenseTypes,
-        builder: (_) => const CategoriesSheet(),
-      );
+    context,
+    title: AppL10n.of(context).expenseTypes,
+    builder: (_) => const CategoriesSheet(),
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -676,10 +686,13 @@ class CategoriesSheet extends ConsumerWidget {
                               if (c.isSalary) l10n.salaryType,
                               if (!c.isActive) l10n.retired,
                             ].join(' · '),
-                            style: text.bodySmall?.copyWith(color: palette.muted),
+                            style: text.bodySmall?.copyWith(
+                              color: palette.muted,
+                            ),
                           ),
                           trailing: const Icon(Icons.chevron_right),
-                          onTap: () => CategoryFormSheet.show(context, category: c),
+                          onTap: () =>
+                              CategoryFormSheet.show(context, category: c),
                         ),
                     ],
                   ),
@@ -739,14 +752,14 @@ class _CategoryFormSheetState extends ConsumerState<CategoryFormSheet> {
   }
 
   CategoryDraft get _draft => CategoryDraft(
-        name: _name.text,
-        icon: _icon.text,
-        defaultAmount: AmountField.read(_amount),
-        isQuick: _isQuick,
-        isSalary: _isSalary,
-        isActive: _isActive,
-        sortOrder: _start.sortOrder,
-      );
+    name: _name.text,
+    icon: _icon.text,
+    defaultAmount: AmountField.read(_amount),
+    isQuick: _isQuick,
+    isSalary: _isSalary,
+    isActive: _isActive,
+    sortOrder: _start.sortOrder,
+  );
 
   Future<void> _save() async {
     setState(() => _tried = true);

@@ -79,7 +79,10 @@ class PurchasesRepository {
   ///
   /// Sent **after** the bill exists and never as part of it: a purchase is
   /// stock and money, and a dropped upload must not cost the shop that.
-  Future<PhotoUpload> uploadPhotos(int purchaseId, List<PhotoFile> files) async {
+  Future<PhotoUpload> uploadPhotos(
+    int purchaseId,
+    List<PhotoFile> files,
+  ) async {
     final form = FormData();
     for (final file in files) {
       form.files.add(
@@ -102,10 +105,10 @@ class PurchasesRepository {
   }
 
   Future<void> deletePhoto(int purchaseId, int photoId) => _client.delete(
-        ApiPaths.purchasePhoto(purchaseId, photoId),
-        parse: parseNothing,
-        cancelToken: _cancel,
-      );
+    ApiPaths.purchasePhoto(purchaseId, photoId),
+    parse: parseNothing,
+    cancelToken: _cancel,
+  );
 
   Future<int> createSupplier({
     required String name,
@@ -134,18 +137,17 @@ class PurchasesRepository {
     String? company,
     String? phone,
     String? address,
-  }) =>
-      _client.patch(
-        ApiPaths.supplier(id),
-        parse: parseNothing,
-        body: {
-          'name': name,
-          'company': ?company,
-          'phone': ?phone,
-          'address': ?address,
-        },
-        cancelToken: _cancel,
-      );
+  }) => _client.patch(
+    ApiPaths.supplier(id),
+    parse: parseNothing,
+    body: {
+      'name': name,
+      'company': ?company,
+      'phone': ?phone,
+      'address': ?address,
+    },
+    cancelToken: _cancel,
+  );
 
   /// `GET /accounts`'s account list, for a role that may read it.
   Future<List<PosAccount>> accounts() async {
@@ -156,7 +158,10 @@ class PurchasesRepository {
     );
     final raw = response.data['accounts'];
     if (raw is! List) return const [];
-    return raw.whereType<Map<String, dynamic>>().map(PosAccount.fromJson).toList();
+    return raw
+        .whereType<Map<String, dynamic>>()
+        .map(PosAccount.fromJson)
+        .toList();
   }
 }
 
@@ -168,17 +173,17 @@ final purchasesRepositoryProvider = Provider<PurchasesRepository>((ref) {
   );
 });
 
-final purchasesProvider =
-    FutureProvider.autoDispose.family<PurchasePage, String>((ref, query) {
-  ref.watch(sessionScopeProvider);
-  return ref.watch(purchasesRepositoryProvider).list(query: query);
-});
+final purchasesProvider = FutureProvider.autoDispose
+    .family<PurchasePage, String>((ref, query) {
+      ref.watch(sessionScopeProvider);
+      return ref.watch(purchasesRepositoryProvider).list(query: query);
+    });
 
 final purchaseProductsProvider = FutureProvider.autoDispose
     .family<List<PurchaseProduct>, String>((ref, query) {
-  ref.watch(sessionScopeProvider);
-  return ref.watch(purchasesRepositoryProvider).products(query);
-});
+      ref.watch(sessionScopeProvider);
+      return ref.watch(purchasesRepositoryProvider).products(query);
+    });
 
 /// The accounts a payment to a supplier can leave from.
 ///
@@ -186,8 +191,9 @@ final purchaseProductsProvider = FutureProvider.autoDispose
 /// role may read accounts: the till's lookups, or `GET /accounts`. A stock
 /// keeper holds neither, and then the bill goes up without an `accountId` and
 /// the server uses the shop's default.
-final purchaseAccountsProvider =
-    FutureProvider.autoDispose<List<PosAccount>>((ref) async {
+final purchaseAccountsProvider = FutureProvider.autoDispose<List<PosAccount>>((
+  ref,
+) async {
   ref.watch(sessionScopeProvider);
   final permissions = ref.watch(permissionsProvider);
   try {

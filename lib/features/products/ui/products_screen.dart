@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/money.dart';
 import '../../../core/network/paged.dart';
 import '../../../core/permissions/permission_gate.dart';
@@ -77,7 +78,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     final products = ref.watch(productsListProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.productsTitle)),
+      appBar: ShellAppBar(title: Text(l10n.productsTitle)),
       floatingActionButton: PermissionGate(
         perm: P.inventoryProductCreate,
         // Adding to the deleted list would be a strange thing to offer.
@@ -215,14 +216,14 @@ class _Filters extends ConsumerWidget {
           ),
           // Only with the cost permission: `stockValue` arrives whatever the
           // role, and `canSeeCost` is what says whether it means anything.
-          if (stats != null && stats.canSeeCost && stats.stockValue != null) ...[
+          if (stats != null &&
+              stats.canSeeCost &&
+              stats.stockValue != null) ...[
             const SizedBox(width: Insets.s12),
             Center(
               child: Text(
                 '${l10n.stockValue}: ${money.format(stats.stockValue)}',
-                style: Theme.of(context)
-                    .textTheme
-                    .labelMedium
+                style: Theme.of(context).textTheme.labelMedium
                     ?.copyWith(color: palette.muted),
               ),
             ),
@@ -291,9 +292,7 @@ class _Footer extends ConsumerWidget {
                 page.items.length.toString(),
                 page.total.toString(),
               ),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
+              style: Theme.of(context).textTheme.bodySmall
                   ?.copyWith(color: palette.muted),
             ),
             if (page.hasMore) ...[
@@ -364,11 +363,7 @@ class _ProductRow extends ConsumerWidget {
         ],
       ),
       subtitle: Text(
-        [
-          ?stockLabel,
-          ?product.brand,
-          ?product.unit,
-        ].join(' · '),
+        [?stockLabel, ?product.brand, ?product.unit].join(' · '),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: text.bodySmall?.copyWith(color: stockTone),
@@ -387,9 +382,9 @@ class _ProductRow extends ConsumerWidget {
           ?switch (product.purchasePrice) {
             null => null,
             final cost => Text(
-                '${l10n.costLabel} ${money.format(cost)}',
-                style: text.labelSmall?.copyWith(color: palette.muted),
-              ),
+              '${l10n.costLabel} ${money.format(cost)}',
+              style: text.labelSmall?.copyWith(color: palette.muted),
+            ),
           },
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/money.dart';
 import '../../../core/permissions/permissions.dart';
@@ -44,14 +45,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     ];
 
     String label(ReportTab tab) => switch (tab) {
-          ReportTab.sales => l10n.reportSales,
-          ReportTab.profit => l10n.reportProfit,
-          ReportTab.stock => l10n.reportStock,
-          ReportTab.dues => l10n.reportDues,
-        };
+      ReportTab.sales => l10n.reportSales,
+      ReportTab.profit => l10n.reportProfit,
+      ReportTab.stock => l10n.reportStock,
+      ReportTab.dues => l10n.reportDues,
+    };
 
-    final windowed = tabs.contains(ReportTab.sales) ||
-        tabs.contains(ReportTab.profit);
+    final windowed =
+        tabs.contains(ReportTab.sales) || tabs.contains(ReportTab.profit);
 
     return DefaultTabController(
       // Keyed on the tab list: a permission change mid-session would otherwise
@@ -59,7 +60,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
       key: ValueKey(tabs.length),
       length: tabs.length,
       child: Scaffold(
-        appBar: AppBar(
+        appBar: ShellAppBar(
           title: Text(l10n.reports),
           actions: [
             if (windowed)
@@ -115,17 +116,17 @@ class _Page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => RefreshIndicator(
-        onRefresh: onRefresh,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            Insets.gutter,
-            Insets.s8,
-            Insets.gutter,
-            Insets.s32,
-          ),
-          children: children,
-        ),
-      );
+    onRefresh: onRefresh,
+    child: ListView(
+      padding: const EdgeInsets.fromLTRB(
+        Insets.gutter,
+        Insets.s8,
+        Insets.gutter,
+        Insets.s32,
+      ),
+      children: children,
+    ),
+  );
 }
 
 class _SalesTab extends ConsumerWidget {
@@ -164,58 +165,68 @@ class _SalesTab extends ConsumerWidget {
             if (r.daily.isNotEmpty)
               ReportSection(
                 title: l10n.dailySales,
-                child: RowsCard(children: [
-                  Padding(
-                    padding: const EdgeInsets.all(Insets.s12),
-                    child: TrendBars(
-                      points: [for (final d in r.daily) (d.date, d.total)],
-                      format: money.format,
-                      dayLabel: (d) => bucketLabel(d, locale),
+                child: RowsCard(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(Insets.s12),
+                      child: TrendBars(
+                        points: [for (final d in r.daily) (d.date, d.total)],
+                        format: money.format,
+                        dayLabel: (d) => bucketLabel(d, locale),
+                      ),
                     ),
-                  ),
-                ]),
+                  ],
+                ),
               ),
             ReportSection(
               title: l10n.topProducts,
               child: r.topProducts.isEmpty
                   ? SectionEmpty(l10n.nothingSold)
-                  : RowsCard(children: [
-                      for (final p in r.topProducts)
-                        FigureRow(
-                          label: p.name,
-                          detail: [
-                            l10n.qtySold(qtyText(p.qty)),
-                            if (r.showProfit && p.profit != null)
-                              '${l10n.profit} ${money.format(p.profit)}',
-                          ].join(' · '),
-                          value: money.format(p.revenue),
-                        ),
-                    ]),
+                  : RowsCard(
+                      children: [
+                        for (final p in r.topProducts)
+                          FigureRow(
+                            label: p.name,
+                            detail: [
+                              l10n.qtySold(qtyText(p.qty)),
+                              if (r.showProfit && p.profit != null)
+                                '${l10n.profit} ${money.format(p.profit)}',
+                            ].join(' · '),
+                            value: money.format(p.revenue),
+                          ),
+                      ],
+                    ),
             ),
             if (r.byMethod.isNotEmpty)
               ReportSection(
                 title: l10n.byMethod,
-                child: RowsCard(children: [
-                  for (final m in r.byMethod)
-                    FigureRow(
-                      label: methodLabel(l10n, m.label),
-                      value: money.format(m.total),
-                      share: shareOf(m.total, methodTotal),
-                    ),
-                ]),
+                child: RowsCard(
+                  children: [
+                    for (final m in r.byMethod)
+                      FigureRow(
+                        label: methodLabel(l10n, m.label),
+                        value: money.format(m.total),
+                        share: shareOf(m.total, methodTotal),
+                      ),
+                  ],
+                ),
               ),
             if (r.byUser.isNotEmpty)
               ReportSection(
                 title: l10n.byStaff,
-                child: RowsCard(children: [
-                  for (final u in r.byUser)
-                    FigureRow(
-                      label: u.label,
-                      detail: u.count == null ? null : l10n.salesCount(u.count!),
-                      value: money.format(u.total),
-                      share: shareOf(u.total, userTotal),
-                    ),
-                ]),
+                child: RowsCard(
+                  children: [
+                    for (final u in r.byUser)
+                      FigureRow(
+                        label: u.label,
+                        detail: u.count == null
+                            ? null
+                            : l10n.salesCount(u.count!),
+                        value: money.format(u.total),
+                        share: shareOf(u.total, userTotal),
+                      ),
+                  ],
+                ),
               ),
           ],
         );
@@ -258,38 +269,40 @@ class _ProfitTab extends ConsumerWidget {
           // it: the first two are this branch, the rest the whole store.
           ReportSection(
             title: l10n.howItAddsUp,
-            child: RowsCard(children: [
-              FigureRow(
-                label: l10n.revenue,
-                detail: l10n.scopeBranch,
-                value: money.format(r.revenue),
-              ),
-              FigureRow(
-                label: l10n.costOfGoods,
-                detail: l10n.scopeBranch,
-                value: '−${money.format(r.cost)}',
-              ),
-              FigureRow(
-                label: l10n.returnsLabel,
-                detail: l10n.scopeStore,
-                value: '−${money.format(r.returnTotal)}',
-              ),
-              FigureRow(
-                label: l10n.grossProfit,
-                value: money.format(r.grossProfit),
-                tone: r.grossProfit < 0 ? palette.danger : null,
-              ),
-              FigureRow(
-                label: l10n.expensesLabel,
-                detail: l10n.scopeStore,
-                value: '−${money.format(r.expenses)}',
-              ),
-              FigureRow(
-                label: l10n.netProfit,
-                value: money.format(r.netProfit),
-                tone: r.netProfit < 0 ? palette.danger : palette.positive,
-              ),
-            ]),
+            child: RowsCard(
+              children: [
+                FigureRow(
+                  label: l10n.revenue,
+                  detail: l10n.scopeBranch,
+                  value: money.format(r.revenue),
+                ),
+                FigureRow(
+                  label: l10n.costOfGoods,
+                  detail: l10n.scopeBranch,
+                  value: '−${money.format(r.cost)}',
+                ),
+                FigureRow(
+                  label: l10n.returnsLabel,
+                  detail: l10n.scopeStore,
+                  value: '−${money.format(r.returnTotal)}',
+                ),
+                FigureRow(
+                  label: l10n.grossProfit,
+                  value: money.format(r.grossProfit),
+                  tone: r.grossProfit < 0 ? palette.danger : null,
+                ),
+                FigureRow(
+                  label: l10n.expensesLabel,
+                  detail: l10n.scopeStore,
+                  value: '−${money.format(r.expenses)}',
+                ),
+                FigureRow(
+                  label: l10n.netProfit,
+                  value: money.format(r.netProfit),
+                  tone: r.netProfit < 0 ? palette.danger : palette.positive,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -409,19 +422,23 @@ class _DuesTab extends ConsumerWidget {
               title: l10n.whoOwes,
               child: rows.isEmpty
                   ? SectionEmpty(l10n.nobodyOwes)
-                  : RowsCard(children: [
-                      for (final r in rows)
-                        FigureRow(
-                          label: r.name,
-                          detail: [
-                            ?r.phone,
-                            if (r.ageDays != null) l10n.daysOld(r.ageDays!),
-                            if (r.overLimit) l10n.overCreditLimit,
-                          ].join(' · '),
-                          value: money.format(r.due),
-                          tone: r.overLimit ? palette.danger : palette.warning,
-                        ),
-                    ]),
+                  : RowsCard(
+                      children: [
+                        for (final r in rows)
+                          FigureRow(
+                            label: r.name,
+                            detail: [
+                              ?r.phone,
+                              if (r.ageDays != null) l10n.daysOld(r.ageDays!),
+                              if (r.overLimit) l10n.overCreditLimit,
+                            ].join(' · '),
+                            value: money.format(r.due),
+                            tone: r.overLimit
+                                ? palette.danger
+                                : palette.warning,
+                          ),
+                      ],
+                    ),
             ),
           ],
         );
@@ -434,12 +451,12 @@ String _pct(num n) => n.toStringAsFixed(n.abs() >= 10 ? 0 : 1);
 
 /// A payment method code as a label, falling back to the code itself.
 String methodLabel(AppL10n l10n, String method) => switch (method) {
-      'cash' => l10n.payMethodCash,
-      'card' => l10n.payMethodCard,
-      'bkash' => l10n.payMethodBkash,
-      'nagad' => l10n.payMethodNagad,
-      'rocket' => l10n.payMethodRocket,
-      'bank' => l10n.payMethodBank,
-      '' => '—',
-      _ => method[0].toUpperCase() + method.substring(1),
-    };
+  'cash' => l10n.payMethodCash,
+  'card' => l10n.payMethodCard,
+  'bkash' => l10n.payMethodBkash,
+  'nagad' => l10n.payMethodNagad,
+  'rocket' => l10n.payMethodRocket,
+  'bank' => l10n.payMethodBank,
+  '' => '—',
+  _ => method[0].toUpperCase() + method.substring(1),
+};

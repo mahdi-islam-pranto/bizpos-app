@@ -2,19 +2,19 @@ import '../../../core/format/dates.dart';
 import '../../../core/network/envelope.dart';
 
 int _int(Object? v) => switch (v) {
-      final int x => x,
-      final num x => x.toInt(),
-      final String x => int.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final int x => x,
+  final num x => x.toInt(),
+  final String x => int.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 int? _intOrNull(Object? v) => v == null ? null : _int(v);
 
 num _num(Object? v) => switch (v) {
-      final num x => x,
-      final String x => num.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final num x => x,
+  final String x => num.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 num? _numOrNull(Object? v) => v == null ? null : _num(v);
 
@@ -36,9 +36,9 @@ List<T> _listOf<T>(Object? raw, T Function(Map<String, dynamic>) parse) {
 /// account and category on an expense row come either way depending on the
 /// endpoint's age.
 String? _nameOf(Object? v) => switch (v) {
-      final Map<String, dynamic> m => _strOrNull(m['name']),
-      _ => _strOrNull(v),
-    };
+  final Map<String, dynamic> m => _strOrNull(m['name']),
+  _ => _strOrNull(v),
+};
 
 /// Where money sits: the cash drawer, a bank, a bKash wallet.
 class MoneyAccount {
@@ -59,12 +59,12 @@ class MoneyAccount {
   final bool isDefault;
 
   factory MoneyAccount.fromJson(Map<String, dynamic> json) => MoneyAccount(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        type: _str(json['type']),
-        balance: _num(json['balance'] ?? json['currentBalance']),
-        isDefault: _bool(json['isDefault']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    type: _str(json['type']),
+    balance: _num(json['balance'] ?? json['currentBalance']),
+    isDefault: _bool(json['isDefault']),
+  );
 }
 
 /// An expense type. Every store has a Salary one, which asks for a name and a
@@ -150,20 +150,20 @@ class Expense {
   DateTime? get when => date ?? createdAt;
 
   factory Expense.fromJson(Map<String, dynamic> json) => Expense(
-        id: _int(json['id']),
-        amount: _num(json['amount']),
-        categoryId: _intOrNull(json['categoryId']),
-        category: _nameOf(json['categoryName'] ?? json['category']),
-        icon: _strOrNull(json['icon'] ?? json['categoryIcon']),
-        account: _nameOf(json['accountName'] ?? json['account']),
-        note: _strOrNull(json['note']),
-        date: AppDates.parse(json['date'] ?? json['expenseDate']),
-        createdAt: AppDates.parse(json['createdAt']),
-        userName: _nameOf(json['userName'] ?? json['user']),
-        isSalary: _bool(json['isSalary']),
-        employeeName: _strOrNull(json['employeeName']),
-        salaryMonth: _strOrNull(json['salaryMonth']),
-      );
+    id: _int(json['id']),
+    amount: _num(json['amount']),
+    categoryId: _intOrNull(json['categoryId']),
+    category: _nameOf(json['categoryName'] ?? json['category']),
+    icon: _strOrNull(json['icon'] ?? json['categoryIcon']),
+    account: _nameOf(json['accountName'] ?? json['account']),
+    note: _strOrNull(json['note']),
+    date: AppDates.parse(json['date'] ?? json['expenseDate']),
+    createdAt: AppDates.parse(json['createdAt']),
+    userName: _nameOf(json['userName'] ?? json['user']),
+    isSalary: _bool(json['isSalary']),
+    employeeName: _strOrNull(json['employeeName']),
+    salaryMonth: _strOrNull(json['salaryMonth']),
+  );
 }
 
 /// A line of an account's statement: a sale paid in, an expense, a transfer.
@@ -267,14 +267,12 @@ class AccountsOverview {
     // A quick tile is a category; take the full row when the two lists agree,
     // so a tile knows about `isSalary` even if `quick[]` leaves it out.
     final byId = {for (final c in categories) c.id: c};
-    final quick = _listOf(json['quick'], ExpenseCategory.fromJson)
-        .map((q) => byId[q.id] ?? q)
-        .toList();
+    final quick = _listOf(
+      json['quick'],
+      ExpenseCategory.fromJson,
+    ).map((q) => byId[q.id] ?? q).toList();
     final employees = json['employees'] is List
-        ? (json['employees'] as List)
-            .map(_nameOf)
-            .whereType<String>()
-            .toList()
+        ? (json['employees'] as List).map(_nameOf).whereType<String>().toList()
         : const <String>[];
 
     return AccountsOverview(
@@ -306,10 +304,10 @@ class ExpenseCreated {
   final bool isSalary;
 
   factory ExpenseCreated.fromJson(Map<String, dynamic> json) => ExpenseCreated(
-        id: _int(json['id']),
-        amount: _num(json['amount']),
-        isSalary: _bool(json['isSalary']),
-      );
+    id: _int(json['id']),
+    amount: _num(json['amount']),
+    isSalary: _bool(json['isSalary']),
+  );
 }
 
 /// An expense about to be recorded.
@@ -383,14 +381,14 @@ class CategoryDraft {
   });
 
   factory CategoryDraft.of(ExpenseCategory c) => CategoryDraft(
-        name: c.name,
-        icon: c.icon,
-        defaultAmount: c.defaultAmount,
-        isQuick: c.isQuick,
-        isSalary: c.isSalary,
-        isActive: c.isActive,
-        sortOrder: c.sortOrder,
-      );
+    name: c.name,
+    icon: c.icon,
+    defaultAmount: c.defaultAmount,
+    isQuick: c.isQuick,
+    isSalary: c.isSalary,
+    isActive: c.isActive,
+    sortOrder: c.sortOrder,
+  );
 
   final String name;
   final String? icon;

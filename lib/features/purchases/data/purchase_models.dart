@@ -5,19 +5,19 @@ import '../../../core/format/money.dart';
 import '../../../core/network/envelope.dart';
 
 int _int(Object? v) => switch (v) {
-      final int x => x,
-      final num x => x.toInt(),
-      final String x => int.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final int x => x,
+  final num x => x.toInt(),
+  final String x => int.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 int? _intOrNull(Object? v) => v == null ? null : _int(v);
 
 num _num(Object? v) => switch (v) {
-      final num x => x,
-      final String x => num.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final num x => x,
+  final String x => num.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 num? _numOrNull(Object? v) => v == null ? null : _num(v);
 
@@ -45,10 +45,10 @@ class PurchasePhoto {
   final String? name;
 
   factory PurchasePhoto.fromJson(Map<String, dynamic> json) => PurchasePhoto(
-        id: _int(json['id']),
-        url: _str(json['url']),
-        name: _strOrNull(json['name']),
-      );
+    id: _int(json['id']),
+    url: _str(json['url']),
+    name: _strOrNull(json['name']),
+  );
 }
 
 /// A party the shop buys from.
@@ -68,12 +68,12 @@ class Supplier {
   final String? address;
 
   factory Supplier.fromJson(Map<String, dynamic> json) => Supplier(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        company: _strOrNull(json['company']),
-        phone: _strOrNull(json['phone']),
-        address: _strOrNull(json['address']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    company: _strOrNull(json['company']),
+    phone: _strOrNull(json['phone']),
+    address: _strOrNull(json['address']),
+  );
 }
 
 /// A row of `GET /purchases` — the latest 50 bills.
@@ -120,23 +120,23 @@ class PurchaseRow {
   final String? note;
 
   factory PurchaseRow.fromJson(Map<String, dynamic> json) => PurchaseRow(
-        id: _int(json['id']),
-        refNo: _str(json['refNo']),
-        total: _num(json['total']),
-        paid: _num(json['paid']),
-        due: _num(json['due']),
-        paymentStatus: _str(json['paymentStatus']),
-        itemCount: _int(json['itemCount']),
-        photos: _listOf(json['photos'], PurchasePhoto.fromJson),
-        purchaseDate: AppDates.parse(json['purchaseDate']),
-        subtotal: _numOrNull(json['subtotal']),
-        discount: _numOrNull(json['discount']),
-        discountPercent: _numOrNull(json['discountPercent']),
-        status: _strOrNull(json['status']),
-        supplier: _strOrNull(json['supplier']),
-        branch: _strOrNull(json['branch']),
-        note: _strOrNull(json['note']),
-      );
+    id: _int(json['id']),
+    refNo: _str(json['refNo']),
+    total: _num(json['total']),
+    paid: _num(json['paid']),
+    due: _num(json['due']),
+    paymentStatus: _str(json['paymentStatus']),
+    itemCount: _int(json['itemCount']),
+    photos: _listOf(json['photos'], PurchasePhoto.fromJson),
+    purchaseDate: AppDates.parse(json['purchaseDate']),
+    subtotal: _numOrNull(json['subtotal']),
+    discount: _numOrNull(json['discount']),
+    discountPercent: _numOrNull(json['discountPercent']),
+    status: _strOrNull(json['status']),
+    supplier: _strOrNull(json['supplier']),
+    branch: _strOrNull(json['branch']),
+    note: _strOrNull(json['note']),
+  );
 }
 
 /// `GET /purchases` with everything its `meta` carries.
@@ -218,22 +218,21 @@ class PurchaseLine {
     num? unitCost,
     String? batchNo,
     DateTime? expiryDate,
-  }) =>
-      PurchaseLine(
-        product: product,
-        qty: qty ?? this.qty,
-        unitCost: unitCost ?? this.unitCost,
-        batchNo: batchNo ?? this.batchNo,
-        expiryDate: expiryDate ?? this.expiryDate,
-      );
+  }) => PurchaseLine(
+    product: product,
+    qty: qty ?? this.qty,
+    unitCost: unitCost ?? this.unitCost,
+    batchNo: batchNo ?? this.batchNo,
+    expiryDate: expiryDate ?? this.expiryDate,
+  );
 
   Map<String, dynamic> toBody() => {
-        'storeProductId': product.id,
-        'qty': qty,
-        'unitCost': unitCost,
-        if ((batchNo ?? '').isNotEmpty) 'batchNo': batchNo,
-        if (expiryDate != null) 'expiryDate': AppDates.bucket(expiryDate!),
-      };
+    'storeProductId': product.id,
+    'qty': qty,
+    'unitCost': unitCost,
+    if ((batchNo ?? '').isNotEmpty) 'batchNo': batchNo,
+    if (expiryDate != null) 'expiryDate': AppDates.bucket(expiryDate!),
+  };
 }
 
 /// The body of `POST /purchases`.
@@ -279,16 +278,16 @@ class PurchaseDraft {
   Decimal get total => subtotal - discountAmount;
 
   Map<String, dynamic> toBody() => {
-        if (supplierId != null)
-          'supplierId': supplierId
-        else if ((supplierName ?? '').isNotEmpty)
-          'supplierName': supplierName,
-        'items': [for (final line in lines) line.toBody()],
-        if ((discountPercent ?? 0) > 0) 'discountPercent': discountPercent,
-        'paidAmount': paidAmount ?? 0,
-        'accountId': ?accountId,
-        if ((note ?? '').isNotEmpty) 'note': note,
-      };
+    if (supplierId != null)
+      'supplierId': supplierId
+    else if ((supplierName ?? '').isNotEmpty)
+      'supplierName': supplierName,
+    'items': [for (final line in lines) line.toBody()],
+    if ((discountPercent ?? 0) > 0) 'discountPercent': discountPercent,
+    'paidAmount': paidAmount ?? 0,
+    'accountId': ?accountId,
+    if ((note ?? '').isNotEmpty) 'note': note,
+  };
 }
 
 /// What `POST /purchases` answers.

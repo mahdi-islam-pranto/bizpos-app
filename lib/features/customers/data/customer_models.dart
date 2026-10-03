@@ -1,17 +1,17 @@
 import '../../../core/format/dates.dart';
 
 int _int(Object? v) => switch (v) {
-      final int x => x,
-      final num x => x.toInt(),
-      final String x => int.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final int x => x,
+  final num x => x.toInt(),
+  final String x => int.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 num _num(Object? v) => switch (v) {
-      final num x => x,
-      final String x => num.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final num x => x,
+  final String x => num.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 num? _numOrNull(Object? v) => v == null ? null : _num(v);
 
@@ -82,22 +82,22 @@ class Customer {
   final String? changedBy;
 
   factory Customer.fromJson(Map<String, dynamic> json) => Customer(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        isWalkIn: _bool(json['isWalkIn']),
-        saleCount: _int(json['saleCount']),
-        due: _num(json['due']),
-        openingBalance: _numOrNull(json['openingBalance']),
-        invoiceDue: _numOrNull(json['invoiceDue']),
-        phone: _strOrNull(json['phone']),
-        email: _strOrNull(json['email']),
-        address: _strOrNull(json['address']),
-        creditLimit: _numOrNull(json['creditLimit']),
-        loyaltyPoints: _numOrNull(json['loyaltyPoints']),
-        group: _strOrNull(json['group']),
-        addedBy: _strOrNull(json['addedBy']),
-        changedBy: _strOrNull(json['changedBy']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    isWalkIn: _bool(json['isWalkIn']),
+    saleCount: _int(json['saleCount']),
+    due: _num(json['due']),
+    openingBalance: _numOrNull(json['openingBalance']),
+    invoiceDue: _numOrNull(json['invoiceDue']),
+    phone: _strOrNull(json['phone']),
+    email: _strOrNull(json['email']),
+    address: _strOrNull(json['address']),
+    creditLimit: _numOrNull(json['creditLimit']),
+    loyaltyPoints: _numOrNull(json['loyaltyPoints']),
+    group: _strOrNull(json['group']),
+    addedBy: _strOrNull(json['addedBy']),
+    changedBy: _strOrNull(json['changedBy']),
+  );
 }
 
 /// A row on `GET /customers/{id}/ledger` — the last 100 movements.
@@ -130,14 +130,14 @@ class LedgerEntry {
   final DateTime? date;
 
   factory LedgerEntry.fromJson(Map<String, dynamic> json) => LedgerEntry(
-        id: _int(json['id']),
-        refType: _str(json['refType']),
-        debit: _num(json['debit']),
-        credit: _num(json['credit']),
-        balance: _num(json['balance']),
-        note: _strOrNull(json['note']),
-        date: AppDates.parse(json['date']),
-      );
+    id: _int(json['id']),
+    refType: _str(json['refType']),
+    debit: _num(json['debit']),
+    credit: _num(json['credit']),
+    balance: _num(json['balance']),
+    note: _strOrNull(json['note']),
+    date: AppDates.parse(json['date']),
+  );
 }
 
 /// `GET /customers/{id}/points`.
@@ -155,13 +155,13 @@ class PointsAccount {
   final List<LedgerEntry> ledger;
 
   factory PointsAccount.fromJson(Map<String, dynamic> json) => PointsAccount(
-        balance: _num(json['balance']),
-        worth: _num(json['worth']),
-        ledger: (json['ledger'] is List)
-            ? (json['ledger'] as List)
-                .whereType<Map<String, dynamic>>()
-                .map(LedgerEntry.fromJson)
-                .toList()
-            : const [],
-      );
+    balance: _num(json['balance']),
+    worth: _num(json['worth']),
+    ledger: (json['ledger'] is List)
+        ? (json['ledger'] as List)
+              .whereType<Map<String, dynamic>>()
+              .map(LedgerEntry.fromJson)
+              .toList()
+        : const [],
+  );
 }

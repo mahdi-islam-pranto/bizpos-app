@@ -36,6 +36,6 @@ final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {
 
 final dashboardProvider = FutureProvider.autoDispose
     .family<Dashboard, DashboardQuery>((ref, query) {
-  ref.watch(sessionScopeProvider);
-  return ref.watch(dashboardRepositoryProvider).load(query);
-});
+      ref.watch(sessionScopeProvider);
+      return ref.watch(dashboardRepositoryProvider).load(query);
+    });

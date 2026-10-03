@@ -30,19 +30,19 @@ class AsyncView<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => value.when(
-        skipLoadingOnRefresh: skipLoadingOnRefresh,
-        skipLoadingOnReload: skipLoadingOnRefresh,
-        data: (data) => builder(context, data),
-        loading: () => loading ?? const LoadingList(),
-        error: (error, _) {
-          // A cancelled request is not a failure anyone should read about: the
-          // store or branch changed and the screen is already being rebuilt.
-          if (error is CancelledException) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return ErrorView(error: error, onRetry: onRetry);
-        },
-      );
+    skipLoadingOnRefresh: skipLoadingOnRefresh,
+    skipLoadingOnReload: skipLoadingOnRefresh,
+    data: (data) => builder(context, data),
+    loading: () => loading ?? const LoadingList(),
+    error: (error, _) {
+      // A cancelled request is not a failure anyone should read about: the
+      // store or branch changed and the screen is already being rebuilt.
+      if (error is CancelledException) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return ErrorView(error: error, onRetry: onRetry);
+    },
+  );
 }
 
 /// Shows an [ApiException] as a snack bar, in the words the server chose.
@@ -73,9 +73,6 @@ void showNote(BuildContext context, String message) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
 }

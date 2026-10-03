@@ -24,12 +24,11 @@ class CheckoutDoneSheet extends ConsumerWidget {
   static Future<void> show(
     BuildContext context, {
     required CheckoutResult result,
-  }) =>
-      showAppSheet<void>(
-        context,
-        title: AppL10n.of(context).saleComplete,
-        builder: (_) => CheckoutDoneSheet(result: result),
-      );
+  }) => showAppSheet<void>(
+    context,
+    title: AppL10n.of(context).saleComplete,
+    builder: (_) => CheckoutDoneSheet(result: result),
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -144,11 +143,7 @@ class CheckoutDoneSheet extends ConsumerWidget {
 }
 
 class _Pill extends StatelessWidget {
-  const _Pill({
-    required this.label,
-    required this.tone,
-    required this.title,
-  });
+  const _Pill({required this.label, required this.tone, required this.title});
 
   final String label;
   final String title;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/money.dart';
 import '../../../core/permissions/permission_gate.dart';
@@ -34,13 +34,8 @@ class InvoiceDetailScreen extends ConsumerWidget {
     final detail = ref.watch(saleDetailProvider(saleId));
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ShellAppBar(
         title: Text(l10n.invoice),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/invoices'),
-        ),
         actions: [
           PermissionGate(
             perm: P.posSalePrint,
@@ -87,14 +82,16 @@ class _Detail extends ConsumerWidget {
     final permissions = ref.watch(permissionsProvider);
     final sale = result.sale;
 
-    final mayCollect = permissions.allows(
+    final mayCollect =
+        permissions.allows(
           P.salesPaymentCollect,
           alsoRequire: result.mayCollect,
         ) &&
         sale.due > 0 &&
         !sale.status.isCancelled;
 
-    final mayReturn = permissions.allows(
+    final mayReturn =
+        permissions.allows(
           P.salesReturnCreate,
           alsoRequire: result.mayReturn,
         ) &&
@@ -129,8 +126,9 @@ class _Detail extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           l10n.statusVoid,
-                          style: text.titleSmall
-                              ?.copyWith(color: palette.danger),
+                          style: text.titleSmall?.copyWith(
+                            color: palette.danger,
+                          ),
                         ),
                       ),
                     ],
@@ -215,13 +213,14 @@ class _Detail extends ConsumerWidget {
                       ListTile(
                         dense: true,
                         title: Text(payment.method.toUpperCase()),
-                        subtitle: payment.account == null &&
-                                payment.reference == null
+                        subtitle:
+                            payment.account == null && payment.reference == null
                             ? null
                             : Text(
-                                [payment.account, payment.reference]
-                                    .whereType<String>()
-                                    .join(' · '),
+                                [
+                                  payment.account,
+                                  payment.reference,
+                                ].whereType<String>().join(' · '),
                               ),
                         trailing: Text(money.format(payment.amount)),
                       ),
@@ -241,10 +240,8 @@ class _Detail extends ConsumerWidget {
                 const SizedBox(height: Insets.s32),
                 Center(
                   child: TextButton.icon(
-                    onPressed: () async => _after(
-                      ref,
-                      await VoidSaleSheet.show(context, sale),
-                    ),
+                    onPressed: () async =>
+                        _after(ref, await VoidSaleSheet.show(context, sale)),
                     icon: Icon(Icons.block, color: palette.danger),
                     label: Text(
                       l10n.voidInvoice,
@@ -329,18 +326,17 @@ class _ReceiptHead extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(sale.store.name, style: text.titleMedium),
-              ),
+              Expanded(child: Text(sale.store.name, style: text.titleMedium)),
               SaleStatusChip(sale.status),
             ],
           ),
           if (sale.branch.name.isNotEmpty)
             Text(
-              [sale.branch.name, sale.branch.address, sale.branch.phone]
-                  .whereType<String>()
-                  .where((s) => s.isNotEmpty)
-                  .join(' · '),
+              [
+                sale.branch.name,
+                sale.branch.address,
+                sale.branch.phone,
+              ].whereType<String>().where((s) => s.isNotEmpty).join(' · '),
               style: text.bodySmall?.copyWith(color: palette.muted),
             ),
           Divider(color: palette.hairline, height: Insets.s24),
@@ -369,9 +365,10 @@ class _ReceiptHead extends StatelessWidget {
               Expanded(
                 child: Text(
                   sale.hasCustomer
-                      ? [sale.customerName, sale.customerPhone]
-                          .whereType<String>()
-                          .join(' · ')
+                      ? [
+                          sale.customerName,
+                          sale.customerPhone,
+                        ].whereType<String>().join(' · ')
                       : l10n.walkInCustomer,
                   style: text.bodyMedium,
                 ),
@@ -410,18 +407,19 @@ class _ItemRow extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final l10n = AppL10n.of(context);
 
-    final qty = item.qty
-        .toStringAsFixed(item.qty == item.qty.roundToDouble() ? 0 : 2);
+    final qty = item.qty.toStringAsFixed(
+      item.qty == item.qty.roundToDouble() ? 0 : 2,
+    );
     final lineOff = (item.discount ?? 0) > 0
         ? '  −${money.format(item.discount)}'
-            '${item.discountPercent == null ? '' : ' (${_rate(item.discountPercent!)}%)'}'
+              '${item.discountPercent == null ? '' : ' (${_rate(item.discountPercent!)}%)'}'
         : '';
     // The printed price, when it was above what was charged. The saving is
     // already inside the price, so it is shown beside the line and never
     // taken off the total.
     final printed = (item.mrp ?? 0) > item.unitPrice
         ? '${l10n.mrpLabel} ${money.format(item.mrp)}'
-            '${item.mrpDiscountPercent == null ? '' : ' · −${_rate(item.mrpDiscountPercent!)}%'}'
+              '${item.mrpDiscountPercent == null ? '' : ' · −${_rate(item.mrpDiscountPercent!)}%'}'
         : null;
 
     return ListTile(

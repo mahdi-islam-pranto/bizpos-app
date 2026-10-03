@@ -30,9 +30,7 @@ class PackageFormSheet extends ConsumerStatefulWidget {
   static Future<void> show(BuildContext context, {Package? package}) =>
       showAppSheet<void>(
         context,
-        title: package == null
-            ? AppL10n.of(context).newPackage
-            : package.name,
+        title: package == null ? AppL10n.of(context).newPackage : package.name,
         builder: (_) => PackageFormSheet(package: package),
       );
 
@@ -42,11 +40,15 @@ class PackageFormSheet extends ConsumerStatefulWidget {
 
 class _PackageFormSheetState extends ConsumerState<PackageFormSheet> {
   late final _name = TextEditingController(text: widget.package?.name ?? '');
-  late final _price = TextEditingController(text: _plain(widget.package?.price));
-  late final _description =
-      TextEditingController(text: widget.package?.description ?? '');
-  late final _barcode =
-      TextEditingController(text: widget.package?.barcode ?? '');
+  late final _price = TextEditingController(
+    text: _plain(widget.package?.price),
+  );
+  late final _description = TextEditingController(
+    text: widget.package?.description ?? '',
+  );
+  late final _barcode = TextEditingController(
+    text: widget.package?.barcode ?? '',
+  );
   late final _vat = TextEditingController(
     text: (widget.package?.vatPercent ?? 0) == 0
         ? ''
@@ -87,16 +89,16 @@ class _PackageFormSheetState extends ConsumerState<PackageFormSheet> {
       _items.fold<num>(0, (sum, item) => sum + item.salePrice * item.qty);
 
   PackageDraft get _draft => PackageDraft(
-        name: _name.text.trim(),
-        price: AmountField.read(_price) ?? 0,
-        items: _items,
-        description: _text(_description),
-        barcode: _text(_barcode),
-        vatPercent: AmountField.read(_vat),
-        startsAt: _startsAt,
-        endsAt: _endsAt,
-        isActive: _isActive,
-      );
+    name: _name.text.trim(),
+    price: AmountField.read(_price) ?? 0,
+    items: _items,
+    description: _text(_description),
+    barcode: _text(_barcode),
+    vatPercent: AmountField.read(_vat),
+    startsAt: _startsAt,
+    endsAt: _endsAt,
+    isActive: _isActive,
+  );
 
   bool get _canSave =>
       _name.text.trim().isNotEmpty &&
@@ -133,19 +135,19 @@ class _PackageFormSheetState extends ConsumerState<PackageFormSheet> {
   }
 
   void _setQty(int index, num qty) => setState(() {
-        if (qty <= 0) {
-          _items.removeAt(index);
-          return;
-        }
-        final item = _items[index];
-        _items[index] = PackageItem(
-          storeProductId: item.storeProductId,
-          name: item.name,
-          qty: qty,
-          salePrice: item.salePrice,
-          unit: item.unit,
-        );
-      });
+    if (qty <= 0) {
+      _items.removeAt(index);
+      return;
+    }
+    final item = _items[index];
+    _items[index] = PackageItem(
+      storeProductId: item.storeProductId,
+      name: item.name,
+      qty: qty,
+      salePrice: item.salePrice,
+      unit: item.unit,
+    );
+  });
 
   Future<void> _pickDate({required bool start}) async {
     final now = DateTime.now();
@@ -272,8 +274,9 @@ class _PackageFormSheetState extends ConsumerState<PackageFormSheet> {
                         title: Text(_items[i].name),
                         subtitle: Text(
                           money.format(_items[i].salePrice),
-                          style: text.labelSmall
-                              ?.copyWith(color: palette.muted),
+                          style: text.labelSmall?.copyWith(
+                            color: palette.muted,
+                          ),
                         ),
                         trailing: QtyStepper(
                           qty: _items[i].qty,

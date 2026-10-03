@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/money.dart';
 import '../../../core/permissions/permissions.dart';
@@ -53,13 +54,12 @@ class _PackagesScreenState extends ConsumerState<PackagesScreen> {
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final page = ref.watch(packagesProvider(_query));
-    final mayManage = ref.watch(permissionsProvider).allows(
-          P.inventoryPackageManage,
-          alsoRequire: page.value?.mayManage,
-        );
+    final mayManage = ref
+        .watch(permissionsProvider)
+        .allows(P.inventoryPackageManage, alsoRequire: page.value?.mayManage);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.packagesTitle)),
+      appBar: ShellAppBar(title: Text(l10n.packagesTitle)),
       floatingActionButton: mayManage
           ? FloatingActionButton.extended(
               onPressed: () => PackageFormSheet.show(context),
@@ -311,6 +311,9 @@ class AvailabilityChip extends StatelessWidget {
       PackageAvailability.expired => palette.warning,
       PackageAvailability.inactive => palette.muted,
     };
-    return StatusChip(label: availabilityLabel(AppL10n.of(context), value), tone: tone);
+    return StatusChip(
+      label: availabilityLabel(AppL10n.of(context), value),
+      tone: tone,
+    );
   }
 }

@@ -29,12 +29,11 @@ class ProductFilter {
     bool? lowOnly,
     bool? trashed,
     bool clearText = false,
-  }) =>
-      ProductFilter(
-        text: clearText ? null : (text ?? this.text),
-        lowOnly: lowOnly ?? this.lowOnly,
-        trashed: trashed ?? this.trashed,
-      );
+  }) => ProductFilter(
+    text: clearText ? null : (text ?? this.text),
+    lowOnly: lowOnly ?? this.lowOnly,
+    trashed: trashed ?? this.trashed,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -176,24 +175,23 @@ class ProductsRepository {
     num? minimumStock,
     bool? trackBatch,
     bool? isActive,
-  }) =>
-      _client.patch(
-        ApiPaths.product(id),
-        parse: parseNothing,
-        body: {
-          'name': ?name,
-          'brand': ?brand,
-          'sku': ?sku,
-          'barcode': ?barcode,
-          'unit': ?unit,
-          'mrp': ?mrp,
-          'vatPercent': ?vatPercent,
-          'minimumStock': ?minimumStock,
-          'trackBatch': ?trackBatch,
-          'isActive': ?isActive,
-        },
-        cancelToken: _cancel,
-      );
+  }) => _client.patch(
+    ApiPaths.product(id),
+    parse: parseNothing,
+    body: {
+      'name': ?name,
+      'brand': ?brand,
+      'sku': ?sku,
+      'barcode': ?barcode,
+      'unit': ?unit,
+      'mrp': ?mrp,
+      'vatPercent': ?vatPercent,
+      'minimumStock': ?minimumStock,
+      'trackBatch': ?trackBatch,
+      'isActive': ?isActive,
+    },
+    cancelToken: _cancel,
+  );
 
   /// All three prices are required together — the API takes the set, not a
   /// patch of one, because "selling price at least the cost" is a rule it
@@ -230,13 +228,12 @@ class ProductsRepository {
     required num qty,
     required String reason,
     bool isDamage = false,
-  }) =>
-      _client.post(
-        ApiPaths.productAdjust(id),
-        parse: parseNothing,
-        body: {'qty': qty, 'reason': reason, 'isDamage': isDamage},
-        cancelToken: _cancel,
-      );
+  }) => _client.post(
+    ApiPaths.productAdjust(id),
+    parse: parseNothing,
+    body: {'qty': qty, 'reason': reason, 'isDamage': isDamage},
+    cancelToken: _cancel,
+  );
 
   /// A **soft** delete. The product leaves the list, the till and every stock
   /// figure; past sales still name it, and `restore` puts it back as it was.
@@ -252,10 +249,10 @@ class ProductsRepository {
   }
 
   Future<void> restore(int id) => _client.post(
-        ApiPaths.productRestore(id),
-        parse: parseNothing,
-        cancelToken: _cancel,
-      );
+    ApiPaths.productRestore(id),
+    parse: parseNothing,
+    cancelToken: _cancel,
+  );
 }
 
 final productsRepositoryProvider = Provider<ProductsRepository>((ref) {
@@ -276,9 +273,9 @@ class ProductFilterController extends Notifier<ProductFilter> {
   }
 
   void setText(String? text) => state = state.copyWith(
-        text: (text ?? '').isEmpty ? null : text,
-        clearText: (text ?? '').isEmpty,
-      );
+    text: (text ?? '').isEmpty ? null : text,
+    clearText: (text ?? '').isEmpty,
+  );
 
   void setLowOnly(bool value) => state = state.copyWith(lowOnly: value);
 
@@ -290,8 +287,8 @@ class ProductFilterController extends Notifier<ProductFilter> {
 
 final productFilterProvider =
     NotifierProvider<ProductFilterController, ProductFilter>(
-  ProductFilterController.new,
-);
+      ProductFilterController.new,
+    );
 
 /// The paginated list, accumulated across pages.
 class ProductsListController extends AsyncNotifier<Paged<Product>> {
@@ -349,8 +346,8 @@ class ProductsListController extends AsyncNotifier<Paged<Product>> {
 
 final productsListProvider =
     AsyncNotifierProvider<ProductsListController, Paged<Product>>(
-  ProductsListController.new,
-);
+      ProductsListController.new,
+    );
 
 final productStatsProvider = FutureProvider<ProductStats>((ref) {
   ref.watch(sessionScopeProvider);
@@ -379,8 +376,10 @@ final productLookupsProvider = FutureProvider<ProductLookups>((ref) {
   return ref.watch(productsRepositoryProvider).lookups();
 });
 
-final productHistoryProvider =
-    FutureProvider.family<ProductHistory, int>((ref, id) {
+final productHistoryProvider = FutureProvider.family<ProductHistory, int>((
+  ref,
+  id,
+) {
   ref.watch(sessionScopeProvider);
   return ref.watch(productsRepositoryProvider).history(id);
 });

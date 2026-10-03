@@ -132,7 +132,9 @@ class _CloseShiftSheetState extends ConsumerState<CloseShiftSheet> {
 
     setState(() => _busy = true);
     try {
-      final closing = await ref.read(posRepositoryProvider).closeShift(
+      final closing = await ref
+          .read(posRepositoryProvider)
+          .closeShift(
             amount,
             note: _note.text.trim().isEmpty ? null : _note.text.trim(),
           );
@@ -159,8 +161,8 @@ class _CloseShiftSheetState extends ConsumerState<CloseShiftSheet> {
       final (message, tone) = difference == 0
           ? (l10n.balanced, palette.positive)
           : difference < 0
-              ? (l10n.shortBy(money.format(-difference)), palette.danger)
-              : (l10n.overBy(money.format(difference)), palette.warning);
+          ? (l10n.shortBy(money.format(-difference)), palette.danger)
+          : (l10n.overBy(money.format(difference)), palette.warning);
 
       return SingleChildScrollView(
         child: Column(
@@ -172,9 +174,7 @@ class _CloseShiftSheetState extends ConsumerState<CloseShiftSheet> {
                 children: [
                   Text(
                     message,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
+                    style: Theme.of(context).textTheme.titleLarge
                         ?.copyWith(color: tone),
                   ),
                   const SizedBox(height: Insets.s24),
@@ -212,9 +212,7 @@ class _CloseShiftSheetState extends ConsumerState<CloseShiftSheet> {
                   l10n.openedAt(
                     AppDates.stamp(widget.shift.openedAt, locale: locale),
                   ),
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
+                  style: Theme.of(context).textTheme.bodySmall
                       ?.copyWith(color: palette.muted),
                 ),
                 const SizedBox(height: Insets.s4),
@@ -222,7 +220,9 @@ class _CloseShiftSheetState extends ConsumerState<CloseShiftSheet> {
                 // What the drawer should hold, before the count rather than
                 // after it: counting against a visible figure is how a short
                 // drawer gets recounted instead of reported.
-                ref.watch(posShiftReportProvider).when(
+                ref
+                    .watch(posShiftReportProvider)
+                    .when(
                       loading: () => const Padding(
                         padding: EdgeInsets.symmetric(vertical: Insets.s8),
                         child: LinearProgressIndicator(),
@@ -230,10 +230,8 @@ class _CloseShiftSheetState extends ConsumerState<CloseShiftSheet> {
                       // The close still works without it; the server does the
                       // same arithmetic either way.
                       error: (_, _) => const SizedBox.shrink(),
-                      data: (report) => _ReportSummary(
-                        report: report,
-                        money: money,
-                      ),
+                      data: (report) =>
+                          _ReportSummary(report: report, money: money),
                     ),
                 const SizedBox(height: Insets.s24),
                 AmountField(
@@ -284,7 +282,10 @@ class _ReportSummary extends StatelessWidget {
           tone: palette.accent,
         ),
         Divider(color: palette.hairline, height: Insets.s16),
-        _Row(l10n.invoiceCount(totals.invoices.toString()), money.format(totals.sold)),
+        _Row(
+          l10n.invoiceCount(totals.invoices.toString()),
+          money.format(totals.sold),
+        ),
         if (totals.digital > 0)
           _Row(l10n.digitalTaken, money.format(totals.digital)),
         if (totals.collected > 0)
@@ -302,9 +303,7 @@ class _ReportSummary extends StatelessWidget {
             padding: const EdgeInsets.only(top: Insets.s4),
             child: Text(
               l10n.shiftSpansDays(report.days.length),
-              style: Theme.of(context)
-                  .textTheme
-                  .labelSmall
+              style: Theme.of(context).textTheme.labelSmall
                   ?.copyWith(color: palette.muted),
             ),
           ),

@@ -75,17 +75,12 @@ class SalesRepository {
     required num amount,
     String method = 'cash',
     int? accountId,
-  }) =>
-      _client.post(
-        ApiPaths.salePayments(id),
-        parse: parseNothing,
-        body: {
-          'amount': amount,
-          'method': method,
-          'accountId': ?accountId,
-        },
-        cancelToken: _cancel,
-      );
+  }) => _client.post(
+    ApiPaths.salePayments(id),
+    parse: parseNothing,
+    body: {'amount': amount, 'method': method, 'accountId': ?accountId},
+    cancelToken: _cancel,
+  );
 
   /// Undoes the whole sale: stock back, money reversed out of its account, the
   /// customer's debt credited, points unwound. `reason` is required, 3–255
@@ -132,8 +127,7 @@ class SalesQuery {
   int get hashCode => Object.hash(text, days);
 }
 
-final salesQueryProvider =
-    NotifierProvider<SalesQueryController, SalesQuery>(
+final salesQueryProvider = NotifierProvider<SalesQueryController, SalesQuery>(
   SalesQueryController.new,
 );
 
@@ -146,11 +140,12 @@ class SalesQueryController extends Notifier<SalesQuery> {
     return const SalesQuery(days: 1);
   }
 
-  void setText(String? text) =>
-      state = SalesQuery(text: (text ?? '').isEmpty ? null : text, days: state.days);
+  void setText(String? text) => state = SalesQuery(
+    text: (text ?? '').isEmpty ? null : text,
+    days: state.days,
+  );
 
-  void setDays(int? days) =>
-      state = SalesQuery(text: state.text, days: days);
+  void setDays(int? days) => state = SalesQuery(text: state.text, days: days);
 }
 
 /// The paginated list, accumulated across pages.
@@ -173,11 +168,9 @@ class SalesListController extends AsyncNotifier<Paged<SaleListItem>> {
     if (current == null || !current.hasMore || state.isLoading) return;
 
     final query = ref.read(salesQueryProvider);
-    final next = await ref.read(salesRepositoryProvider).list(
-          query: query.text,
-          days: query.days,
-          page: current.nextPage,
-        );
+    final next = await ref
+        .read(salesRepositoryProvider)
+        .list(query: query.text, days: query.days, page: current.nextPage);
 
     state = AsyncValue.data(
       Paged(
@@ -198,14 +191,16 @@ class SalesListController extends AsyncNotifier<Paged<SaleListItem>> {
 
 final salesListProvider =
     AsyncNotifierProvider<SalesListController, Paged<SaleListItem>>(
-  SalesListController.new,
-);
+      SalesListController.new,
+    );
 
 /// One invoice. Keyed by id and by scope, so an id from a store that has since
 /// been switched away from is refetched rather than shown from cache — it would
 /// answer 404 in the new store, not 403.
-final saleDetailProvider =
-    FutureProvider.family<SaleDetailResult, int>((ref, id) {
+final saleDetailProvider = FutureProvider.family<SaleDetailResult, int>((
+  ref,
+  id,
+) {
   ref.watch(sessionScopeProvider);
   return ref.watch(salesRepositoryProvider).detail(id);
 });

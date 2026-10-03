@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/router/shell_nav.dart';
 import '../../core/widgets/states.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -14,7 +15,7 @@ class NotAllowedScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.notAllowedTitle)),
+      appBar: ShellAppBar(title: Text(l10n.notAllowedTitle)),
       body: MessageState(
         icon: Icons.lock_outline,
         title: l10n.notAllowedTitle,

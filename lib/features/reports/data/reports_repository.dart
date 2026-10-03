@@ -64,17 +64,18 @@ final reportsRepositoryProvider = Provider<ReportsRepository>((ref) {
 });
 
 /// Keyed on the window in days.
-final salesReportProvider =
-    FutureProvider.autoDispose.family<SalesReport, int>((ref, days) {
-  ref.watch(sessionScopeProvider);
-  return ref.watch(reportsRepositoryProvider).sales(days: days);
-});
+final salesReportProvider = FutureProvider.autoDispose.family<SalesReport, int>(
+  (ref, days) {
+    ref.watch(sessionScopeProvider);
+    return ref.watch(reportsRepositoryProvider).sales(days: days);
+  },
+);
 
-final profitReportProvider =
-    FutureProvider.autoDispose.family<ProfitReport, int>((ref, days) {
-  ref.watch(sessionScopeProvider);
-  return ref.watch(reportsRepositoryProvider).profit(days: days);
-});
+final profitReportProvider = FutureProvider.autoDispose
+    .family<ProfitReport, int>((ref, days) {
+      ref.watch(sessionScopeProvider);
+      return ref.watch(reportsRepositoryProvider).profit(days: days);
+    });
 
 final stockReportProvider = FutureProvider.autoDispose<StockReport>((ref) {
   ref.watch(sessionScopeProvider);

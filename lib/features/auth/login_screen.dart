@@ -38,10 +38,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     // No retry here, ever: login is capped at 10 tries a minute and a loop
     // would lock the counter out.
-    await ref.read(sessionControllerProvider.notifier).signIn(
-          email: _email.text.trim(),
-          password: _password.text,
-        );
+    await ref
+        .read(sessionControllerProvider.notifier)
+        .signIn(email: _email.text.trim(), password: _password.text);
   }
 
   @override
@@ -120,8 +119,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ? Icons.visibility_outlined
                                 : Icons.visibility_off_outlined,
                           ),
-                          onPressed: () =>
-                              setState(() => _obscure = !_obscure),
+                          onPressed: () => setState(() => _obscure = !_obscure),
                         ),
                       ),
                       autofillHints: const [AutofillHints.password],
@@ -196,8 +194,9 @@ class _ErrorNotice extends StatelessWidget {
       ValidationException() => null,
       // The right password and a closed shop. The server wrote the message in
       // both languages; there is nothing to retry.
-      final StoreLockedException locked =>
-        locked.messageFor(Localizations.localeOf(context).languageCode),
+      final StoreLockedException locked => locked.messageFor(
+        Localizations.localeOf(context).languageCode,
+      ),
       ApiException(:final message) => message,
       _ => l10n.genericError,
     };
@@ -221,8 +220,8 @@ class _ErrorNotice extends StatelessWidget {
             error is StoreLockedException
                 ? Icons.lock_clock_outlined
                 : isWarning
-                    ? Icons.timer_outlined
-                    : Icons.error_outline,
+                ? Icons.timer_outlined
+                : Icons.error_outline,
             size: 18,
             color: tone,
           ),
@@ -230,9 +229,7 @@ class _ErrorNotice extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
+              style: Theme.of(context).textTheme.bodySmall
                   ?.copyWith(color: palette.text),
             ),
           ),

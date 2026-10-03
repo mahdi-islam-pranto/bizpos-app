@@ -82,10 +82,10 @@ class PackagesRepository {
   }
 
   Future<void> delete(int id) => _client.delete(
-        ApiPaths.package(id),
-        parse: parseNothing,
-        cancelToken: _cancel,
-      );
+    ApiPaths.package(id),
+    parse: parseNothing,
+    cancelToken: _cancel,
+  );
 }
 
 final packagesRepositoryProvider = Provider<PackagesRepository>((ref) {
@@ -98,14 +98,15 @@ final packagesRepositoryProvider = Provider<PackagesRepository>((ref) {
 
 /// Keyed on the query, so a store switch re-runs it against the new
 /// repository rather than leaving a cancelled future on screen.
-final packagesProvider =
-    FutureProvider.autoDispose.family<PackagePage, String>((ref, query) {
-  ref.watch(sessionScopeProvider);
-  return ref.watch(packagesRepositoryProvider).list(query: query);
-});
+final packagesProvider = FutureProvider.autoDispose.family<PackagePage, String>(
+  (ref, query) {
+    ref.watch(sessionScopeProvider);
+    return ref.watch(packagesRepositoryProvider).list(query: query);
+  },
+);
 
 final packageProductsProvider = FutureProvider.autoDispose
     .family<List<PackageProduct>, String>((ref, query) {
-  ref.watch(sessionScopeProvider);
-  return ref.watch(packagesRepositoryProvider).products(query);
-});
+      ref.watch(sessionScopeProvider);
+      return ref.watch(packagesRepositoryProvider).products(query);
+    });

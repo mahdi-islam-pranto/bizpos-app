@@ -75,44 +75,42 @@ class CartLine {
     num? lineDiscount,
     bool clearUnitPrice = false,
     bool clearDiscount = false,
-  }) =>
-      CartLine(
-        item: item,
-        qty: qty ?? this.qty,
-        unitPrice: clearUnitPrice ? null : (unitPrice ?? this.unitPrice),
-        lineDiscount: clearDiscount ? null : (lineDiscount ?? this.lineDiscount),
-      );
+  }) => CartLine(
+    item: item,
+    qty: qty ?? this.qty,
+    unitPrice: clearUnitPrice ? null : (unitPrice ?? this.unitPrice),
+    lineDiscount: clearDiscount ? null : (lineDiscount ?? this.lineDiscount),
+  );
 
   /// What `POST /pos/checkout` gets. Either `storeProductId` **or**
   /// `packageId`, never both.
   Map<String, dynamic> toCheckoutLine({
     required bool mayChangePrice,
     required bool mayDiscount,
-  }) =>
-      {
-        if (item.isPackage) 'packageId': item.id else 'storeProductId': item.id,
-        'qty': qty,
-        if (mayChangePrice && unitPrice != null) 'unitPrice': unitPrice,
-        if (mayDiscount && lineDiscount != null && lineDiscount! > 0)
-          'discount': lineDiscount,
-      };
+  }) => {
+    if (item.isPackage) 'packageId': item.id else 'storeProductId': item.id,
+    'qty': qty,
+    if (mayChangePrice && unitPrice != null) 'unitPrice': unitPrice,
+    if (mayDiscount && lineDiscount != null && lineDiscount! > 0)
+      'discount': lineDiscount,
+  };
 
   /// Held carts round-trip through the server untouched, so the app owns this
   /// shape completely.
   Map<String, dynamic> toHoldJson() => {
-        'id': item.id,
-        'isPackage': item.isPackage,
-        'name': item.name,
-        'salePrice': item.salePrice,
-        'unit': item.unit,
-        'barcode': item.barcode,
-        'vatPercent': item.vatPercent,
-        'stock': item.stock,
-        'purchasePrice': item.purchasePrice,
-        'qty': qty,
-        'unitPrice': unitPrice,
-        'lineDiscount': lineDiscount,
-      };
+    'id': item.id,
+    'isPackage': item.isPackage,
+    'name': item.name,
+    'salePrice': item.salePrice,
+    'unit': item.unit,
+    'barcode': item.barcode,
+    'vatPercent': item.vatPercent,
+    'stock': item.stock,
+    'purchasePrice': item.purchasePrice,
+    'qty': qty,
+    'unitPrice': unitPrice,
+    'lineDiscount': lineDiscount,
+  };
 
   static CartLine? fromHoldJson(Object? raw) {
     if (raw is! Map<String, dynamic>) return null;
@@ -156,11 +154,11 @@ class CartPayment {
   final String? reference;
 
   Map<String, dynamic> toJson() => {
-        'method': method.wire,
-        'amount': amount,
-        if (accountId != null) 'accountId': accountId,
-        if (reference != null && reference!.isNotEmpty) 'reference': reference,
-      };
+    'method': method.wire,
+    'amount': amount,
+    if (accountId != null) 'accountId': accountId,
+    if (reference != null && reference!.isNotEmpty) 'reference': reference,
+  };
 }
 
 /// The whole till, as one immutable value.
@@ -193,8 +191,7 @@ class Cart {
   bool get isNotEmpty => lines.isNotEmpty;
   int get lineCount => lines.length;
 
-  num get itemCount =>
-      lines.fold<num>(0, (sum, line) => sum + line.qty);
+  num get itemCount => lines.fold<num>(0, (sum, line) => sum + line.qty);
 
   /// The running total the cashier watches while ringing items up.
   ///
@@ -202,8 +199,7 @@ class Cart {
   /// here; `POST /pos/checkout` returns the real total and that is the one the
   /// receipt shows. This exists so the number on screen while deciding is at
   /// least exact arithmetic rather than floating-point drift.
-  Decimal get linesTotal =>
-      Exact.sum(lines.map((line) => line.subtotal));
+  Decimal get linesTotal => Exact.sum(lines.map((line) => line.subtotal));
 
   /// The taka the bill rate comes to, off [linesTotal], to the paisa.
   Decimal get orderDiscountAmount {
@@ -237,8 +233,7 @@ class Cart {
   bool get belowCost => hasBelowCostLine || discountBelowCost;
 
   /// A named customer, not the walk-in one. Credit and points both need this.
-  bool get hasNamedCustomer =>
-      customer != null && !customer!.isWalkIn;
+  bool get hasNamedCustomer => customer != null && !customer!.isWalkIn;
 
   CartLine? lineFor(SellableItem item) {
     final key = '${item.isPackage ? 'pkg' : 'sp'}:${item.id}';
@@ -256,16 +251,15 @@ class Cart {
     String? note,
     bool clearCustomer = false,
     bool clearOrderDiscount = false,
-  }) =>
-      Cart(
-        lines: lines ?? this.lines,
-        customer: clearCustomer ? null : (customer ?? this.customer),
-        orderDiscountPercent: clearOrderDiscount
-            ? null
-            : (orderDiscountPercent ?? this.orderDiscountPercent),
-        redeemPoints: redeemPoints ?? this.redeemPoints,
-        note: note ?? this.note,
-      );
+  }) => Cart(
+    lines: lines ?? this.lines,
+    customer: clearCustomer ? null : (customer ?? this.customer),
+    orderDiscountPercent: clearOrderDiscount
+        ? null
+        : (orderDiscountPercent ?? this.orderDiscountPercent),
+    redeemPoints: redeemPoints ?? this.redeemPoints,
+    note: note ?? this.note,
+  );
 
   /// The body of `POST /pos/checkout`.
   ///
@@ -291,41 +285,40 @@ class Cart {
     required bool mayDiscount,
     required List<CartPayment> payments,
     bool collectPrevious = false,
-  }) =>
-      {
-        if (hasNamedCustomer) 'customerId': customer!.id,
-        'lines': [
-          for (final line in lines)
-            line.toCheckoutLine(
-              mayChangePrice: mayChangePrice,
-              mayDiscount: mayDiscount,
-            ),
-        ],
-        'payments': [
-          for (final payment in payments)
-            if (payment.amount > 0) payment.toJson(),
-        ],
-        if (mayDiscount && (orderDiscountPercent ?? 0) > 0)
-          'orderDiscountPercent': orderDiscountPercent,
-        if (redeemPoints > 0) 'redeemPoints': redeemPoints,
-        if (collectPrevious && hasNamedCustomer) 'collectPrevious': true,
-        if ((note ?? '').isNotEmpty) 'note': note,
-      };
+  }) => {
+    if (hasNamedCustomer) 'customerId': customer!.id,
+    'lines': [
+      for (final line in lines)
+        line.toCheckoutLine(
+          mayChangePrice: mayChangePrice,
+          mayDiscount: mayDiscount,
+        ),
+    ],
+    'payments': [
+      for (final payment in payments)
+        if (payment.amount > 0) payment.toJson(),
+    ],
+    if (mayDiscount && (orderDiscountPercent ?? 0) > 0)
+      'orderDiscountPercent': orderDiscountPercent,
+    if (redeemPoints > 0) 'redeemPoints': redeemPoints,
+    if (collectPrevious && hasNamedCustomer) 'collectPrevious': true,
+    if ((note ?? '').isNotEmpty) 'note': note,
+  };
 
   Map<String, dynamic> toHoldJson() => {
-        'v': 2,
-        'lines': [for (final line in lines) line.toHoldJson()],
-        if (customer != null)
-          'customer': {
-            'id': customer!.id,
-            'name': customer!.name,
-            'phone': customer!.phone,
-            'isWalkIn': customer!.isWalkIn,
-          },
-        'orderDiscountPercent': orderDiscountPercent,
-        'redeemPoints': redeemPoints,
-        'note': note,
-      };
+    'v': 2,
+    'lines': [for (final line in lines) line.toHoldJson()],
+    if (customer != null)
+      'customer': {
+        'id': customer!.id,
+        'name': customer!.name,
+        'phone': customer!.phone,
+        'isWalkIn': customer!.isWalkIn,
+      },
+    'orderDiscountPercent': orderDiscountPercent,
+    'redeemPoints': redeemPoints,
+    'note': note,
+  };
 
   /// Rebuilds a held cart. Anything unreadable is dropped rather than throwing:
   /// a hold from an older build of the app should still bring back the lines it
@@ -362,8 +355,9 @@ num? _holdRate(Map<String, dynamic> json, List<CartLine> lines) {
   if (flat is! num || flat <= 0) return null;
   final goods = Exact.sum(lines.map((line) => line.subtotal));
   if (goods <= Decimal.zero) return null;
-  final asRate = (Exact.of(flat) * Decimal.fromInt(100) / goods)
-      .toDecimal(scaleOnInfinitePrecision: 4);
+  final asRate = (Exact.of(flat) * Decimal.fromInt(100) / goods).toDecimal(
+    scaleOnInfinitePrecision: 4,
+  );
   final value = asRate.round(scale: 2).toDouble();
   return value > 100 ? 100 : value;
 }
@@ -389,7 +383,10 @@ class CartController extends Notifier<Cart> {
     final existing = state.lineFor(item);
     if (existing == null) {
       state = state.copyWith(
-        lines: [...state.lines, CartLine(item: item, qty: qty)],
+        lines: [
+          ...state.lines,
+          CartLine(item: item, qty: qty),
+        ],
       );
       return;
     }
@@ -410,35 +407,32 @@ class CartController extends Notifier<Cart> {
   }
 
   void remove(String key) => state = state.copyWith(
-        lines: state.lines.where((line) => line.key != key).toList(),
-      );
+    lines: state.lines.where((line) => line.key != key).toList(),
+  );
 
   /// Only reachable with `pos.sale.change_price`; the UI never offers it
   /// otherwise, because the server would ignore the field and the cashier would
   /// watch a price they typed fail to appear on the receipt.
   void setUnitPrice(String key, num? price) => state = state.copyWith(
-        lines: [
-          for (final line in state.lines)
-            if (line.key == key)
-              line.copyWith(unitPrice: price, clearUnitPrice: price == null)
-            else
-              line,
-        ],
-      );
+    lines: [
+      for (final line in state.lines)
+        if (line.key == key)
+          line.copyWith(unitPrice: price, clearUnitPrice: price == null)
+        else
+          line,
+    ],
+  );
 
   /// Only reachable with `pos.sale.give_discount`.
   void setLineDiscount(String key, num? discount) => state = state.copyWith(
-        lines: [
-          for (final line in state.lines)
-            if (line.key == key)
-              line.copyWith(
-                lineDiscount: discount,
-                clearDiscount: discount == null,
-              )
-            else
-              line,
-        ],
-      );
+    lines: [
+      for (final line in state.lines)
+        if (line.key == key)
+          line.copyWith(lineDiscount: discount, clearDiscount: discount == null)
+        else
+          line,
+    ],
+  );
 
   /// A rate, clamped to 0–100. Null or zero removes it.
   void setOrderDiscountPercent(num? rate) {

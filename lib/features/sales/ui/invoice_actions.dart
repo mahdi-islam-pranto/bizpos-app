@@ -38,8 +38,9 @@ class CollectPaymentSheet extends ConsumerStatefulWidget {
 }
 
 class _CollectPaymentSheetState extends ConsumerState<CollectPaymentSheet> {
-  late final TextEditingController _amount =
-      TextEditingController(text: _plain(widget.sale.due));
+  late final TextEditingController _amount = TextEditingController(
+    text: _plain(widget.sale.due),
+  );
   PayMethod _method = PayMethod.cash;
   int? _accountId;
   bool _busy = false;
@@ -60,7 +61,9 @@ class _CollectPaymentSheetState extends ConsumerState<CollectPaymentSheet> {
 
     setState(() => _busy = true);
     try {
-      await ref.read(salesRepositoryProvider).collect(
+      await ref
+          .read(salesRepositoryProvider)
+          .collect(
             widget.sale.id,
             amount: amount,
             method: _method.wire,
@@ -78,13 +81,13 @@ class _CollectPaymentSheetState extends ConsumerState<CollectPaymentSheet> {
   }
 
   String _methodLabel(AppL10n l10n, PayMethod method) => switch (method) {
-        PayMethod.cash => l10n.payMethodCash,
-        PayMethod.card => l10n.payMethodCard,
-        PayMethod.bkash => l10n.payMethodBkash,
-        PayMethod.nagad => l10n.payMethodNagad,
-        PayMethod.rocket => l10n.payMethodRocket,
-        PayMethod.bank => l10n.payMethodBank,
-      };
+    PayMethod.cash => l10n.payMethodCash,
+    PayMethod.card => l10n.payMethodCard,
+    PayMethod.bkash => l10n.payMethodBkash,
+    PayMethod.nagad => l10n.payMethodNagad,
+    PayMethod.rocket => l10n.payMethodRocket,
+    PayMethod.bank => l10n.payMethodBank,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -93,8 +96,8 @@ class _CollectPaymentSheetState extends ConsumerState<CollectPaymentSheet> {
     final money = ref.watch(moneyProvider);
     // The account list belongs to the POS lookups; reusing it means the money
     // lands in the same accounts a sale would.
-    final accounts = ref.watch(posLookupsProvider).value?.accounts ??
-        const <PosAccount>[];
+    final accounts =
+        ref.watch(posLookupsProvider).value?.accounts ?? const <PosAccount>[];
 
     final typed = AmountField.read(_amount) ?? 0;
     final overPaying = typed > widget.sale.due;
@@ -118,9 +121,8 @@ class _CollectPaymentSheetState extends ConsumerState<CollectPaymentSheet> {
                     ),
                     Text(
                       money.format(widget.sale.due),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: palette.warning,
-                          ),
+                      style: Theme.of(context).textTheme.titleLarge
+                          ?.copyWith(color: palette.warning),
                     ),
                   ],
                 ),
@@ -137,9 +139,8 @@ class _CollectPaymentSheetState extends ConsumerState<CollectPaymentSheet> {
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
                   child: TextButton(
-                    onPressed: () => setState(
-                      () => _amount.text = _plain(widget.sale.due),
-                    ),
+                    onPressed: () =>
+                        setState(() => _amount.text = _plain(widget.sale.due)),
                     child: Text(l10n.collectAll),
                   ),
                 ),
@@ -155,8 +156,7 @@ class _CollectPaymentSheetState extends ConsumerState<CollectPaymentSheet> {
                           child: ChoiceChip(
                             label: Text(_methodLabel(l10n, method)),
                             selected: _method == method,
-                            onSelected: (_) =>
-                                setState(() => _method = method),
+                            onSelected: (_) => setState(() => _method = method),
                           ),
                         ),
                     ],
@@ -232,14 +232,15 @@ class _ReturnSheetState extends ConsumerState<ReturnSheet> {
   Future<void> _submit() async {
     final items = [
       for (final entry in _qty.entries)
-        if (entry.value > 0)
-          {'saleItemId': entry.key, 'qty': entry.value},
+        if (entry.value > 0) {'saleItemId': entry.key, 'qty': entry.value},
     ];
     if (items.isEmpty) return;
 
     setState(() => _busy = true);
     try {
-      final result = await ref.read(salesRepositoryProvider).createReturn(
+      final result = await ref
+          .read(salesRepositoryProvider)
+          .createReturn(
             widget.sale.id,
             items: items,
             reason: _reason.text.trim().isEmpty ? null : _reason.text.trim(),
@@ -270,9 +271,7 @@ class _ReturnSheetState extends ConsumerState<ReturnSheet> {
             children: [
               Text(
                 l10n.returnBody,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
+                style: Theme.of(context).textTheme.bodySmall
                     ?.copyWith(color: palette.muted),
               ),
               const SizedBox(height: Insets.s16),
@@ -289,9 +288,7 @@ class _ReturnSheetState extends ConsumerState<ReturnSheet> {
                             Text(
                               '${money.format(item.unitPrice)} · '
                               '${l10n.returnOf(item.qty.toStringAsFixed(0))}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
+                              style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(color: palette.muted),
                             ),
                           ],
@@ -305,8 +302,7 @@ class _ReturnSheetState extends ConsumerState<ReturnSheet> {
                         onChanged: (value) => setState(() {
                           // Capped at what the line sold, so the obvious
                           // mistake never reaches the server.
-                          _qty[item.id] =
-                              value.clamp(0, item.qty);
+                          _qty[item.id] = value.clamp(0, item.qty);
                         }),
                       ),
                     ],
@@ -379,10 +375,8 @@ class _VoidSaleSheetState extends ConsumerState<VoidSaleSheet> {
       if (!mounted) return;
       showNote(
         context,
-        AppL10n.of(context).voidDone(
-          result.invoiceNo,
-          result.restored.toStringAsFixed(0),
-        ),
+        AppL10n.of(context)
+            .voidDone(result.invoiceNo, result.restored.toStringAsFixed(0)),
       );
       Navigator.of(context).pop(true);
     } catch (e) {

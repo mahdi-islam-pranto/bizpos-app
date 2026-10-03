@@ -3,11 +3,11 @@
 library;
 
 int _int(Object? v) => switch (v) {
-      final int x => x,
-      final num x => x.toInt(),
-      final String x => int.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final int x => x,
+  final num x => x.toInt(),
+  final String x => int.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 int? _intOrNull(Object? v) => v == null ? null : _int(v);
 
@@ -35,10 +35,10 @@ class StoreType {
   final String slug;
 
   factory StoreType.fromJson(Map<String, dynamic> json) => StoreType(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        slug: _str(json['slug']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    slug: _str(json['slug']),
+  );
 }
 
 /// `GET /public/store-types` — what the sign-up form needs, before anyone has
@@ -52,9 +52,9 @@ class SignupOptions {
   final int trialDays;
 
   factory SignupOptions.fromJson(Map<String, dynamic> json) => SignupOptions(
-        storeTypes: _listOf(json['storeTypes'], StoreType.fromJson),
-        trialDays: _int(json['trialDays']),
-      );
+    storeTypes: _listOf(json['storeTypes'], StoreType.fromJson),
+    trialDays: _int(json['trialDays']),
+  );
 }
 
 /// What `POST /auth/register` answers: a **working** token, so the app goes
@@ -108,13 +108,13 @@ class OwnedStore {
   final int? trialDaysLeft;
 
   factory OwnedStore.fromJson(Map<String, dynamic> json) => OwnedStore(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        storeType: _strOrNull(json['storeType']),
-        isOwner: _bool(json['isOwner']),
-        isCurrent: _bool(json['isCurrent']),
-        trialDaysLeft: _intOrNull(json['trialDaysLeft']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    storeType: _strOrNull(json['storeType']),
+    isOwner: _bool(json['isOwner']),
+    isCurrent: _bool(json['isCurrent']),
+    trialDaysLeft: _intOrNull(json['trialDaysLeft']),
+  );
 }
 
 /// `GET /stores`. A shop the platform has closed is not in [stores];

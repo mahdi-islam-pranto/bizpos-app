@@ -51,10 +51,9 @@ class _HoldCartSheetState extends ConsumerState<HoldCartSheet> {
     setState(() => _busy = true);
     final cart = ref.read(cartProvider);
     try {
-      await ref.read(posRepositoryProvider).hold(
-            label: label,
-            cart: cart.toHoldJson(),
-          );
+      await ref
+          .read(posRepositoryProvider)
+          .hold(label: label, cart: cart.toHoldJson());
       if (!mounted) return;
       ref.read(cartProvider.notifier).clear();
       ref.invalidate(posLookupsProvider);

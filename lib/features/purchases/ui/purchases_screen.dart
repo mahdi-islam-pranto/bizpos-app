@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/money.dart';
 import '../../../core/permissions/permissions.dart';
@@ -64,7 +65,7 @@ class _PurchasesScreenState extends ConsumerState<PurchasesScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ShellAppBar(
         title: Text(l10n.purchaseTitle),
         actions: [
           if (data != null)
@@ -169,20 +170,20 @@ class _Summary extends ConsumerWidget {
     final money = ref.watch(moneyProvider);
 
     Widget stat(String label, String value, {Color? tone}) => Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: text.labelSmall?.copyWith(color: palette.muted)),
-              Text(
-                value,
-                style: text.titleMedium?.copyWith(
-                  color: tone,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: text.labelSmall?.copyWith(color: palette.muted)),
+          Text(
+            value,
+            style: text.titleMedium?.copyWith(
+              color: tone,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
           ),
-        );
+        ],
+      ),
+    );
 
     return Container(
       margin: const EdgeInsets.fromLTRB(
@@ -297,13 +298,12 @@ class PurchaseDetailSheet extends ConsumerStatefulWidget {
     required PurchaseRow row,
     required PurchasePage page,
     required String query,
-  }) =>
-      showAppSheet<void>(
-        context,
-        title: row.supplier ?? row.refNo,
-        subtitle: row.refNo,
-        builder: (_) => PurchaseDetailSheet(row: row, page: page, query: query),
-      );
+  }) => showAppSheet<void>(
+    context,
+    title: row.supplier ?? row.refNo,
+    subtitle: row.refNo,
+    builder: (_) => PurchaseDetailSheet(row: row, page: page, query: query),
+  );
 
   @override
   ConsumerState<PurchaseDetailSheet> createState() =>
@@ -378,22 +378,26 @@ class _PurchaseDetailSheetState extends ConsumerState<PurchaseDetailSheet> {
       alsoRequire: widget.page.mayEditBill,
     );
 
-    Widget line(String label, String value, {Color? tone, bool strong = false}) =>
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: Insets.s4),
-          child: Row(
-            children: [
-              Expanded(child: Text(label, style: text.bodyMedium)),
-              Text(
-                value,
-                style: (strong ? text.titleMedium : text.bodyMedium)?.copyWith(
-                  color: tone,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-            ],
+    Widget line(
+      String label,
+      String value, {
+      Color? tone,
+      bool strong = false,
+    }) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: Insets.s4),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: text.bodyMedium)),
+          Text(
+            value,
+            style: (strong ? text.titleMedium : text.bodyMedium)?.copyWith(
+              color: tone,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
           ),
-        );
+        ],
+      ),
+    );
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(Insets.gutter),
@@ -422,7 +426,11 @@ class _PurchaseDetailSheetState extends ConsumerState<PurchaseDetailSheet> {
           line(l10n.grandTotal, money.format(row.total), strong: true),
           line(l10n.paidLabel, money.format(row.paid)),
           if (row.due > 0)
-            line(l10n.owedToSupplier, money.format(row.due), tone: palette.warning),
+            line(
+              l10n.owedToSupplier,
+              money.format(row.due),
+              tone: palette.warning,
+            ),
           if ((row.note ?? '').isNotEmpty) ...[
             const SizedBox(height: Insets.s8),
             Text(row.note!, style: text.bodySmall),

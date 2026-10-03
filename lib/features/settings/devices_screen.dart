@@ -31,24 +31,25 @@ class DevicesScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.devices)),
       body: switch (devices) {
         AsyncValue(hasError: true, :final error?) => ErrorView(
-            error: error,
-            onRetry: () => ref.invalidate(devicesProvider),
-          ),
-        AsyncValue(:final value?) => value.isEmpty
-            ? EmptyState(title: l10n.emptyTitle)
-            : RefreshIndicator(
-                onRefresh: () async => ref.invalidate(devicesProvider),
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(Insets.gutter),
-                  itemCount: value.length,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(height: Insets.s12),
-                  itemBuilder: (context, i) => _DeviceRow(
-                    device: value[i],
-                    onRevoke: () => _revoke(context, ref, value[i]),
+          error: error,
+          onRetry: () => ref.invalidate(devicesProvider),
+        ),
+        AsyncValue(:final value?) =>
+          value.isEmpty
+              ? EmptyState(title: l10n.emptyTitle)
+              : RefreshIndicator(
+                  onRefresh: () async => ref.invalidate(devicesProvider),
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(Insets.gutter),
+                    itemCount: value.length,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(height: Insets.s12),
+                    itemBuilder: (context, i) => _DeviceRow(
+                      device: value[i],
+                      onRevoke: () => _revoke(context, ref, value[i]),
+                    ),
                   ),
                 ),
-              ),
         _ => const LoadingList(rows: 3),
       },
     );
@@ -113,8 +114,8 @@ class _DeviceRow extends StatelessWidget {
     final subtitle = device.isCurrent
         ? l10n.thisDevice
         : lastUsed == null
-            ? ''
-            : l10n.lastUsed(DateFormat.yMMMd(locale).add_jm().format(lastUsed));
+        ? ''
+        : l10n.lastUsed(DateFormat.yMMMd(locale).add_jm().format(lastUsed));
 
     return AppCard(
       children: [

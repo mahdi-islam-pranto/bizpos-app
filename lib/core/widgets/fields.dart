@@ -58,9 +58,9 @@ class QtyStepper extends StatelessWidget {
               child: Text(
                 _pretty(qty),
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                      color: _overStock ? palette.warning : palette.text,
-                    ),
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                  color: _overStock ? palette.warning : palette.text,
+                ),
               ),
             ),
           ),
@@ -88,8 +88,8 @@ class QtyStepper extends StatelessWidget {
           controller: controller,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          onSubmitted: (value) => Navigator.of(dialogContext)
-              .pop(num.tryParse(value.trim())),
+          onSubmitted: (value) =>
+              Navigator.of(dialogContext).pop(num.tryParse(value.trim())),
         ),
         actions: [
           TextButton(
@@ -97,8 +97,9 @@ class QtyStepper extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.of(dialogContext)
-                .pop(num.tryParse(controller.text.trim())),
+            onPressed: () =>
+                Navigator.of(dialogContext)
+                    .pop(num.tryParse(controller.text.trim())),
             child: const Text('OK'),
           ),
         ],
@@ -123,14 +124,14 @@ class _Round extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => InkResponse(
-        onTap: onTap,
-        radius: size * 0.6,
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: Icon(icon, size: size * 0.5, color: tone),
-        ),
-      );
+    onTap: onTap,
+    radius: size * 0.6,
+    child: SizedBox(
+      width: size,
+      height: size,
+      child: Icon(icon, size: size * 0.5, color: tone),
+    ),
+  );
 }
 
 /// A money input.
@@ -169,27 +170,26 @@ class AmountField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TextField(
-        controller: controller,
-        focusNode: focusNode,
-        autofocus: autofocus,
-        enabled: enabled,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        textAlign: TextAlign.end,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-        ],
-        onChanged: onChanged,
-        onSubmitted: onSubmitted,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixText: prefix,
-          errorText: errorText,
-          helperText: helperText,
-        ),
-      );
+    controller: controller,
+    focusNode: focusNode,
+    autofocus: autofocus,
+    enabled: enabled,
+    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+    textAlign: TextAlign.end,
+    style: Theme.of(context).textTheme.titleMedium
+        ?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+    inputFormatters: [
+      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+    ],
+    onChanged: onChanged,
+    onSubmitted: onSubmitted,
+    decoration: InputDecoration(
+      labelText: label,
+      prefixText: prefix,
+      errorText: errorText,
+      helperText: helperText,
+    ),
+  );
 }
 
 /// A search field with a clear button and an optional trailing action (the
@@ -216,37 +216,36 @@ class SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ValueListenableBuilder(
-        valueListenable: controller,
-        builder: (context, value, _) => TextField(
-          controller: controller,
-          focusNode: focusNode,
-          autofocus: autofocus,
-          textInputAction: TextInputAction.search,
-          onChanged: onChanged,
-          onSubmitted: onSubmitted,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: const Icon(Icons.search),
-            isDense: true,
-            suffixIcon: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (value.text.isNotEmpty)
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    tooltip: MaterialLocalizations.of(context)
-                        .deleteButtonTooltip,
-                    onPressed: () {
-                      controller.clear();
-                      onChanged?.call('');
-                    },
-                  ),
-                ?trailing,
-              ],
-            ),
-          ),
+    valueListenable: controller,
+    builder: (context, value, _) => TextField(
+      controller: controller,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      textInputAction: TextInputAction.search,
+      onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: const Icon(Icons.search),
+        isDense: true,
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (value.text.isNotEmpty)
+              IconButton(
+                icon: const Icon(Icons.close),
+                tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+                onPressed: () {
+                  controller.clear();
+                  onChanged?.call('');
+                },
+              ),
+            ?trailing,
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
 
 /// A small coloured label: payment status, stock state, shift state.
@@ -264,31 +263,26 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Insets.s8,
-          vertical: 3,
+    padding: const EdgeInsets.symmetric(horizontal: Insets.s8, vertical: 3),
+    decoration: BoxDecoration(
+      // A wash of the tone rather than the tone itself: a list of rows each
+      // shouting in full-strength colour is unreadable.
+      color: tone.withValues(alpha: 0.12),
+      borderRadius: BorderRadius.circular(Radii.pill),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (icon != null) ...[
+          Icon(icon, size: 12, color: tone),
+          const SizedBox(width: Insets.s4),
+        ],
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall
+              ?.copyWith(color: tone, fontWeight: FontWeight.w600),
         ),
-        decoration: BoxDecoration(
-          // A wash of the tone rather than the tone itself: a list of rows each
-          // shouting in full-strength colour is unreadable.
-          color: tone.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(Radii.pill),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: 12, color: tone),
-              const SizedBox(width: Insets.s4),
-            ],
-            Text(
-              label,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelSmall
-                  ?.copyWith(color: tone, fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-      );
+      ],
+    ),
+  );
 }

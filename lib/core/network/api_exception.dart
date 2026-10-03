@@ -57,7 +57,7 @@ final class StoreLockedException extends ApiException {
 /// before Laravel saw it. This is a bug in the app, not a condition to handle.
 final class MethodOverrideException extends ApiException {
   const MethodOverrideException(this.attemptedMethod, this.path)
-      : super('This request could not reach the server.');
+    : super('This request could not reach the server.');
 
   final String attemptedMethod;
   final String path;

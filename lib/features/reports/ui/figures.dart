@@ -8,7 +8,13 @@ import '../data/report_models.dart';
 
 /// One headline number.
 class Figure {
-  const Figure(this.label, this.value, {this.tone, this.note, this.locked = false});
+  const Figure(
+    this.label,
+    this.value, {
+    this.tone,
+    this.note,
+    this.locked = false,
+  });
 
   final String label;
   final String value;
@@ -29,20 +35,19 @@ class FigureGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-        builder: (context, constraints) {
-          final columns = constraints.maxWidth > 560 ? 3 : 2;
-          final width =
-              (constraints.maxWidth - Insets.s8 * (columns - 1)) / columns;
-          return Wrap(
-            spacing: Insets.s8,
-            runSpacing: Insets.s8,
-            children: [
-              for (final f in figures)
-                SizedBox(width: width, child: FigureTile(f)),
-            ],
-          );
-        },
+    builder: (context, constraints) {
+      final columns = constraints.maxWidth > 560 ? 3 : 2;
+      final width =
+          (constraints.maxWidth - Insets.s8 * (columns - 1)) / columns;
+      return Wrap(
+        spacing: Insets.s8,
+        runSpacing: Insets.s8,
+        children: [
+          for (final f in figures) SizedBox(width: width, child: FigureTile(f)),
+        ],
       );
+    },
+  );
 }
 
 class FigureTile extends StatelessWidget {
@@ -185,9 +190,7 @@ class ScopeLabel extends StatelessWidget {
         const SizedBox(width: Insets.s4),
         Text(
           label,
-          style: Theme.of(context)
-              .textTheme
-              .labelSmall
+          style: Theme.of(context).textTheme.labelSmall
               ?.copyWith(color: palette.muted),
         ),
       ],
@@ -218,9 +221,7 @@ class LockedSection extends StatelessWidget {
           Expanded(
             child: Text(
               l10n.sectionLocked,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
+              style: Theme.of(context).textTheme.bodySmall
                   ?.copyWith(color: palette.muted),
             ),
           ),
@@ -238,18 +239,16 @@ class SectionEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Insets.s4,
-          vertical: Insets.s8,
-        ),
-        child: Text(
-          text,
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: context.palette.muted),
-        ),
-      );
+    padding: const EdgeInsets.symmetric(
+      horizontal: Insets.s4,
+      vertical: Insets.s8,
+    ),
+    child: Text(
+      text,
+      style: Theme.of(context).textTheme.bodySmall
+          ?.copyWith(color: context.palette.muted),
+    ),
+  );
 }
 
 /// A bordered list of rows.
@@ -463,13 +462,17 @@ class _TrendBarsState extends State<TrendBars> {
                             child: Align(
                               alignment: Alignment.bottomCenter,
                               child: Container(
-                                margin: EdgeInsets.symmetric(horizontal: gap / 2),
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: gap / 2,
+                                ),
                                 height: peak <= 0
                                     ? 0
                                     : (points[i].$2 / peak * widget.height)
-                                        .clamp(points[i].$2 > 0 ? 2.0 : 0.0,
-                                            widget.height)
-                                        .toDouble(),
+                                          .clamp(
+                                            points[i].$2 > 0 ? 2.0 : 0.0,
+                                            widget.height,
+                                          )
+                                          .toDouble(),
                                 decoration: BoxDecoration(
                                   color: i == shown
                                       ? palette.accent
@@ -498,7 +501,10 @@ class _TrendBarsState extends State<TrendBars> {
 /// calendar date — the bucket was never a moment, so nothing converts it.
 String bucketLabel(DateTime? day, String locale) {
   if (day == null) return '';
-  return DateFormat('EEE d MMM', locale == 'bn' ? 'bn_BD' : 'en_US').format(day);
+  return DateFormat(
+    'EEE d MMM',
+    locale == 'bn' ? 'bn_BD' : 'en_US',
+  ).format(day);
 }
 
 /// The share of [part] in [whole], for [FigureRow.share].
@@ -512,16 +518,15 @@ List<Widget> stockLineRows(
   required String Function(StockLine) value,
   String? Function(StockLine)? detail,
   Color? tone,
-}) =>
-    [
-      for (final line in lines)
-        FigureRow(
-          label: line.name,
-          value: value(line),
-          detail: detail?.call(line),
-          tone: tone,
-        ),
-    ];
+}) => [
+  for (final line in lines)
+    FigureRow(
+      label: line.name,
+      value: value(line),
+      detail: detail?.call(line),
+      tone: tone,
+    ),
+];
 
 /// A quantity without a pointless `.0`.
 String qtyText(num n) =>

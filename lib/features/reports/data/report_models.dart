@@ -1,19 +1,19 @@
 import '../../../core/format/dates.dart';
 
 int _int(Object? v) => switch (v) {
-      final int x => x,
-      final num x => x.toInt(),
-      final String x => int.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final int x => x,
+  final num x => x.toInt(),
+  final String x => int.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 int? _intOrNull(Object? v) => v == null ? null : _int(v);
 
 num _num(Object? v) => switch (v) {
-      final num x => x,
-      final String x => num.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final num x => x,
+  final String x => num.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 num? _numOrNull(Object? v) => v == null ? null : _num(v);
 
@@ -48,17 +48,21 @@ DateTime? parseBucket(Object? v) {
 
 /// One day of `GET /reports/sales`.
 class SalesDay {
-  const SalesDay({required this.date, required this.total, required this.count});
+  const SalesDay({
+    required this.date,
+    required this.total,
+    required this.count,
+  });
 
   final DateTime? date;
   final num total;
   final int count;
 
   factory SalesDay.fromJson(Map<String, dynamic> json) => SalesDay(
-        date: parseBucket(json['date']),
-        total: _num(json['total']),
-        count: _int(json['count']),
-      );
+    date: parseBucket(json['date']),
+    total: _num(json['total']),
+    count: _int(json['count']),
+  );
 }
 
 /// A best seller. [profit] is null for a role without `report.profit.view`.
@@ -78,12 +82,12 @@ class TopProduct {
   final num? profit;
 
   factory TopProduct.fromJson(Map<String, dynamic> json) => TopProduct(
-        id: _intOrNull(json['id']),
-        name: _str(json['name']),
-        qty: _num(json['qty']),
-        revenue: _num(json['revenue']),
-        profit: _numOrNull(json['profit']),
-      );
+    id: _intOrNull(json['id']),
+    name: _str(json['name']),
+    qty: _num(json['qty']),
+    revenue: _num(json['revenue']),
+    profit: _numOrNull(json['profit']),
+  );
 }
 
 /// A name, a sum and a count: `byUser`, and `byMethod` without the count.
@@ -95,10 +99,10 @@ class Tally {
   final int? count;
 
   factory Tally.fromJson(Map<String, dynamic> json) => Tally(
-        label: _str(json['name'] ?? json['method'] ?? json['label']),
-        total: _num(json['total'] ?? json['amount']),
-        count: _intOrNull(json['count']),
-      );
+    label: _str(json['name'] ?? json['method'] ?? json['label']),
+    total: _num(json['total'] ?? json['amount']),
+    count: _intOrNull(json['count']),
+  );
 }
 
 /// `GET /reports/sales?days=` — **the current branch**.
@@ -123,12 +127,12 @@ class SalesReport {
   int get count => daily.fold<int>(0, (s, d) => s + d.count);
 
   factory SalesReport.fromJson(Map<String, dynamic> json) => SalesReport(
-        daily: _listOf(json['daily'], SalesDay.fromJson),
-        topProducts: _listOf(json['topProducts'], TopProduct.fromJson),
-        byUser: _listOf(json['byUser'], Tally.fromJson),
-        byMethod: _listOf(json['byMethod'], Tally.fromJson),
-        showProfit: _bool(json['showProfit']),
-      );
+    daily: _listOf(json['daily'], SalesDay.fromJson),
+    topProducts: _listOf(json['topProducts'], TopProduct.fromJson),
+    byUser: _listOf(json['byUser'], Tally.fromJson),
+    byMethod: _listOf(json['byMethod'], Tally.fromJson),
+    showProfit: _bool(json['showProfit']),
+  );
 }
 
 /// `GET /reports/profit?days=`.
@@ -157,14 +161,14 @@ class ProfitReport {
   final num margin;
 
   factory ProfitReport.fromJson(Map<String, dynamic> json) => ProfitReport(
-        revenue: _num(json['revenue']),
-        cost: _num(json['cost']),
-        returnTotal: _num(json['returnTotal']),
-        grossProfit: _num(json['grossProfit']),
-        expenses: _num(json['expenses']),
-        netProfit: _num(json['netProfit']),
-        margin: _num(json['margin']),
-      );
+    revenue: _num(json['revenue']),
+    cost: _num(json['cost']),
+    returnTotal: _num(json['returnTotal']),
+    grossProfit: _num(json['grossProfit']),
+    expenses: _num(json['expenses']),
+    netProfit: _num(json['netProfit']),
+    margin: _num(json['margin']),
+  );
 }
 
 /// A product row of the stock report, the dashboard's stock section and its
@@ -189,18 +193,18 @@ class StockLine {
   final num? value;
 
   factory StockLine.fromJson(Map<String, dynamic> json) => StockLine(
-        id: _intOrNull(json['id'] ?? json['storeProductId']),
-        name: _str(json['name']),
-        qty: _numOrNull(
-          json['quantity'] ?? json['qty'] ?? json['stock'] ?? json['onHand'],
-        ),
-        minimum: _numOrNull(
-          json['minimum'] ?? json['alertQuantity'] ?? json['reorderLevel'],
-        ),
-        expiresAt: AppDates.parse(json['expiresAt'] ?? json['expiryDate']),
-        lastSoldAt: AppDates.parse(json['lastSoldAt'] ?? json['lastSale']),
-        value: _numOrNull(json['value'] ?? json['stockValue']),
-      );
+    id: _intOrNull(json['id'] ?? json['storeProductId']),
+    name: _str(json['name']),
+    qty: _numOrNull(
+      json['quantity'] ?? json['qty'] ?? json['stock'] ?? json['onHand'],
+    ),
+    minimum: _numOrNull(
+      json['minimum'] ?? json['alertQuantity'] ?? json['reorderLevel'],
+    ),
+    expiresAt: AppDates.parse(json['expiresAt'] ?? json['expiryDate']),
+    lastSoldAt: AppDates.parse(json['lastSoldAt'] ?? json['lastSale']),
+    value: _numOrNull(json['value'] ?? json['stockValue']),
+  );
 }
 
 /// `GET /reports/stock` — the current branch.
@@ -223,12 +227,12 @@ class StockReport {
   final List<StockLine> dead;
 
   factory StockReport.fromJson(Map<String, dynamic> json) => StockReport(
-        stockValue: _numOrNull(json['stockValue']),
-        totalUnits: _num(json['totalUnits']),
-        low: _listOf(json['low'], StockLine.fromJson),
-        expiring: _listOf(json['expiring'], StockLine.fromJson),
-        dead: _listOf(json['dead'], StockLine.fromJson),
-      );
+    stockValue: _numOrNull(json['stockValue']),
+    totalUnits: _num(json['totalUnits']),
+    low: _listOf(json['low'], StockLine.fromJson),
+    expiring: _listOf(json['expiring'], StockLine.fromJson),
+    dead: _listOf(json['dead'], StockLine.fromJson),
+  );
 }
 
 /// A customer who owes the shop, from `GET /reports/dues` — the whole store.
@@ -255,11 +259,11 @@ class DueRow {
       creditLimit != null && creditLimit! > 0 && due > creditLimit!;
 
   factory DueRow.fromJson(Map<String, dynamic> json) => DueRow(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        phone: _strOrNull(json['phone']),
-        due: _num(json['due']),
-        creditLimit: _numOrNull(json['creditLimit']),
-        ageDays: _intOrNull(json['ageDays']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    phone: _strOrNull(json['phone']),
+    due: _num(json['due']),
+    creditLimit: _numOrNull(json['creditLimit']),
+    ageDays: _intOrNull(json['ageDays']),
+  );
 }

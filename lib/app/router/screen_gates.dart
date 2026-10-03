@@ -35,6 +35,7 @@ class ScreenGate {
     required this.path,
     required this.icon,
     required this.anyOf,
+    this.hidden = false,
   });
 
   final AppScreen screen;
@@ -42,23 +43,28 @@ class ScreenGate {
   final IconData icon;
   final List<String> anyOf;
 
+  /// Switched off for now without being taken out: no menu entry, and the
+  /// route answers "not allowed". The screen, its route and its tests stay,
+  /// so bringing it back is this one flag.
+  final bool hidden;
+
   bool isOpenTo(PermissionSet permissions) => permissions.hasAny(anyOf);
 
   String label(AppL10n l10n) => switch (screen) {
-        AppScreen.dashboard => l10n.dashboard,
-        AppScreen.pos => l10n.sell,
-        AppScreen.invoices => l10n.invoices,
-        AppScreen.customers => l10n.customers,
-        AppScreen.products => l10n.products,
-        AppScreen.packages => l10n.packages,
-        AppScreen.catalogue => l10n.catalogue,
-        AppScreen.suggestions => l10n.suggestions,
-        AppScreen.purchase => l10n.purchase,
-        AppScreen.accounts => l10n.accounts,
-        AppScreen.reports => l10n.reports,
-        AppScreen.team => l10n.team,
-        AppScreen.platform => l10n.platform,
-      };
+    AppScreen.dashboard => l10n.dashboard,
+    AppScreen.pos => l10n.sell,
+    AppScreen.invoices => l10n.invoices,
+    AppScreen.customers => l10n.customers,
+    AppScreen.products => l10n.products,
+    AppScreen.packages => l10n.packages,
+    AppScreen.catalogue => l10n.catalogue,
+    AppScreen.suggestions => l10n.suggestions,
+    AppScreen.purchase => l10n.purchase,
+    AppScreen.accounts => l10n.accounts,
+    AppScreen.reports => l10n.reports,
+    AppScreen.team => l10n.team,
+    AppScreen.platform => l10n.platform,
+  };
 }
 
 /// In the order a person should meet them. Sell is first: anyone who may sell
@@ -113,6 +119,8 @@ const List<ScreenGate> screenGates = [
     path: '/suggestions',
     icon: Icons.rule_outlined,
     anyOf: [P.catalogSuggestionReview],
+    // Not wanted in the app for now.
+    hidden: true,
   ),
   ScreenGate(
     screen: AppScreen.purchase,
@@ -153,7 +161,9 @@ const List<ScreenGate> screenGates = [
 
 /// The screens this person gets, in order.
 List<ScreenGate> screensFor(PermissionSet permissions) =>
-    screenGates.where((gate) => gate.isOpenTo(permissions)).toList();
+    screenGates
+        .where((gate) => !gate.hidden && gate.isOpenTo(permissions))
+        .toList();
 
 ScreenGate gateFor(AppScreen screen) =>
     screenGates.firstWhere((gate) => gate.screen == screen);

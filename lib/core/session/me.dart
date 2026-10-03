@@ -12,22 +12,22 @@ Object? _either(Map<String, dynamic> json, String a, String b) =>
     json[a] ?? json[b];
 
 int _int(Object? value) => switch (value) {
-      final int v => v,
-      final num v => v.toInt(),
-      final String v => int.tryParse(v) ?? 0,
-      _ => 0,
-    };
+  final int v => v,
+  final num v => v.toInt(),
+  final String v => int.tryParse(v) ?? 0,
+  _ => 0,
+};
 
 int? _intOrNull(Object? value) => value == null ? null : _int(value);
 
 String _string(Object? value) => value?.toString() ?? '';
 
 bool _bool(Object? value) => switch (value) {
-      final bool v => v,
-      1 => true,
-      'true' => true,
-      _ => false,
-    };
+  final bool v => v,
+  1 => true,
+  'true' => true,
+  _ => false,
+};
 
 /// The signed-in person.
 class MeUser {
@@ -54,14 +54,14 @@ class MeUser {
   final String? theme;
 
   factory MeUser.fromJson(Map<String, dynamic> json) => MeUser(
-        id: _int(json['id']),
-        name: _string(json['name']),
-        email: _string(json['email']),
-        // `/me` says is_super_admin; `/auth/login` says isSuperAdmin.
-        isSuperAdmin: _bool(_either(json, 'is_super_admin', 'isSuperAdmin')),
-        locale: json['locale'] as String?,
-        theme: json['theme'] as String?,
-      );
+    id: _int(json['id']),
+    name: _string(json['name']),
+    email: _string(json['email']),
+    // `/me` says is_super_admin; `/auth/login` says isSuperAdmin.
+    isSuperAdmin: _bool(_either(json, 'is_super_admin', 'isSuperAdmin')),
+    locale: json['locale'] as String?,
+    theme: json['theme'] as String?,
+  );
 }
 
 /// The store this device is working in.
@@ -94,25 +94,24 @@ class MeStore {
   final int? trialDaysLeft;
 
   /// Worth a warning: the door is about to shut, and nothing else says so.
-  bool get trialEndingSoon =>
-      trialDaysLeft != null && trialDaysLeft! <= 1;
+  bool get trialEndingSoon => trialDaysLeft != null && trialDaysLeft! <= 1;
 
   factory MeStore.fromJson(Map<String, dynamic> json) => MeStore(
-        id: _int(json['id']),
-        name: _string(json['name']),
-        slug: _string(json['slug']),
-        currency: _string(json['currency']).isEmpty
-            ? 'BDT'
-            : _string(json['currency']),
-        storeTypeId: _intOrNull(_either(json, 'store_type_id', 'storeTypeId')),
-        storeTypeName:
-            _either(json, 'store_type_name', 'storeTypeName') as String?,
-        trialEndsAt: DateTime.tryParse(
-          _string(_either(json, 'trial_ends_at', 'trialEndsAt')),
-        ),
-        trialDaysLeft:
-            _intOrNull(_either(json, 'trial_days_left', 'trialDaysLeft')),
-      );
+    id: _int(json['id']),
+    name: _string(json['name']),
+    slug: _string(json['slug']),
+    currency: _string(json['currency']).isEmpty
+        ? 'BDT'
+        : _string(json['currency']),
+    storeTypeId: _intOrNull(_either(json, 'store_type_id', 'storeTypeId')),
+    storeTypeName: _either(json, 'store_type_name', 'storeTypeName') as String?,
+    trialEndsAt: DateTime.tryParse(
+      _string(_either(json, 'trial_ends_at', 'trialEndsAt')),
+    ),
+    trialDaysLeft: _intOrNull(
+      _either(json, 'trial_days_left', 'trialDaysLeft'),
+    ),
+  );
 }
 
 /// A branch. Stock, sales, shifts and most reports are per branch.
@@ -124,10 +123,10 @@ class MeBranch {
   final String? code;
 
   factory MeBranch.fromJson(Map<String, dynamic> json) => MeBranch(
-        id: _int(json['id']),
-        name: _string(json['name']),
-        code: json['code'] as String?,
-      );
+    id: _int(json['id']),
+    name: _string(json['name']),
+    code: json['code'] as String?,
+  );
 }
 
 /// A store in the switcher.
@@ -139,10 +138,10 @@ class StoreRef {
   final String? slug;
 
   factory StoreRef.fromJson(Map<String, dynamic> json) => StoreRef(
-        id: _int(json['id']),
-        name: _string(json['name']),
-        slug: json['slug'] as String?,
-      );
+    id: _int(json['id']),
+    name: _string(json['name']),
+    slug: json['slug'] as String?,
+  );
 }
 
 /// The person's role. **Display only** — never branch on [name].
@@ -162,17 +161,17 @@ class MeRole {
   final String? labelBn;
 
   factory MeRole.fromJson(Map<String, dynamic> json) => MeRole(
-        id: _int(json['id']),
-        name: _string(json['name']),
-        label: _string(json['label']),
-        labelBn: _either(json, 'label_bn', 'labelBn') as String?,
-      );
+    id: _int(json['id']),
+    name: _string(json['name']),
+    label: _string(json['label']),
+    labelBn: _either(json, 'label_bn', 'labelBn') as String?,
+  );
 
   /// The server already supplies both languages, so nothing is translated here.
   String labelFor(String locale) =>
       (locale == 'bn' && labelBn != null && labelBn!.isNotEmpty)
-          ? labelBn!
-          : label;
+      ? labelBn!
+      : label;
 }
 
 /// The whole answer to "who am I, where am I, what may I do".
@@ -230,47 +229,43 @@ class Me {
   }
 
   Map<String, dynamic> toJson() => {
-        'user': {
-          'id': user.id,
-          'name': user.name,
-          'email': user.email,
-          'is_super_admin': user.isSuperAdmin,
-          'locale': user.locale,
-          'theme': user.theme,
-        },
-        if (store != null)
-          'store': {
-            'id': store!.id,
-            'name': store!.name,
-            'slug': store!.slug,
-            'currency': store!.currency,
-            'store_type_id': store!.storeTypeId,
-            'store_type_name': store!.storeTypeName,
-            'trial_ends_at': store!.trialEndsAt?.toIso8601String(),
-            'trial_days_left': store!.trialDaysLeft,
-          },
-        if (branch != null)
-          'branch': {
-            'id': branch!.id,
-            'name': branch!.name,
-            'code': branch!.code,
-          },
-        'stores': [
-          for (final s in stores) {'id': s.id, 'name': s.name, 'slug': s.slug},
-        ],
-        'branches': [
-          for (final b in branches) {'id': b.id, 'name': b.name, 'code': b.code},
-        ],
-        if (role != null)
-          'role': {
-            'id': role!.id,
-            'name': role!.name,
-            'label': role!.label,
-            'label_bn': role!.labelBn,
-          },
-        'permissions': permissions.all.toList(),
-        'impersonating': impersonating,
-      };
+    'user': {
+      'id': user.id,
+      'name': user.name,
+      'email': user.email,
+      'is_super_admin': user.isSuperAdmin,
+      'locale': user.locale,
+      'theme': user.theme,
+    },
+    if (store != null)
+      'store': {
+        'id': store!.id,
+        'name': store!.name,
+        'slug': store!.slug,
+        'currency': store!.currency,
+        'store_type_id': store!.storeTypeId,
+        'store_type_name': store!.storeTypeName,
+        'trial_ends_at': store!.trialEndsAt?.toIso8601String(),
+        'trial_days_left': store!.trialDaysLeft,
+      },
+    if (branch != null)
+      'branch': {'id': branch!.id, 'name': branch!.name, 'code': branch!.code},
+    'stores': [
+      for (final s in stores) {'id': s.id, 'name': s.name, 'slug': s.slug},
+    ],
+    'branches': [
+      for (final b in branches) {'id': b.id, 'name': b.name, 'code': b.code},
+    ],
+    if (role != null)
+      'role': {
+        'id': role!.id,
+        'name': role!.name,
+        'label': role!.label,
+        'label_bn': role!.labelBn,
+      },
+    'permissions': permissions.all.toList(),
+    'impersonating': impersonating,
+  };
 
   static List<T> _list<T>(
     Object? raw,
@@ -283,11 +278,7 @@ class Me {
 
 /// What `POST /auth/login` hands back.
 class LoginResult {
-  const LoginResult({
-    required this.token,
-    required this.user,
-    this.expiresAt,
-  });
+  const LoginResult({required this.token, required this.user, this.expiresAt});
 
   final String token;
   final MeUser user;
@@ -296,12 +287,10 @@ class LoginResult {
   final DateTime? expiresAt;
 
   factory LoginResult.fromJson(Map<String, dynamic> json) => LoginResult(
-        token: _string(json['token']),
-        user: MeUser.fromJson(
-          (json['user'] as Map<String, dynamic>?) ?? const {},
-        ),
-        expiresAt: DateTime.tryParse(_string(json['expiresAt'])),
-      );
+    token: _string(json['token']),
+    user: MeUser.fromJson((json['user'] as Map<String, dynamic>?) ?? const {}),
+    expiresAt: DateTime.tryParse(_string(json['expiresAt'])),
+  );
 }
 
 /// A signed-in phone, from `GET /auth/devices`.
@@ -321,10 +310,10 @@ class DeviceSession {
   final DateTime? expiresAt;
 
   factory DeviceSession.fromJson(Map<String, dynamic> json) => DeviceSession(
-        id: _int(json['id']),
-        name: _string(json['name']),
-        isCurrent: _bool(json['current']),
-        lastUsedAt: DateTime.tryParse(_string(json['lastUsedAt'])),
-        expiresAt: DateTime.tryParse(_string(json['expiresAt'])),
-      );
+    id: _int(json['id']),
+    name: _string(json['name']),
+    isCurrent: _bool(json['current']),
+    lastUsedAt: DateTime.tryParse(_string(json['lastUsedAt'])),
+    expiresAt: DateTime.tryParse(_string(json['expiresAt'])),
+  );
 }

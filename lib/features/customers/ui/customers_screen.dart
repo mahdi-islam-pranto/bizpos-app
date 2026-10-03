@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/money.dart';
 import '../../../core/permissions/permission_gate.dart';
 import '../../../core/permissions/permissions.dart';
@@ -55,9 +56,10 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
     final customers = ref.watch(customersProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.customersTitle)),
+      appBar: ShellAppBar(title: Text(l10n.customersTitle)),
       floatingActionButton: customers.maybeWhen(
-        data: (page) => ref
+        data: (page) =>
+            ref
                 .watch(permissionsProvider)
                 .allows(P.customersCustomerCreate, alsoRequire: page.mayCreate)
             ? FloatingActionButton.extended(
@@ -118,9 +120,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                           child: Text(
                             l10n.customerSearchListHint,
                             textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
+                            style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(color: palette.muted),
                           ),
                         );

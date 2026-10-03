@@ -32,6 +32,7 @@ import '../../features/settings/devices_screen.dart';
 import '../../features/settings/profile_screen.dart';
 import 'app_shell.dart';
 import 'screen_gates.dart';
+import 'shell_nav.dart';
 
 class Routes {
   const Routes._();
@@ -63,12 +64,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         after is SessionActive &&
         (before.scope.storeId != after.scope.storeId ||
             before.scope.branchId != after.scope.branchId)) {
-      router.go(homeFor(after.me.permissions));
+      // Ids from the old shop answer 404 in the new one: nothing behind
+      // this point is somewhere Back should go.
+      final home = homeFor(after.me.permissions);
+      ref.read(navHistoryProvider).startFrom(home);
+      router.go(home);
     }
   });
   ref.onDispose(refresh.dispose);
 
-  return router = GoRouter(
+  router = GoRouter(
     initialLocation: Routes.splash,
     refreshListenable: refresh,
     debugLogDiagnostics: kDebugMode,
@@ -94,8 +99,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
         // Signed in with no active store: every other call would answer
         // `400 bad_request`, so there is exactly one screen to be on.
-        SessionNoStore() =>
-          where == Routes.noStore ? null : Routes.noStore,
+        SessionNoStore() => where == Routes.noStore ? null : Routes.noStore,
 
         SessionActive(:final me) => _redirectActive(ref, me, where),
 
@@ -103,10 +107,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       };
     },
     routes: [
-      GoRoute(
-        path: Routes.splash,
-        builder: (_, _) => const SplashScreen(),
-      ),
+      GoRoute(path: Routes.splash, builder: (_, _) => const SplashScreen()),
       GoRoute(
         path: Routes.login,
         // `?email=` arrives from a sign-up whose email already has an
@@ -115,14 +116,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) =>
             LoginScreen(initialEmail: state.uri.queryParameters['email']),
       ),
-      GoRoute(
-        path: Routes.register,
-        builder: (_, _) => const RegisterScreen(),
-      ),
-      GoRoute(
-        path: Routes.noStore,
-        builder: (_, _) => const NoStoreScreen(),
-      ),
+      GoRoute(path: Routes.register, builder: (_, _) => const RegisterScreen()),
+      GoRoute(path: Routes.noStore, builder: (_, _) => const NoStoreScreen()),
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
@@ -131,10 +126,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           // the redirect read, so a gap here would be a menu entry with
           // nowhere to go. [screenFor] decides which of them is real yet.
           for (final gate in screenGates)
-            GoRoute(
-              path: gate.path,
-              builder: (_, _) => screenFor(gate),
-            ),
+            GoRoute(path: gate.path, builder: (_, _) => screenFor(gate)),
           // Detail routes sit outside the gate table because they are not
           // menu entries. They inherit their parent's gate: /invoices/12 is
           // only reachable by someone who may open /invoices at all, which
@@ -173,12 +165,19 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      GoRoute(
-        path: Routes.devices,
-        builder: (_, _) => const DevicesScreen(),
-      ),
+      GoRoute(path: Routes.devices, builder: (_, _) => const DevicesScreen()),
     ],
   );
+
+  // Every location the router settles on, so the shell's Back has a stack to
+  // walk even though in-shell navigation replaces pages with `go`.
+  final history = ref.read(navHistoryProvider);
+  void record() =>
+      history.record(router.routerDelegate.currentConfiguration.uri.toString());
+  router.routerDelegate.addListener(record);
+  ref.onDispose(() => router.routerDelegate.removeListener(record));
+
+  return router;
 });
 
 /// Where an active session may go.
@@ -204,7 +203,9 @@ String? _redirectActive(Ref ref, Me me, String where) {
   }
 
   final gate = gateForPath(where);
-  if (gate != null && !gate.isOpenTo(permissions)) return Routes.notAllowed;
+  if (gate != null && (gate.hidden || !gate.isOpenTo(permissions))) {
+    return Routes.notAllowed;
+  }
 
   return null;
 }
@@ -217,19 +218,19 @@ String? _redirectActive(Ref ref, Me me, String where) {
 /// swapping one in later is a line here — the gate table, the nav bar and the
 /// route guard need no edit.
 Widget screenFor(ScreenGate gate) => switch (gate.screen) {
-      AppScreen.pos => const PosScreen(),
-      AppScreen.invoices => const InvoicesScreen(),
-      AppScreen.customers => const CustomersScreen(),
-      AppScreen.products => const ProductsScreen(),
-      AppScreen.packages => const PackagesScreen(),
-      AppScreen.catalogue => const CatalogueScreen(),
-      AppScreen.suggestions => const SuggestionsScreen(),
-      AppScreen.purchase => const PurchasesScreen(),
-      AppScreen.dashboard => const DashboardScreen(),
-      AppScreen.accounts => const AccountsScreen(),
-      AppScreen.reports => const ReportsScreen(),
-      _ => PlaceholderScreen(gate: gate),
-    };
+  AppScreen.pos => const PosScreen(),
+  AppScreen.invoices => const InvoicesScreen(),
+  AppScreen.customers => const CustomersScreen(),
+  AppScreen.products => const ProductsScreen(),
+  AppScreen.packages => const PackagesScreen(),
+  AppScreen.catalogue => const CatalogueScreen(),
+  AppScreen.suggestions => const SuggestionsScreen(),
+  AppScreen.purchase => const PurchasesScreen(),
+  AppScreen.dashboard => const DashboardScreen(),
+  AppScreen.accounts => const AccountsScreen(),
+  AppScreen.reports => const ReportsScreen(),
+  _ => PlaceholderScreen(gate: gate),
+};
 
 /// The screens [screenFor] has something real behind. Kept beside it so the two
 /// cannot drift: landing a phase is still one edit in this file.

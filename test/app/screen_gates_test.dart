@@ -26,7 +26,6 @@ void main() {
         AppScreen.products,
         AppScreen.packages,
         AppScreen.catalogue,
-        AppScreen.suggestions,
         AppScreen.purchase,
         AppScreen.accounts,
         AppScreen.reports,
@@ -95,7 +94,8 @@ void main() {
 
     test('super admin gets everything, including the platform section', () {
       final screens = screensOf(Roles.superAdmin);
-      expect(screens, hasLength(AppScreen.values.length));
+      final hidden = screenGates.where((gate) => gate.hidden).length;
+      expect(screens, hasLength(AppScreen.values.length - hidden));
       expect(screens, contains(AppScreen.platform));
     });
   });
@@ -158,6 +158,16 @@ void main() {
       // The role is still "store_owner" server-side. Only the list changed.
       expect(screensOf(Roles.set(trimmed)), isNot(contains(AppScreen.pos)));
       expect(screensOf(Roles.set(trimmed)), contains(AppScreen.invoices));
+    });
+
+    test('Suggestions is hidden even from someone who may review', () {
+      expect(Roles.set(Roles.owner).has(P.catalogSuggestionReview), isTrue);
+      expect(
+        screensOf(Roles.set(Roles.owner)),
+        isNot(contains(AppScreen.suggestions)),
+      );
+      // Hidden, not removed: the gate and its route are still there.
+      expect(gateFor(AppScreen.suggestions).hidden, isTrue);
     });
 
     test('a person with no permissions at all gets no tabs', () {

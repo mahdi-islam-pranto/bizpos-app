@@ -12,16 +12,17 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 /// therefore means *signed out*, never a crash.
 class TokenStore {
   TokenStore([FlutterSecureStorage? storage])
-      : _storage = storage ??
-            const FlutterSecureStorage(
-              // v11 encrypts with AES-GCM unconditionally. `resetOnError`
-              // (on by default) drops an unreadable entry instead of throwing,
-              // which is the behaviour we want after a keystore reset.
-              aOptions: AndroidOptions(),
-              iOptions: IOSOptions(
-                accessibility: KeychainAccessibility.first_unlock,
-              ),
-            );
+    : _storage =
+          storage ??
+          const FlutterSecureStorage(
+            // v11 encrypts with AES-GCM unconditionally. `resetOnError`
+            // (on by default) drops an unreadable entry instead of throwing,
+            // which is the behaviour we want after a keystore reset.
+            aOptions: AndroidOptions(),
+            iOptions: IOSOptions(
+              accessibility: KeychainAccessibility.first_unlock,
+            ),
+          );
 
   static const _tokenKey = 'bizpos.token';
   static const _expiresKey = 'bizpos.token.expiresAt';

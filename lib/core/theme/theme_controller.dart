@@ -31,8 +31,8 @@ class AppPreferences {
 
 final appPreferencesProvider =
     AsyncNotifierProvider<AppPreferencesController, AppPreferences>(
-  AppPreferencesController.new,
-);
+      AppPreferencesController.new,
+    );
 
 /// Theme and language.
 ///
@@ -85,8 +85,7 @@ class AppPreferencesController extends AsyncNotifier<AppPreferences> {
     setLocale(current.locale == localeBn ? localeEn : localeBn);
   }
 
-  static Locale _localeFor(String? code) =>
-      code == 'bn' ? localeBn : localeEn;
+  static Locale _localeFor(String? code) => code == 'bn' ? localeBn : localeEn;
 
   /// (theme, locale) as last chosen on this device, either possibly null.
   Future<(ThemeVariant?, Locale?)> _readStored() async {

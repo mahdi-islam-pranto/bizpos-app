@@ -7,11 +7,11 @@ import 'dart:collection';
 /// full of dead ends.
 class PermissionSet {
   PermissionSet(Iterable<String> permissions, {this.isSuperAdmin = false})
-      : _permissions = UnmodifiableSetView(permissions.toSet());
+    : _permissions = UnmodifiableSetView(permissions.toSet());
 
   const PermissionSet.empty()
-      : _permissions = const <String>{},
-        isSuperAdmin = false;
+    : _permissions = const <String>{},
+      isSuperAdmin = false;
 
   final Set<String> _permissions;
 
@@ -39,6 +39,7 @@ class PermissionSet {
       has(permission) && (alsoRequire ?? true);
 
   @override
-  String toString() => 'PermissionSet(${_permissions.length} permissions'
+  String toString() =>
+      'PermissionSet(${_permissions.length} permissions'
       '${isSuperAdmin ? ', super admin' : ''})';
 }

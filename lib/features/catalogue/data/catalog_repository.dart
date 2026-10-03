@@ -16,11 +16,14 @@ class CatalogFilter {
   final String? text;
   final CatalogScope scope;
 
-  CatalogFilter copyWith({String? text, CatalogScope? scope, bool clearText = false}) =>
-      CatalogFilter(
-        text: clearText ? null : (text ?? this.text),
-        scope: scope ?? this.scope,
-      );
+  CatalogFilter copyWith({
+    String? text,
+    CatalogScope? scope,
+    bool clearText = false,
+  }) => CatalogFilter(
+    text: clearText ? null : (text ?? this.text),
+    scope: scope ?? this.scope,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -146,11 +149,7 @@ class CatalogRepository {
     final response = await _client.post(
       ApiPaths.catalogSuggestionReview(id),
       parse: parseObject((json) => json),
-      body: {
-        'approve': approve,
-        'note': ?note,
-        'openingStock': ?openingStock,
-      },
+      body: {'approve': approve, 'note': ?note, 'openingStock': ?openingStock},
       cancelToken: _cancel,
     );
     return response.data['endorsed'] == true;
@@ -173,17 +172,17 @@ class CatalogFilterController extends Notifier<CatalogFilter> {
   }
 
   void setText(String? text) => state = state.copyWith(
-        text: (text ?? '').isEmpty ? null : text,
-        clearText: (text ?? '').isEmpty,
-      );
+    text: (text ?? '').isEmpty ? null : text,
+    clearText: (text ?? '').isEmpty,
+  );
 
   void setScope(CatalogScope scope) => state = state.copyWith(scope: scope);
 }
 
 final catalogFilterProvider =
     NotifierProvider<CatalogFilterController, CatalogFilter>(
-  CatalogFilterController.new,
-);
+      CatalogFilterController.new,
+    );
 
 /// The paginated catalogue, accumulated across pages.
 class CatalogListController extends AsyncNotifier<Paged<CatalogEntry>> {
@@ -204,7 +203,9 @@ class CatalogListController extends AsyncNotifier<Paged<CatalogEntry>> {
     _loadingMore = true;
     ref.notifyListeners();
     try {
-      final next = await ref.read(catalogRepositoryProvider).list(
+      final next = await ref
+          .read(catalogRepositoryProvider)
+          .list(
             filter: ref.read(catalogFilterProvider),
             page: current.nextPage,
           );
@@ -230,16 +231,17 @@ class CatalogListController extends AsyncNotifier<Paged<CatalogEntry>> {
 
 final catalogListProvider =
     AsyncNotifierProvider<CatalogListController, Paged<CatalogEntry>>(
-  CatalogListController.new,
-);
+      CatalogListController.new,
+    );
 
 final catalogLookupsProvider = FutureProvider<ProductLookups>((ref) {
   ref.watch(sessionScopeProvider);
   return ref.watch(catalogRepositoryProvider).lookups();
 });
 
-final suggestionQueueProvider =
-    FutureProvider.autoDispose<SuggestionQueue>((ref) {
+final suggestionQueueProvider = FutureProvider.autoDispose<SuggestionQueue>((
+  ref,
+) {
   ref.watch(sessionScopeProvider);
   return ref.watch(catalogRepositoryProvider).suggestions();
 });

@@ -47,7 +47,7 @@ class ErrorInterceptor extends Interceptor {
       final options = response.requestOptions;
       final attempted =
           options.headers[MethodOverrideInterceptor.header] as String? ??
-              options.method;
+          options.method;
       return MethodOverrideException(attempted, options.path);
     }
 
@@ -103,13 +103,15 @@ class ErrorInterceptor extends Interceptor {
         );
     }
 
-    if (status >= 500) return ServerException(message ?? 'The server had a problem.');
+    if (status >= 500)
+      return ServerException(message ?? 'The server had a problem.');
     return ServerException(message ?? 'Something went wrong.');
   }
 
   static bool _looksLikeHtml(Response<dynamic> response) {
-    final contentType =
-        response.headers.value(Headers.contentTypeHeader)?.toLowerCase();
+    final contentType = response.headers
+        .value(Headers.contentTypeHeader)
+        ?.toLowerCase();
     if (contentType != null && contentType.contains('text/html')) return true;
 
     final data = response.data;

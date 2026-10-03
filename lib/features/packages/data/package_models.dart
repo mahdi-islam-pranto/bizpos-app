@@ -1,17 +1,17 @@
 import '../../../core/format/dates.dart';
 
 int _int(Object? v) => switch (v) {
-      final int x => x,
-      final num x => x.toInt(),
-      final String x => int.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final int x => x,
+  final num x => x.toInt(),
+  final String x => int.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 num _num(Object? v) => switch (v) {
-      final num x => x,
-      final String x => num.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final num x => x,
+  final String x => num.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 num? _numOrNull(Object? v) => v == null ? null : _num(v);
 
@@ -41,11 +41,11 @@ enum PackageAvailability {
   inactive;
 
   static PackageAvailability parse(String value) => switch (value) {
-        'live' => live,
-        'scheduled' => scheduled,
-        'expired' => expired,
-        _ => inactive,
-      };
+    'live' => live,
+    'scheduled' => scheduled,
+    'expired' => expired,
+    _ => inactive,
+  };
 }
 
 /// One product inside a bundle.
@@ -67,14 +67,17 @@ class PackageItem {
   final String? unit;
 
   factory PackageItem.fromJson(Map<String, dynamic> json) => PackageItem(
-        storeProductId: _int(json['storeProductId']),
-        name: _str(json['name']),
-        qty: _num(json['qty']),
-        salePrice: _num(json['salePrice']),
-        unit: _strOrNull(json['unit']),
-      );
+    storeProductId: _int(json['storeProductId']),
+    name: _str(json['name']),
+    qty: _num(json['qty']),
+    salePrice: _num(json['salePrice']),
+    unit: _strOrNull(json['unit']),
+  );
 
-  Map<String, dynamic> toBody() => {'storeProductId': storeProductId, 'qty': qty};
+  Map<String, dynamic> toBody() => {
+    'storeProductId': storeProductId,
+    'qty': qty,
+  };
 }
 
 /// A bundle: several products sold together at one price.
@@ -120,22 +123,22 @@ class Package {
   final num? saving;
 
   factory Package.fromJson(Map<String, dynamic> json) => Package(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        price: _num(json['price']),
-        isActive: _bool(json['isActive']),
-        availability: PackageAvailability.parse(_str(json['availability'])),
-        sellable: _bool(json['sellable']),
-        items: _listOf(json['items'], PackageItem.fromJson),
-        description: _strOrNull(json['description']),
-        barcode: _strOrNull(json['barcode']),
-        vatPercent: _num(json['vatPercent']),
-        startsAt: AppDates.parse(json['startsAt']),
-        endsAt: AppDates.parse(json['endsAt']),
-        buildable: _numOrNull(json['buildable']),
-        componentTotal: _numOrNull(json['componentTotal']),
-        saving: _numOrNull(json['saving']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    price: _num(json['price']),
+    isActive: _bool(json['isActive']),
+    availability: PackageAvailability.parse(_str(json['availability'])),
+    sellable: _bool(json['sellable']),
+    items: _listOf(json['items'], PackageItem.fromJson),
+    description: _strOrNull(json['description']),
+    barcode: _strOrNull(json['barcode']),
+    vatPercent: _num(json['vatPercent']),
+    startsAt: AppDates.parse(json['startsAt']),
+    endsAt: AppDates.parse(json['endsAt']),
+    buildable: _numOrNull(json['buildable']),
+    componentTotal: _numOrNull(json['componentTotal']),
+    saving: _numOrNull(json['saving']),
+  );
 }
 
 /// A product the package form may put in a bundle, from
@@ -156,12 +159,12 @@ class PackageProduct {
   final num? stock;
 
   factory PackageProduct.fromJson(Map<String, dynamic> json) => PackageProduct(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        salePrice: _num(json['salePrice']),
-        unit: _strOrNull(json['unit']),
-        stock: _numOrNull(json['stock']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    salePrice: _num(json['salePrice']),
+    unit: _strOrNull(json['unit']),
+    stock: _numOrNull(json['stock']),
+  );
 }
 
 /// The body of `POST /packages` and `PATCH /packages/{id}`.
@@ -197,16 +200,16 @@ class PackageDraft {
       startsAt == null || endsAt == null || endsAt!.isAfter(startsAt!);
 
   Map<String, dynamic> toBody() => {
-        'name': name,
-        'price': price,
-        'items': [for (final item in items) item.toBody()],
-        'description': ?description,
-        'barcode': ?barcode,
-        'vatPercent': ?vatPercent,
-        // Sent as plain dates: a window is days, and a time of day picked on a
-        // phone in one zone should not move it in another.
-        'startsAt': startsAt == null ? null : AppDates.bucket(startsAt!),
-        'endsAt': endsAt == null ? null : AppDates.bucket(endsAt!),
-        'isActive': isActive,
-      };
+    'name': name,
+    'price': price,
+    'items': [for (final item in items) item.toBody()],
+    'description': ?description,
+    'barcode': ?barcode,
+    'vatPercent': ?vatPercent,
+    // Sent as plain dates: a window is days, and a time of day picked on a
+    // phone in one zone should not move it in another.
+    'startsAt': startsAt == null ? null : AppDates.bucket(startsAt!),
+    'endsAt': endsAt == null ? null : AppDates.bucket(endsAt!),
+    'isActive': isActive,
+  };
 }

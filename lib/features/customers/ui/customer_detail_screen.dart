@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/money.dart';
 import '../../../core/permissions/permission_gate.dart';
@@ -33,14 +34,7 @@ class CustomerDetailScreen extends ConsumerWidget {
     final page = ref.watch(customersProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.customer),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/customers'),
-        ),
-      ),
+      appBar: ShellAppBar(title: Text(l10n.customer)),
       body: AsyncView<CustomerPage>(
         value: page,
         onRetry: () => ref.invalidate(customersProvider),
@@ -106,9 +100,7 @@ class _Detail extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Expanded(
-                    child: Text(customer.name, style: text.titleLarge),
-                  ),
+                  Expanded(child: Text(customer.name, style: text.titleLarge)),
                   if (mayEdit)
                     IconButton(
                       tooltip: l10n.editCustomer,
@@ -133,9 +125,7 @@ class _Detail extends ConsumerWidget {
                       children: [
                         Icon(icon, size: 16, color: palette.muted),
                         const SizedBox(width: Insets.s8),
-                        Expanded(
-                          child: Text(value!, style: text.bodyMedium),
-                        ),
+                        Expanded(child: Text(value!, style: text.bodyMedium)),
                       ],
                     ),
                   ),
@@ -244,9 +234,7 @@ class _PointsPanel extends ConsumerWidget {
                   ),
                   Text(
                     l10n.pointsWorth(money.format(account.worth)),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodySmall
+                    style: Theme.of(context).textTheme.bodySmall
                         ?.copyWith(color: palette.muted),
                   ),
                 ],
@@ -297,13 +285,13 @@ class _LedgerPanel extends ConsumerWidget {
                         title: Text(ledgerLabel(l10n, entry.refType)),
                         subtitle: Text(
                           [
-                            AppDates.stamp(entry.date, locale: locale),
-                            entry.note,
-                          ].whereType<String>().where((s) => s.isNotEmpty).join(
-                                ' · ',
-                              ),
-                          style: text.bodySmall
-                              ?.copyWith(color: palette.muted),
+                                AppDates.stamp(entry.date, locale: locale),
+                                entry.note,
+                              ]
+                              .whereType<String>()
+                              .where((s) => s.isNotEmpty)
+                              .join(' · '),
+                          style: text.bodySmall?.copyWith(color: palette.muted),
                         ),
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -321,8 +309,9 @@ class _LedgerPanel extends ConsumerWidget {
                             ),
                             Text(
                               money.format(entry.balance),
-                              style: text.labelSmall
-                                  ?.copyWith(color: palette.muted),
+                              style: text.labelSmall?.copyWith(
+                                color: palette.muted,
+                              ),
                             ),
                           ],
                         ),
@@ -336,12 +325,7 @@ class _LedgerPanel extends ConsumerWidget {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({
-    required this.label,
-    required this.value,
-    this.tone,
-    this.note,
-  });
+  const _Stat({required this.label, required this.value, this.tone, this.note});
 
   final String label;
   final String value;
@@ -376,11 +360,11 @@ class _Stat extends StatelessWidget {
 /// A ledger row's kind in words. An unknown kind reads as itself, so a type the
 /// API adds later is still something rather than nothing.
 String ledgerLabel(AppL10n l10n, String refType) => switch (refType) {
-      'sale' => l10n.ledgerSale,
-      'payment' => l10n.ledgerPayment,
-      'return' => l10n.ledgerReturn,
-      'void' => l10n.ledgerVoid,
-      'opening' => l10n.openingBalance,
-      'opening_correction' => l10n.ledgerOpeningCorrection,
-      _ => refType.replaceAll('_', ' ').toUpperCase(),
-    };
+  'sale' => l10n.ledgerSale,
+  'payment' => l10n.ledgerPayment,
+  'return' => l10n.ledgerReturn,
+  'void' => l10n.ledgerVoid,
+  'opening' => l10n.openingBalance,
+  'opening_correction' => l10n.ledgerOpeningCorrection,
+  _ => refType.replaceAll('_', ' ').toUpperCase(),
+};

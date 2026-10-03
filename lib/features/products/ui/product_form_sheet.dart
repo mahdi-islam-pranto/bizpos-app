@@ -42,15 +42,14 @@ class ProductFormSheet extends ConsumerStatefulWidget {
     BuildContext context, {
     String? initialName,
     String? initialBarcode,
-  }) =>
-      showAppSheet<CreatedProduct>(
-        context,
-        title: AppL10n.of(context).addProduct,
-        builder: (_) => ProductFormSheet(
-          initialName: initialName,
-          initialBarcode: initialBarcode,
-        ),
-      );
+  }) => showAppSheet<CreatedProduct>(
+    context,
+    title: AppL10n.of(context).addProduct,
+    builder: (_) => ProductFormSheet(
+      initialName: initialName,
+      initialBarcode: initialBarcode,
+    ),
+  );
 
   static Future<void> showEdit(BuildContext context, Product product) =>
       showAppSheet<void>(
@@ -78,10 +77,12 @@ class _ProductFormSheetState extends ConsumerState<ProductFormSheet> {
   final _generic = TextEditingController();
 
   late final _mrp = TextEditingController(text: _plain(widget.product?.mrp));
-  late final _vat =
-      TextEditingController(text: _plain(widget.product?.vatPercent));
-  late final _minimum =
-      TextEditingController(text: _plain(widget.product?.minimumStock));
+  late final _vat = TextEditingController(
+    text: _plain(widget.product?.vatPercent),
+  );
+  late final _minimum = TextEditingController(
+    text: _plain(widget.product?.minimumStock),
+  );
 
   final _pricing = PricingDraft();
 
@@ -158,11 +159,7 @@ class _ProductFormSheetState extends ConsumerState<ProductFormSheet> {
           openingStock: AmountField.read(_opening) ?? 0,
           trackBatch: _trackBatch,
         );
-        created = (
-          id: id,
-          name: _name.text.trim(),
-          barcode: _text(_barcode),
-        );
+        created = (id: id, name: _name.text.trim(), barcode: _text(_barcode));
       } else {
         await repository.update(
           widget.product!.id,
@@ -218,12 +215,9 @@ class _ProductFormSheetState extends ConsumerState<ProductFormSheet> {
                   controller: _name,
                   autofocus: _isNew,
                   textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    labelText: l10n.productNameLabel,
-                  ),
-                  validator: (value) => (value ?? '').trim().isEmpty
-                      ? l10n.requiredField
-                      : null,
+                  decoration: InputDecoration(labelText: l10n.productNameLabel),
+                  validator: (value) =>
+                      (value ?? '').trim().isEmpty ? l10n.requiredField : null,
                 ),
                 const SizedBox(height: Insets.s16),
 
@@ -268,8 +262,9 @@ class _ProductFormSheetState extends ConsumerState<ProductFormSheet> {
                       child: TextFormField(
                         controller: _barcode,
                         keyboardType: TextInputType.number,
-                        decoration:
-                            InputDecoration(labelText: l10n.barcodeLabel),
+                        decoration: InputDecoration(
+                          labelText: l10n.barcodeLabel,
+                        ),
                       ),
                     ),
                     const SizedBox(width: Insets.s12),
@@ -380,43 +375,42 @@ class _SuggestingFieldState extends State<SuggestingField> {
 
   @override
   Widget build(BuildContext context) => RawAutocomplete<String>(
-        textEditingController: widget.controller,
-        focusNode: _focus,
-        optionsBuilder: (value) {
-          final typed = value.text.trim().toLowerCase();
-          if (typed.isEmpty) return widget.options.take(8);
-          return widget.options
-              .where((o) => o.toLowerCase().contains(typed))
-              .take(8);
-        },
-        fieldViewBuilder: (context, controller, focus, onSubmit) =>
-            TextFormField(
-          controller: controller,
-          focusNode: focus,
-          decoration: InputDecoration(labelText: widget.label),
-          onFieldSubmitted: (_) => onSubmit(),
-        ),
-        optionsViewBuilder: (context, onSelected, options) => Align(
-          alignment: AlignmentDirectional.topStart,
-          child: Material(
-            elevation: 4,
-            borderRadius: BorderRadius.circular(Radii.row),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 240, maxWidth: 320),
-              child: ListView(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                children: [
-                  for (final option in options)
-                    ListTile(
-                      dense: true,
-                      title: Text(option),
-                      onTap: () => onSelected(option),
-                    ),
-                ],
-              ),
-            ),
+    textEditingController: widget.controller,
+    focusNode: _focus,
+    optionsBuilder: (value) {
+      final typed = value.text.trim().toLowerCase();
+      if (typed.isEmpty) return widget.options.take(8);
+      return widget.options
+          .where((o) => o.toLowerCase().contains(typed))
+          .take(8);
+    },
+    fieldViewBuilder: (context, controller, focus, onSubmit) => TextFormField(
+      controller: controller,
+      focusNode: focus,
+      decoration: InputDecoration(labelText: widget.label),
+      onFieldSubmitted: (_) => onSubmit(),
+    ),
+    optionsViewBuilder: (context, onSelected, options) => Align(
+      alignment: AlignmentDirectional.topStart,
+      child: Material(
+        elevation: 4,
+        borderRadius: BorderRadius.circular(Radii.row),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 240, maxWidth: 320),
+          child: ListView(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            children: [
+              for (final option in options)
+                ListTile(
+                  dense: true,
+                  title: Text(option),
+                  onTap: () => onSelected(option),
+                ),
+            ],
           ),
         ),
-      );
+      ),
+    ),
+  );
 }

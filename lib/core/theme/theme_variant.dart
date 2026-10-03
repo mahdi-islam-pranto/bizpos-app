@@ -27,9 +27,9 @@ enum ThemeVariant {
   /// Parses the account preference. An unknown value falls back to the default
   /// rather than failing — a new theme added server-side must not break login.
   static ThemeVariant fromApi(String? value) => values.firstWhere(
-        (v) => v.apiValue == value,
-        orElse: () => ThemeVariant.daylight,
-      );
+    (v) => v.apiValue == value,
+    orElse: () => ThemeVariant.daylight,
+  );
 
   /// The two variants offered in the app's own picker.
   static const List<ThemeVariant> selectable = [daylight, midnight];

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/money.dart';
 import '../../../core/network/paged.dart';
@@ -56,8 +57,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     if (!_scroll.hasClients) return;
     // Fetch the next page before the bottom is reached, so scrolling does not
     // stall on a spinner.
-    if (_scroll.position.pixels >=
-        _scroll.position.maxScrollExtent - 400) {
+    if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 400) {
       ref.read(salesListProvider.notifier).loadMore();
     }
   }
@@ -78,7 +78,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     final query = ref.watch(salesQueryProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.invoices)),
+      appBar: ShellAppBar(title: Text(l10n.invoices)),
       body: Column(
         children: [
           Padding(
@@ -92,9 +92,8 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
               controller: _search,
               hint: l10n.invoiceSearchHint,
               onChanged: _onQueryChanged,
-              onSubmitted: (value) => ref
-                  .read(salesQueryProvider.notifier)
-                  .setText(value.trim()),
+              onSubmitted: (value) =>
+                  ref.read(salesQueryProvider.notifier).setText(value.trim()),
             ),
           ),
           Padding(
@@ -223,11 +222,7 @@ class _SummaryStrip extends ConsumerWidget {
                 label: l10n.invoiceCount(summary.count.toString()),
                 value: money.format(summary.total),
               ),
-              Container(
-                width: 1,
-                height: 32,
-                color: palette.hairline,
-              ),
+              Container(width: 1, height: 32, color: palette.hairline),
               _Stat(
                 label: l10n.invoiceDue,
                 value: money.format(summary.due),
@@ -270,10 +265,7 @@ class _Stat extends StatelessWidget {
     return Expanded(
       child: Column(
         children: [
-          Text(
-            label,
-            style: text.labelSmall?.copyWith(color: palette.muted),
-          ),
+          Text(label, style: text.labelSmall?.copyWith(color: palette.muted)),
           Text(
             value,
             style: text.titleMedium?.copyWith(
@@ -368,8 +360,8 @@ String? discountLabel(SaleListItem sale, Money money) {
   final rate = given != null
       ? ' (${_rate(given)}%)'
       : derived != null && derived > 0
-          ? ' (≈${_rate(derived)}%)'
-          : '';
+      ? ' (≈${_rate(derived)}%)'
+      : '';
   return '−${money.format(off)}$rate';
 }
 

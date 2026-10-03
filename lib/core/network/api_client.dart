@@ -76,15 +76,14 @@ class ApiClient {
     Object? body,
     Map<String, dynamic>? query,
     CancelToken? cancelToken,
-  }) =>
-      _send(
-        path,
-        'POST',
-        parse: parse,
-        body: body,
-        query: query,
-        cancelToken: cancelToken,
-      );
+  }) => _send(
+    path,
+    'POST',
+    parse: parse,
+    body: body,
+    query: query,
+    cancelToken: cancelToken,
+  );
 
   /// Written as a PATCH because that is what the API documents. It leaves the
   /// device as a POST carrying `X-HTTP-Method-Override: PATCH`.
@@ -94,15 +93,14 @@ class ApiClient {
     Object? body,
     Map<String, dynamic>? query,
     CancelToken? cancelToken,
-  }) =>
-      _send(
-        path,
-        'PATCH',
-        parse: parse,
-        body: body,
-        query: query,
-        cancelToken: cancelToken,
-      );
+  }) => _send(
+    path,
+    'PATCH',
+    parse: parse,
+    body: body,
+    query: query,
+    cancelToken: cancelToken,
+  );
 
   /// See [patch] — this travels as a POST too.
   Future<Envelope<T>> delete<T>(
@@ -111,15 +109,14 @@ class ApiClient {
     Object? body,
     Map<String, dynamic>? query,
     CancelToken? cancelToken,
-  }) =>
-      _send(
-        path,
-        'DELETE',
-        parse: parse,
-        body: body,
-        query: query,
-        cancelToken: cancelToken,
-      );
+  }) => _send(
+    path,
+    'DELETE',
+    parse: parse,
+    body: body,
+    query: query,
+    cancelToken: cancelToken,
+  );
 
   Future<Envelope<T>> _send<T>(
     String path,

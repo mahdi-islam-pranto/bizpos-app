@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/money.dart';
 import '../../../core/permissions/permissions.dart';
@@ -48,7 +49,7 @@ class AccountsScreen extends ConsumerWidget {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        appBar: AppBar(
+        appBar: ShellAppBar(
           title: Text(l10n.accounts),
           actions: [
             if (data != null && mayTransfer && data.accounts.length > 1)
@@ -134,7 +135,9 @@ class _OverviewTabState extends ConsumerState<_OverviewTab> {
     final l10n = AppL10n.of(context);
     final money = ref.read(moneyProvider);
     final messenger = ScaffoldMessenger.of(context);
-    final mayUndo = ref.read(permissionsProvider).allows(
+    final mayUndo = ref
+        .read(permissionsProvider)
+        .allows(
           P.accountsExpenseDelete,
           alsoRequire: widget.overview.mayDeleteExpense,
         );
@@ -191,12 +194,7 @@ class _OverviewTabState extends ConsumerState<_OverviewTab> {
     return RefreshIndicator(
       onRefresh: () async => ref.invalidate(accountsOverviewProvider),
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          Insets.gutter,
-          0,
-          Insets.gutter,
-          96,
-        ),
+        padding: const EdgeInsets.fromLTRB(Insets.gutter, 0, Insets.gutter, 96),
         children: [
           ReportSection(
             title: l10n.balance,
@@ -227,24 +225,26 @@ class _OverviewTabState extends ConsumerState<_OverviewTab> {
             ),
           ReportSection(
             title: l10n.accounts,
-            child: RowsCard(children: [
-              for (final a in o.accounts)
-                FigureRow(
-                  label: a.name,
-                  detail: accountTypeLabel(l10n, a.type),
-                  value: money.format(a.balance),
-                  tone: a.balance < 0 ? palette.danger : null,
-                ),
-              if (mayManage)
-                ListTile(
-                  leading: Icon(Icons.add, color: palette.accent),
-                  title: Text(
-                    l10n.addAccount,
-                    style: text.bodyMedium?.copyWith(color: palette.accent),
+            child: RowsCard(
+              children: [
+                for (final a in o.accounts)
+                  FigureRow(
+                    label: a.name,
+                    detail: accountTypeLabel(l10n, a.type),
+                    value: money.format(a.balance),
+                    tone: a.balance < 0 ? palette.danger : null,
                   ),
-                  onTap: () => AccountFormSheet.show(context),
-                ),
-            ]),
+                if (mayManage)
+                  ListTile(
+                    leading: Icon(Icons.add, color: palette.accent),
+                    title: Text(
+                      l10n.addAccount,
+                      style: text.bodyMedium?.copyWith(color: palette.accent),
+                    ),
+                    onTap: () => AccountFormSheet.show(context),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -338,10 +338,7 @@ class _ExpensesTab extends ConsumerWidget {
     final locale = ref.watch(meProvider)?.user.locale ?? 'en';
 
     if (overview.expenses.isEmpty) {
-      return EmptyState(
-        icon: Icons.receipt_outlined,
-        title: l10n.noExpenses,
-      );
+      return EmptyState(icon: Icons.receipt_outlined, title: l10n.noExpenses);
     }
 
     return RefreshIndicator(
@@ -349,11 +346,8 @@ class _ExpensesTab extends ConsumerWidget {
       child: ListView.separated(
         padding: const EdgeInsets.only(bottom: 96),
         itemCount: overview.expenses.length,
-        separatorBuilder: (_, _) => Divider(
-          height: 1,
-          color: palette.hairline,
-          indent: Insets.gutter,
-        ),
+        separatorBuilder: (_, _) =>
+            Divider(height: 1, color: palette.hairline, indent: Insets.gutter),
         itemBuilder: (context, i) {
           final e = overview.expenses[i];
           return ListTile(
@@ -408,10 +402,7 @@ class _TransactionsTab extends ConsumerWidget {
     final locale = ref.watch(meProvider)?.user.locale ?? 'en';
 
     if (overview.transactions.isEmpty) {
-      return EmptyState(
-        icon: Icons.swap_vert,
-        title: l10n.noTransactions,
-      );
+      return EmptyState(icon: Icons.swap_vert, title: l10n.noTransactions);
     }
 
     return RefreshIndicator(
@@ -419,11 +410,8 @@ class _TransactionsTab extends ConsumerWidget {
       child: ListView.separated(
         padding: const EdgeInsets.only(bottom: 96),
         itemCount: overview.transactions.length,
-        separatorBuilder: (_, _) => Divider(
-          height: 1,
-          color: palette.hairline,
-          indent: Insets.gutter,
-        ),
+        separatorBuilder: (_, _) =>
+            Divider(height: 1, color: palette.hairline, indent: Insets.gutter),
         itemBuilder: (context, i) {
           final t = overview.transactions[i];
           final out = t.isOut;
@@ -510,7 +498,9 @@ class _ExpenseDetailSheetState extends ConsumerState<ExpenseDetailSheet> {
     if (!sure || !mounted) return;
     setState(() => _busy = true);
     try {
-      await ref.read(accountsRepositoryProvider).deleteExpense(widget.expense.id);
+      await ref
+          .read(accountsRepositoryProvider)
+          .deleteExpense(widget.expense.id);
       refreshMoney(ref);
       if (!mounted) return;
       Navigator.of(context).pop();
@@ -542,22 +532,24 @@ class _ExpenseDetailSheetState extends ConsumerState<ExpenseDetailSheet> {
         children: [
           Padding(
             padding: const EdgeInsets.all(Insets.gutter),
-            child: RowsCard(children: [
-              FigureRow(label: l10n.amount, value: money.format(e.amount)),
-              if (e.account != null)
-                FigureRow(label: l10n.paidFrom, value: e.account!),
-              FigureRow(
-                label: l10n.dateLabel,
-                value: AppDates.day(e.when, locale: locale),
-              ),
-              if (e.employeeName != null)
-                FigureRow(label: l10n.employeeName, value: e.employeeName!),
-              if (e.salaryMonth != null)
-                FigureRow(label: l10n.salaryMonth, value: e.salaryMonth!),
-              if (e.userName != null)
-                FigureRow(label: l10n.recordedBy, value: e.userName!),
-              if (e.note != null) FigureRow(label: l10n.note, value: e.note!),
-            ]),
+            child: RowsCard(
+              children: [
+                FigureRow(label: l10n.amount, value: money.format(e.amount)),
+                if (e.account != null)
+                  FigureRow(label: l10n.paidFrom, value: e.account!),
+                FigureRow(
+                  label: l10n.dateLabel,
+                  value: AppDates.day(e.when, locale: locale),
+                ),
+                if (e.employeeName != null)
+                  FigureRow(label: l10n.employeeName, value: e.employeeName!),
+                if (e.salaryMonth != null)
+                  FigureRow(label: l10n.salaryMonth, value: e.salaryMonth!),
+                if (e.userName != null)
+                  FigureRow(label: l10n.recordedBy, value: e.userName!),
+                if (e.note != null) FigureRow(label: l10n.note, value: e.note!),
+              ],
+            ),
           ),
           if (mayDelete)
             SheetAction(
@@ -574,20 +566,20 @@ class _ExpenseDetailSheetState extends ConsumerState<ExpenseDetailSheet> {
 }
 
 String accountTypeLabel(AppL10n l10n, String type) => switch (type) {
-      'cash' => l10n.accountCash,
-      'bank' => l10n.accountBank,
-      'mfs' || 'mobile' => l10n.accountMfs,
-      _ => type,
-    };
+  'cash' => l10n.accountCash,
+  'bank' => l10n.accountBank,
+  'mfs' || 'mobile' => l10n.accountMfs,
+  _ => type,
+};
 
 String transactionTypeLabel(AppL10n l10n, String? type) => switch (type) {
-      'sale' => l10n.txnSale,
-      'expense' => l10n.expense,
-      'transfer' || 'transfer_in' || 'transfer_out' => l10n.transfer,
-      'purchase' => l10n.purchase,
-      'payment' || 'due_payment' => l10n.txnDuePayment,
-      'refund' || 'return' => l10n.txnRefund,
-      'opening' => l10n.openingBalance,
-      null || '' => l10n.transactions,
-      _ => type.replaceAll('_', ' '),
-    };
+  'sale' => l10n.txnSale,
+  'expense' => l10n.expense,
+  'transfer' || 'transfer_in' || 'transfer_out' => l10n.transfer,
+  'purchase' => l10n.purchase,
+  'payment' || 'due_payment' => l10n.txnDuePayment,
+  'refund' || 'return' => l10n.txnRefund,
+  'opening' => l10n.openingBalance,
+  null || '' => l10n.transactions,
+  _ => type.replaceAll('_', ' '),
+};

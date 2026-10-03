@@ -24,10 +24,10 @@ class PricingDraft {
     num? salePrice,
     num? wholesalePrice,
     num? profitPercent,
-  })  : purchase = TextEditingController(text: _plain(purchasePrice)),
-        sale = TextEditingController(text: _plain(salePrice)),
-        wholesale = TextEditingController(text: _plain(wholesalePrice)),
-        profit = TextEditingController(text: _plain(profitPercent));
+  }) : purchase = TextEditingController(text: _plain(purchasePrice)),
+       sale = TextEditingController(text: _plain(salePrice)),
+       wholesale = TextEditingController(text: _plain(wholesalePrice)),
+       profit = TextEditingController(text: _plain(profitPercent));
 
   final TextEditingController purchase;
   final TextEditingController sale;
@@ -173,9 +173,7 @@ class PricingFields extends StatelessWidget {
             padding: const EdgeInsets.only(top: Insets.s4),
             child: Text(
               l10n.saleAboveMrp,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelSmall
+              style: Theme.of(context).textTheme.labelSmall
                   ?.copyWith(color: palette.warning),
             ),
           ),

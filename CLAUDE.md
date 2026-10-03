@@ -145,6 +145,27 @@ derived provider. `builtScreens` lists the gates with a real screen behind
 them; landing a phase means adding its `AppScreen` to both `screenFor()` and
 `builtScreens`.
 
+## Navigation (shell, sidebar, Back)
+
+- The bottom bar is the first four screens plus **Products**
+  (`AppShell.tabsFor`); the **sidebar** (`_AppDrawer`) lists every screen the
+  person may open, then Profile and sign-out. There is no "More" sheet.
+- In-shell navigation uses `go`, so the navigator has nothing to pop.
+  `NavHistory` (`shell_nav.dart`) records every location from the router
+  delegate, and `ShellBackHandler` (a `PopScope` on the shell route) turns the
+  Android back button into a step back through it: a sheet or dialog closes
+  first, then the sidebar, then the previous page, then the detail's parent
+  list, then home; on home a second press within 2 s exits.
+- A menu choice (bottom bar or sidebar) goes through `ShellNav.open`, which
+  restarts the history at home. A store/branch switch restarts it too — ids
+  from the old shop would 404.
+- **Every in-shell screen uses `ShellAppBar`, not `AppBar`**: menu on home,
+  back + menu on a top-level screen, back alone on a detail page. Without a
+  router (a widget test pumping one screen) it degrades to a plain `AppBar`.
+- `ScreenGate.hidden` switches a screen off without removing it: no menu
+  entry, and its route answers "not allowed". **Suggestions is hidden** for
+  now.
+
 ## Commands
 
 ```powershell
@@ -152,7 +173,7 @@ flutter pub get
 flutter gen-l10n                 # after editing lib/l10n/*.arb (also runs during build)
 flutter run --dart-define=BIZPOS_BASE_URL=http://10.0.2.2:8000/api/v1
 flutter analyze                  # lints via flutter_lints (analysis_options.yaml)
-flutter test                     # 202 tests
+flutter test                     # 211 tests
 flutter test test/app/screen_gates_test.dart --plain-name "cashier"   # one test
 flutter build apk --debug
 ```

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/money.dart';
 import '../../../core/session/session_controller.dart';
@@ -29,7 +30,7 @@ class SuggestionsScreen extends ConsumerWidget {
     final queue = ref.watch(suggestionQueueProvider);
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ShellAppBar(
         title: Text(l10n.suggestionsTitle),
         bottom: queue.value == null || queue.value!.pending == 0
             ? null
@@ -94,7 +95,9 @@ class _SuggestionCardState extends ConsumerState<_SuggestionCard> {
 
     setState(() => _busy = true);
     try {
-      await ref.read(catalogRepositoryProvider).review(
+      await ref
+          .read(catalogRepositoryProvider)
+          .review(
             widget.suggestion.id,
             approve: approve,
             note: answer.note,
@@ -155,8 +158,10 @@ class _SuggestionCardState extends ConsumerState<_SuggestionCard> {
           spacing: Insets.s16,
           runSpacing: Insets.s4,
           children: [
-            if (s.cost != null) Text('${l10n.costLabel} ${money.format(s.cost)}'),
-            if (s.sale != null) Text('${l10n.saleLabel} ${money.format(s.sale)}'),
+            if (s.cost != null)
+              Text('${l10n.costLabel} ${money.format(s.cost)}'),
+            if (s.sale != null)
+              Text('${l10n.saleLabel} ${money.format(s.sale)}'),
             if (s.mrp != null) Text('${l10n.mrpLabel} ${money.format(s.mrp)}'),
             if (s.margin != null)
               Text(
@@ -220,14 +225,13 @@ class _ReviewSheet extends StatefulWidget {
   static Future<_ReviewAnswer?> show(
     BuildContext context, {
     required bool approve,
-  }) =>
-      showAppSheet<_ReviewAnswer>(
-        context,
-        title: approve
-            ? AppL10n.of(context).approveAndStock
-            : AppL10n.of(context).reject,
-        builder: (_) => _ReviewSheet(approve: approve),
-      );
+  }) => showAppSheet<_ReviewAnswer>(
+    context,
+    title: approve
+        ? AppL10n.of(context).approveAndStock
+        : AppL10n.of(context).reject,
+    builder: (_) => _ReviewSheet(approve: approve),
+  );
 
   @override
   State<_ReviewSheet> createState() => _ReviewSheetState();
@@ -285,10 +289,11 @@ class _ReviewSheetState extends State<_ReviewSheet> {
           icon: widget.approve ? Icons.check : Icons.close,
           onPressed: ready
               ? () => Navigator.of(context).pop((
-                    note: note.isEmpty ? null : note,
-                    openingStock:
-                        widget.approve ? AmountField.read(_opening) : null,
-                  ))
+                  note: note.isEmpty ? null : note,
+                  openingStock: widget.approve
+                      ? AmountField.read(_opening)
+                      : null,
+                ))
               : null,
         ),
       ],

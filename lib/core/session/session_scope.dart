@@ -23,11 +23,8 @@ class SessionScope {
   final int? branchId;
   final int epoch;
 
-  SessionScope bumped() => SessionScope(
-        storeId: storeId,
-        branchId: branchId,
-        epoch: epoch + 1,
-      );
+  SessionScope bumped() =>
+      SessionScope(storeId: storeId, branchId: branchId, epoch: epoch + 1);
 
   /// Namespaces cache entries, so a cached product list cannot leak across
   /// stores or branches.

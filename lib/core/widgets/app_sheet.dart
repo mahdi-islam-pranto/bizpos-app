@@ -58,9 +58,7 @@ class AppSheetFrame extends StatelessWidget {
 
     return Padding(
       // The sheet grows with the keyboard rather than being covered by it.
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.viewInsetsOf(context).bottom,
-      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxHeight: MediaQuery.sizeOf(context).height * 0.92,
@@ -96,8 +94,9 @@ class AppSheetFrame extends StatelessWidget {
                             padding: const EdgeInsets.only(top: Insets.s4),
                             child: Text(
                               subtitle!,
-                              style: text.bodySmall
-                                  ?.copyWith(color: palette.muted),
+                              style: text.bodySmall?.copyWith(
+                                color: palette.muted,
+                              ),
                             ),
                           ),
                       ],

@@ -27,13 +27,12 @@ class SupplierListSheet extends StatelessWidget {
     BuildContext context, {
     required List<Supplier> suppliers,
     required bool mayManage,
-  }) =>
-      showAppSheet<void>(
-        context,
-        title: AppL10n.of(context).suppliers,
-        builder: (_) =>
-            SupplierListSheet(suppliers: suppliers, mayManage: mayManage),
-      );
+  }) => showAppSheet<void>(
+    context,
+    title: AppL10n.of(context).suppliers,
+    builder: (_) =>
+        SupplierListSheet(suppliers: suppliers, mayManage: mayManage),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -108,13 +107,12 @@ class SupplierFormSheet extends ConsumerStatefulWidget {
     BuildContext context, {
     Supplier? supplier,
     String? initialName,
-  }) =>
-      showAppSheet<Supplier>(
-        context,
-        title: supplier?.name ?? AppL10n.of(context).addSupplier,
-        builder: (_) =>
-            SupplierFormSheet(supplier: supplier, initialName: initialName),
-      );
+  }) => showAppSheet<Supplier>(
+    context,
+    title: supplier?.name ?? AppL10n.of(context).addSupplier,
+    builder: (_) =>
+        SupplierFormSheet(supplier: supplier, initialName: initialName),
+  );
 
   @override
   ConsumerState<SupplierFormSheet> createState() => _SupplierFormSheetState();
@@ -124,11 +122,13 @@ class _SupplierFormSheetState extends ConsumerState<SupplierFormSheet> {
   late final _name = TextEditingController(
     text: widget.supplier?.name ?? widget.initialName ?? '',
   );
-  late final _company =
-      TextEditingController(text: widget.supplier?.company ?? '');
+  late final _company = TextEditingController(
+    text: widget.supplier?.company ?? '',
+  );
   late final _phone = TextEditingController(text: widget.supplier?.phone ?? '');
-  late final _address =
-      TextEditingController(text: widget.supplier?.address ?? '');
+  late final _address = TextEditingController(
+    text: widget.supplier?.address ?? '',
+  );
   bool _busy = false;
   Map<String, List<String>> _errors = const {};
 

@@ -1,19 +1,19 @@
 import '../../../core/format/dates.dart';
 
 int _int(Object? v) => switch (v) {
-      final int x => x,
-      final num x => x.toInt(),
-      final String x => int.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final int x => x,
+  final num x => x.toInt(),
+  final String x => int.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 int? _intOrNull(Object? v) => v == null ? null : _int(v);
 
 num _num(Object? v) => switch (v) {
-      final num x => x,
-      final String x => num.tryParse(x) ?? 0,
-      _ => 0,
-    };
+  final num x => x,
+  final String x => num.tryParse(x) ?? 0,
+  _ => 0,
+};
 
 /// Kept nullable on purpose. The same endpoint returns **less** to a weaker
 /// role: a cashier's `purchasePrice` arrives as `null`, not as zero, and
@@ -50,11 +50,11 @@ class PosAccount {
   final bool isDefault;
 
   factory PosAccount.fromJson(Map<String, dynamic> json) => PosAccount(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        type: _str(json['type']),
-        isDefault: _bool(json['isDefault']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    type: _str(json['type']),
+    isDefault: _bool(json['isDefault']),
+  );
 }
 
 /// A customer as the POS knows one — from `lookups.customers` or
@@ -85,14 +85,14 @@ class PosCustomer {
   final num? due;
 
   factory PosCustomer.fromJson(Map<String, dynamic> json) => PosCustomer(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        phone: _strOrNull(json['phone']),
-        isWalkIn: _bool(json['isWalkIn']),
-        creditLimit: _numOrNull(json['creditLimit']),
-        loyaltyPoints: _numOrNull(json['loyaltyPoints']),
-        due: _numOrNull(json['due']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    phone: _strOrNull(json['phone']),
+    isWalkIn: _bool(json['isWalkIn']),
+    creditLimit: _numOrNull(json['creditLimit']),
+    loyaltyPoints: _numOrNull(json['loyaltyPoints']),
+    due: _numOrNull(json['due']),
+  );
 }
 
 /// A cart somebody put aside. The server does not read `cart`; it stores the
@@ -105,30 +105,26 @@ class HeldCart {
   final DateTime? createdAt;
 
   factory HeldCart.fromJson(Map<String, dynamic> json) => HeldCart(
-        id: _int(json['id']),
-        label: _str(json['label']),
-        createdAt: AppDates.parse(json['createdAt']),
-      );
+    id: _int(json['id']),
+    label: _str(json['label']),
+    createdAt: AppDates.parse(json['createdAt']),
+  );
 }
 
 /// An open cash drawer. `lookups.shift` is null when none is open — and a sale
 /// still goes through without one, it is simply counted in no drawer.
 class PosShift {
-  const PosShift({
-    required this.id,
-    required this.openingCash,
-    this.openedAt,
-  });
+  const PosShift({required this.id, required this.openingCash, this.openedAt});
 
   final int id;
   final num openingCash;
   final DateTime? openedAt;
 
   factory PosShift.fromJson(Map<String, dynamic> json) => PosShift(
-        id: _int(json['id']),
-        openingCash: _num(json['openingCash']),
-        openedAt: AppDates.parse(json['openedAt']),
-      );
+    id: _int(json['id']),
+    openingCash: _num(json['openingCash']),
+    openedAt: AppDates.parse(json['openedAt']),
+  );
 }
 
 /// What `POST /pos/shift/close` answers with.
@@ -146,10 +142,10 @@ class ShiftClosing {
   final num difference;
 
   factory ShiftClosing.fromJson(Map<String, dynamic> json) => ShiftClosing(
-        expected: _num(json['expected']),
-        counted: _num(json['counted']),
-        difference: _num(json['difference']),
-      );
+    expected: _num(json['expected']),
+    counted: _num(json['counted']),
+    difference: _num(json['difference']),
+  );
 }
 
 /// One day of a drawer's takings.
@@ -182,14 +178,14 @@ class ShiftDay {
   final num collected;
 
   factory ShiftDay.fromJson(Map<String, dynamic> json) => ShiftDay(
-        date: _strOrNull(json['date']),
-        invoices: _int(json['invoices']),
-        sold: _num(json['sold']),
-        cash: _num(json['cash']),
-        digital: _num(json['digital']),
-        dueGiven: _num(json['dueGiven']),
-        collected: _num(json['collected']),
-      );
+    date: _strOrNull(json['date']),
+    invoices: _int(json['invoices']),
+    sold: _num(json['sold']),
+    cash: _num(json['cash']),
+    digital: _num(json['digital']),
+    dueGiven: _num(json['dueGiven']),
+    collected: _num(json['collected']),
+  );
 }
 
 /// `GET /pos/shift/report` — the drawer's report, a day at a time.
@@ -225,8 +221,9 @@ class ShiftReport {
     final shift = json['shift'];
     return ShiftReport(
       shiftId: shift is Map<String, dynamic> ? _intOrNull(shift['id']) : null,
-      openedAt:
-          shift is Map<String, dynamic> ? AppDates.parse(shift['openedAt']) : null,
+      openedAt: shift is Map<String, dynamic>
+          ? AppDates.parse(shift['openedAt'])
+          : null,
       openingCash: _num(json['openingCash']),
       cashTaken: _num(json['cashTaken']),
       expected: _num(json['expected']),
@@ -258,14 +255,14 @@ class LoyaltyConfig {
   });
 
   const LoyaltyConfig.off()
-      : enabled = false,
-        earnPer = 0,
-        earnPoints = 0,
-        valuePer = 0,
-        minRedeem = 0,
-        maxRedeemPct = 0,
-        round = 'down',
-        mayRedeem = false;
+    : enabled = false,
+      earnPer = 0,
+      earnPoints = 0,
+      valuePer = 0,
+      minRedeem = 0,
+      maxRedeemPct = 0,
+      round = 'down',
+      mayRedeem = false;
 
   final bool enabled;
   final num earnPer;
@@ -355,18 +352,16 @@ class PosLookups {
   }
 
   factory PosLookups.fromJson(Map<String, dynamic> json) => PosLookups(
-        accounts: _listOf(json['accounts'], PosAccount.fromJson),
-        customers: _listOf(json['customers'], PosCustomer.fromJson),
-        held: _listOf(json['held'], HeldCart.fromJson),
-        shift: json['shift'] is Map<String, dynamic>
-            ? PosShift.fromJson(json['shift'] as Map<String, dynamic>)
-            : null,
-        vatInclusive: _bool(json['vatInclusive']),
-        allowCredit: _bool(json['allowCredit']),
-        loyalty: LoyaltyConfig.fromJson(
-          json['loyalty'] as Map<String, dynamic>?,
-        ),
-      );
+    accounts: _listOf(json['accounts'], PosAccount.fromJson),
+    customers: _listOf(json['customers'], PosCustomer.fromJson),
+    held: _listOf(json['held'], HeldCart.fromJson),
+    shift: json['shift'] is Map<String, dynamic>
+        ? PosShift.fromJson(json['shift'] as Map<String, dynamic>)
+        : null,
+    vatInclusive: _bool(json['vatInclusive']),
+    allowCredit: _bool(json['allowCredit']),
+    loyalty: LoyaltyConfig.fromJson(json['loyalty'] as Map<String, dynamic>?),
+  );
 }
 
 /// A sellable line: either a store product or a package.
@@ -414,34 +409,34 @@ class SellableItem {
       stock != null && minimumStock != null && stock! <= minimumStock!;
 
   factory SellableItem.fromProduct(Map<String, dynamic> json) => SellableItem(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        salePrice: _num(json['salePrice']),
-        isPackage: false,
-        barcode: _strOrNull(json['barcode']),
-        unit: _strOrNull(json['unit']),
-        brand: _strOrNull(json['brand']),
-        vatPercent: _num(json['vatPercent']),
-        stock: _numOrNull(json['stock']),
-        purchasePrice: _numOrNull(json['purchasePrice']),
-        minimumStock: _numOrNull(json['minimumStock']),
-        trackBatch: _bool(json['trackBatch']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    salePrice: _num(json['salePrice']),
+    isPackage: false,
+    barcode: _strOrNull(json['barcode']),
+    unit: _strOrNull(json['unit']),
+    brand: _strOrNull(json['brand']),
+    vatPercent: _num(json['vatPercent']),
+    stock: _numOrNull(json['stock']),
+    purchasePrice: _numOrNull(json['purchasePrice']),
+    minimumStock: _numOrNull(json['minimumStock']),
+    trackBatch: _bool(json['trackBatch']),
+  );
 
   /// A sellable package. `buildable` is how many can be made from this
   /// branch's stock, which is exactly the meaning `stock` carries for a
   /// product, so it lands in the same field.
   factory SellableItem.fromPackage(Map<String, dynamic> json) => SellableItem(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        salePrice: _num(json['price']),
-        isPackage: true,
-        barcode: _strOrNull(json['barcode']),
-        unit: null,
-        brand: null,
-        vatPercent: _num(json['vatPercent']),
-        stock: _numOrNull(json['buildable']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    salePrice: _num(json['price']),
+    isPackage: true,
+    barcode: _strOrNull(json['barcode']),
+    unit: null,
+    brand: null,
+    vatPercent: _num(json['vatPercent']),
+    stock: _numOrNull(json['buildable']),
+  );
 }
 
 /// What `POST /pos/checkout` answers with — and the only totals worth showing.
@@ -484,17 +479,17 @@ class CheckoutResult {
   final num? outstanding;
 
   factory CheckoutResult.fromJson(Map<String, dynamic> json) => CheckoutResult(
-        saleId: _int(json['saleId']),
-        invoiceNo: _str(json['invoiceNo']),
-        total: _num(json['total']),
-        paid: _num(json['paid']),
-        due: _num(json['due']),
-        paymentStatus: _str(json['paymentStatus']),
-        pointsEarned: _numOrNull(json['pointsEarned']),
-        pointsRedeemed: _numOrNull(json['pointsRedeemed']),
-        previousDue: _numOrNull(json['previousDue']),
-        outstanding: _numOrNull(json['outstanding']),
-      );
+    saleId: _int(json['saleId']),
+    invoiceNo: _str(json['invoiceNo']),
+    total: _num(json['total']),
+    paid: _num(json['paid']),
+    due: _num(json['due']),
+    paymentStatus: _str(json['paymentStatus']),
+    pointsEarned: _numOrNull(json['pointsEarned']),
+    pointsRedeemed: _numOrNull(json['pointsRedeemed']),
+    previousDue: _numOrNull(json['previousDue']),
+    outstanding: _numOrNull(json['outstanding']),
+  );
 }
 
 /// The result of `POST /customers/quick`, which answers `200` with
@@ -517,14 +512,13 @@ class QuickCustomer {
   final bool created;
 
   factory QuickCustomer.fromJson(Map<String, dynamic> json) => QuickCustomer(
-        id: _int(json['id']),
-        name: _str(json['name']),
-        phone: _strOrNull(json['phone']),
-        created: _bool(json['created']),
-      );
+    id: _int(json['id']),
+    name: _str(json['name']),
+    phone: _strOrNull(json['phone']),
+    created: _bool(json['created']),
+  );
 
-  PosCustomer toCustomer() =>
-      PosCustomer(id: id, name: name, phone: phone);
+  PosCustomer toCustomer() => PosCustomer(id: id, name: name, phone: phone);
 }
 
 /// The six methods the API accepts.
@@ -545,19 +539,15 @@ enum PayMethod {
   final String wire;
 
   static PayMethod fromWire(String value) => PayMethod.values.firstWhere(
-        (m) => m.wire == value,
-        orElse: () => PayMethod.cash,
-      );
+    (m) => m.wire == value,
+    orElse: () => PayMethod.cash,
+  );
 
   /// A guess from the account's own type, so picking "bKash" as the account
   /// does not then need the method picked again.
   static PayMethod forAccount(PosAccount account) {
     final name = account.name.toLowerCase();
-    for (final m in [
-      PayMethod.bkash,
-      PayMethod.nagad,
-      PayMethod.rocket,
-    ]) {
+    for (final m in [PayMethod.bkash, PayMethod.nagad, PayMethod.rocket]) {
       if (name.contains(m.wire)) return m;
     }
     return switch (account.type.toLowerCase()) {

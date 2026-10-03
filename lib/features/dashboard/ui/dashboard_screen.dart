@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/router/shell_nav.dart';
 import '../../../core/format/dates.dart';
 import '../../../core/format/money.dart';
 import '../../../core/permissions/permissions.dart';
@@ -55,7 +56,8 @@ class _OwnerDashboardState extends ConsumerState<_OwnerDashboard> {
       context: context,
       firstDate: DateTime(today.year - 2),
       lastDate: today,
-      initialDateRange: _query.range == DashboardRange.custom &&
+      initialDateRange:
+          _query.range == DashboardRange.custom &&
               _query.from != null &&
               _query.to != null
           ? DateTimeRange(start: _query.from!, end: _query.to!)
@@ -80,17 +82,17 @@ class _OwnerDashboardState extends ConsumerState<_OwnerDashboard> {
     final dashboard = ref.watch(dashboardProvider(_query));
 
     String rangeLabel(DashboardRange r) => switch (r) {
-          DashboardRange.today => l10n.today,
-          DashboardRange.yesterday => l10n.yesterday,
-          DashboardRange.d7 => l10n.lastDays(7),
-          DashboardRange.d15 => l10n.lastDays(15),
-          DashboardRange.m1 => l10n.lastMonths(1),
-          DashboardRange.m2 => l10n.lastMonths(2),
-          DashboardRange.custom => l10n.customRange,
-        };
+      DashboardRange.today => l10n.today,
+      DashboardRange.yesterday => l10n.yesterday,
+      DashboardRange.d7 => l10n.lastDays(7),
+      DashboardRange.d15 => l10n.lastDays(15),
+      DashboardRange.m1 => l10n.lastMonths(1),
+      DashboardRange.m2 => l10n.lastMonths(2),
+      DashboardRange.custom => l10n.customRange,
+    };
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.dashboard)),
+      appBar: ShellAppBar(title: Text(l10n.dashboard)),
       body: Column(
         children: [
           SizedBox(
@@ -154,12 +156,11 @@ class _DashboardBody extends ConsumerWidget {
       Object? data,
       Widget Function() build, {
       ReportScope? scope,
-    }) =>
-        ReportSection(
-          title: title,
-          scope: scope,
-          child: data == null ? const LockedSection() : build(),
-        );
+    }) => ReportSection(
+      title: title,
+      scope: scope,
+      child: data == null ? const LockedSection() : build(),
+    );
 
     final window = d.window;
     final windowText = [
@@ -222,57 +223,66 @@ class _DashboardBody extends ConsumerWidget {
         if (d.daily != null && d.daily!.length > 1)
           ReportSection(
             title: l10n.dailySales,
-            child: RowsCard(children: [
-              Padding(
-                padding: const EdgeInsets.all(Insets.s12),
-                child: TrendBars(
-                  points: [for (final day in d.daily!) (day.date, day.sales)],
-                  format: money.format,
-                  dayLabel: (day) => bucketLabel(day, locale),
+            child: RowsCard(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(Insets.s12),
+                  child: TrendBars(
+                    points: [for (final day in d.daily!) (day.date, day.sales)],
+                    format: money.format,
+                    dayLabel: (day) => bucketLabel(day, locale),
+                  ),
                 ),
-              ),
-            ]),
+              ],
+            ),
           ),
 
         section(l10n.moneyIn, d.collections, () {
           final c = d.collections!;
           final methods = c.byMethod.fold<num>(0, (s, m) => s + m.total);
-          return RowsCard(children: [
-            FigureRow(
-              label: l10n.collectedTotal,
-              value: money.format(c.total),
-              tone: palette.positive,
-            ),
-            FigureRow(label: l10n.onTodaysBills, value: money.format(c.onSales)),
-            FigureRow(label: l10n.onOldDues, value: money.format(c.onDues)),
-            if (c.onPreviousDue > 0)
+          return RowsCard(
+            children: [
               FigureRow(
-                label: l10n.onPreviousDue,
-                value: money.format(c.onPreviousDue),
+                label: l10n.collectedTotal,
+                value: money.format(c.total),
+                tone: palette.positive,
               ),
-            for (final m in c.byMethod)
               FigureRow(
-                label: methodLabel(l10n, m.label),
-                value: money.format(m.total),
-                share: shareOf(m.total, methods),
+                label: l10n.onTodaysBills,
+                value: money.format(c.onSales),
               ),
-          ]);
+              FigureRow(label: l10n.onOldDues, value: money.format(c.onDues)),
+              if (c.onPreviousDue > 0)
+                FigureRow(
+                  label: l10n.onPreviousDue,
+                  value: money.format(c.onPreviousDue),
+                ),
+              for (final m in c.byMethod)
+                FigureRow(
+                  label: methodLabel(l10n, m.label),
+                  value: money.format(m.total),
+                  share: shareOf(m.total, methods),
+                ),
+            ],
+          );
         }),
 
         if (d.payments != null && d.payments!.isNotEmpty)
           ReportSection(
             title: l10n.billsSettledBy,
-            child: RowsCard(children: [
-              for (final m in d.payments!)
-                FigureRow(
-                  label: methodLabel(l10n, m.label),
-                  value: money.format(m.total),
-                  share: shareOf(
-                    m.total,
-                    d.payments!.fold<num>(0, (s, p) => s + p.total),
+            child: RowsCard(
+              children: [
+                for (final m in d.payments!)
+                  FigureRow(
+                    label: methodLabel(l10n, m.label),
+                    value: money.format(m.total),
+                    share: shareOf(
+                      m.total,
+                      d.payments!.fold<num>(0, (s, p) => s + p.total),
+                    ),
                   ),
-                ),
-            ]),
+              ],
+            ),
           ),
 
         section(l10n.capital, d.capital, () {
@@ -294,10 +304,12 @@ class _DashboardBody extends ConsumerWidget {
               ]),
               if (c.accounts.isNotEmpty) ...[
                 const SizedBox(height: Insets.s8),
-                RowsCard(children: [
-                  for (final a in c.accounts)
-                    FigureRow(label: a.label, value: money.format(a.total)),
-                ]),
+                RowsCard(
+                  children: [
+                    for (final a in c.accounts)
+                      FigureRow(label: a.label, value: money.format(a.total)),
+                  ],
+                ),
               ],
             ],
           );
@@ -308,18 +320,20 @@ class _DashboardBody extends ConsumerWidget {
             title: l10n.topProducts,
             child: d.topProducts!.isEmpty
                 ? SectionEmpty(l10n.nothingSold)
-                : RowsCard(children: [
-                    for (final p in d.topProducts!)
-                      FigureRow(
-                        label: p.name,
-                        detail: [
-                          l10n.qtySold(qtyText(p.qty)),
-                          if (p.profit != null)
-                            '${l10n.profit} ${money.format(p.profit)}',
-                        ].join(' · '),
-                        value: money.format(p.revenue),
-                      ),
-                  ]),
+                : RowsCard(
+                    children: [
+                      for (final p in d.topProducts!)
+                        FigureRow(
+                          label: p.name,
+                          detail: [
+                            l10n.qtySold(qtyText(p.qty)),
+                            if (p.profit != null)
+                              '${l10n.profit} ${money.format(p.profit)}',
+                          ].join(' · '),
+                          value: money.format(p.revenue),
+                        ),
+                    ],
+                  ),
           ),
 
         if (d.movers != null) ..._movers(context, d.movers!, l10n, palette),
@@ -327,20 +341,22 @@ class _DashboardBody extends ConsumerWidget {
         if (d.staff != null && d.staff!.isNotEmpty)
           ReportSection(
             title: l10n.byStaff,
-            child: RowsCard(children: [
-              for (final s in d.staff!)
-                FigureRow(
-                  label: s.name,
-                  detail: [
-                    l10n.salesCount(s.invoices),
-                    if (s.discount > 0)
-                      '${l10n.discount} ${money.format(s.discount)}',
-                    if (s.dueRaised > 0)
-                      '${l10n.dueLabel} ${money.format(s.dueRaised)}',
-                  ].join(' · '),
-                  value: money.format(s.revenue),
-                ),
-            ]),
+            child: RowsCard(
+              children: [
+                for (final s in d.staff!)
+                  FigureRow(
+                    label: s.name,
+                    detail: [
+                      l10n.salesCount(s.invoices),
+                      if (s.discount > 0)
+                        '${l10n.discount} ${money.format(s.discount)}',
+                      if (s.dueRaised > 0)
+                        '${l10n.dueLabel} ${money.format(s.dueRaised)}',
+                    ].join(' · '),
+                    value: money.format(s.revenue),
+                  ),
+              ],
+            ),
           ),
 
         section(l10n.dues, d.dues, () {
@@ -359,29 +375,33 @@ class _DashboardBody extends ConsumerWidget {
               ]),
               if (due.customers.isNotEmpty) ...[
                 const SizedBox(height: Insets.s8),
-                RowsCard(children: [
-                  for (final c in due.customers.take(5))
-                    FigureRow(
-                      label: c.name,
-                      detail: c.phone,
-                      value: money.format(c.due),
-                      tone: palette.warning,
-                      onTap: mayOpen && c.id != null
-                          ? () => context.go('/customers/${c.id}')
-                          : null,
-                    ),
-                ]),
+                RowsCard(
+                  children: [
+                    for (final c in due.customers.take(5))
+                      FigureRow(
+                        label: c.name,
+                        detail: c.phone,
+                        value: money.format(c.due),
+                        tone: palette.warning,
+                        onTap: mayOpen && c.id != null
+                            ? () => context.go('/customers/${c.id}')
+                            : null,
+                      ),
+                  ],
+                ),
               ],
               if (due.suppliers.isNotEmpty) ...[
                 const SizedBox(height: Insets.s8),
-                RowsCard(children: [
-                  for (final s in due.suppliers.take(5))
-                    FigureRow(
-                      label: s.name,
-                      detail: l10n.supplier,
-                      value: money.format(s.due),
-                    ),
-                ]),
+                RowsCard(
+                  children: [
+                    for (final s in due.suppliers.take(5))
+                      FigureRow(
+                        label: s.name,
+                        detail: l10n.supplier,
+                        value: money.format(s.due),
+                      ),
+                  ],
+                ),
               ],
             ],
           );
@@ -389,16 +409,18 @@ class _DashboardBody extends ConsumerWidget {
 
         section(l10n.expensesLabel, d.expenses, () {
           final e = d.expenses!;
-          return RowsCard(children: [
-            FigureRow(label: l10n.total, value: money.format(e.total)),
-            for (final c in e.byCategory)
-              FigureRow(
-                label: c.label,
-                detail: c.count == null ? null : l10n.timesCount(c.count!),
-                value: money.format(c.total),
-                share: shareOf(c.total, e.total),
-              ),
-          ]);
+          return RowsCard(
+            children: [
+              FigureRow(label: l10n.total, value: money.format(e.total)),
+              for (final c in e.byCategory)
+                FigureRow(
+                  label: c.label,
+                  detail: c.count == null ? null : l10n.timesCount(c.count!),
+                  value: money.format(c.total),
+                  share: shareOf(c.total, e.total),
+                ),
+            ],
+          );
         }, scope: ReportScope.store),
 
         section(l10n.purchase, d.purchases, () {
@@ -459,29 +481,31 @@ class _DashboardBody extends ConsumerWidget {
         if (d.shifts != null && d.shifts!.isNotEmpty)
           ReportSection(
             title: l10n.cashDrawers,
-            child: RowsCard(children: [
-              for (final s in d.shifts!)
-                FigureRow(
-                  label: [
-                    AppDates.stamp(s.openedAt, locale: locale),
-                    ?s.userName,
-                  ].join(' · '),
-                  detail: s.closedAt == null
-                      ? l10n.drawerOpen
-                      : '${l10n.expectedCash} ${money.format(s.expected)}'
-                          ' · ${l10n.countedLabel} ${money.format(s.counted)}',
-                  value: s.difference == null || s.closedAt == null
-                      ? money.format(s.sold ?? 0)
-                      : s.difference == 0
-                          ? l10n.balanced
-                          : s.difference! < 0
-                              ? l10n.shortBy(money.format(-s.difference!))
-                              : l10n.overBy(money.format(s.difference)),
-                  tone: (s.difference ?? 0) < 0 && s.closedAt != null
-                      ? palette.danger
-                      : null,
-                ),
-            ]),
+            child: RowsCard(
+              children: [
+                for (final s in d.shifts!)
+                  FigureRow(
+                    label: [
+                      AppDates.stamp(s.openedAt, locale: locale),
+                      ?s.userName,
+                    ].join(' · '),
+                    detail: s.closedAt == null
+                        ? l10n.drawerOpen
+                        : '${l10n.expectedCash} ${money.format(s.expected)}'
+                              ' · ${l10n.countedLabel} ${money.format(s.counted)}',
+                    value: s.difference == null || s.closedAt == null
+                        ? money.format(s.sold ?? 0)
+                        : s.difference == 0
+                        ? l10n.balanced
+                        : s.difference! < 0
+                        ? l10n.shortBy(money.format(-s.difference!))
+                        : l10n.overBy(money.format(s.difference)),
+                    tone: (s.difference ?? 0) < 0 && s.closedAt != null
+                        ? palette.danger
+                        : null,
+                  ),
+              ],
+            ),
           ),
       ],
     );
@@ -504,52 +528,58 @@ class _DashboardBody extends ConsumerWidget {
     }
 
     String pace(Mover r) => [
-          if (r.perDay != null) l10n.perDay(qtyText(r.perDay!)),
-          if (r.onHand != null) l10n.onHand(qtyText(r.onHand!)),
-          if (r.daysCover != null) l10n.daysCover(qtyText(r.daysCover!)),
-        ].join(' · ');
+      if (r.perDay != null) l10n.perDay(qtyText(r.perDay!)),
+      if (r.onHand != null) l10n.onHand(qtyText(r.onHand!)),
+      if (r.daysCover != null) l10n.daysCover(qtyText(r.daysCover!)),
+    ].join(' · ');
 
     return [
       if (m.restock != null && m.restock!.isNotEmpty)
         ReportSection(
           title: l10n.restockSoon,
-          child: RowsCard(children: [
-            for (final r in m.restock!)
-              FigureRow(
-                label: r.name,
-                detail: pace(r),
-                value: r.daysCover == null
-                    ? qtyText(r.onHand ?? 0)
-                    : l10n.daysLeft(qtyText(r.daysCover!)),
-                tone: palette.danger,
-              ),
-          ]),
+          child: RowsCard(
+            children: [
+              for (final r in m.restock!)
+                FigureRow(
+                  label: r.name,
+                  detail: pace(r),
+                  value: r.daysCover == null
+                      ? qtyText(r.onHand ?? 0)
+                      : l10n.daysLeft(qtyText(r.daysCover!)),
+                  tone: palette.danger,
+                ),
+            ],
+          ),
         ),
       if (m.rising.isNotEmpty)
         ReportSection(
           title: l10n.rising,
-          child: RowsCard(children: [
-            for (final r in m.rising.take(8))
-              FigureRow(
-                label: r.name,
-                detail: pace(r),
-                value: change(r),
-                tone: palette.positive,
-              ),
-          ]),
+          child: RowsCard(
+            children: [
+              for (final r in m.rising.take(8))
+                FigureRow(
+                  label: r.name,
+                  detail: pace(r),
+                  value: change(r),
+                  tone: palette.positive,
+                ),
+            ],
+          ),
         ),
       if (m.falling.isNotEmpty)
         ReportSection(
           title: l10n.falling,
-          child: RowsCard(children: [
-            for (final r in m.falling.take(8))
-              FigureRow(
-                label: r.name,
-                detail: pace(r),
-                value: change(r),
-                tone: palette.warning,
-              ),
-          ]),
+          child: RowsCard(
+            children: [
+              for (final r in m.falling.take(8))
+                FigureRow(
+                  label: r.name,
+                  detail: pace(r),
+                  value: change(r),
+                  tone: palette.warning,
+                ),
+            ],
+          ),
         ),
     ];
   }
@@ -568,7 +598,7 @@ class _CounterDashboard extends ConsumerWidget {
     final stats = ref.watch(productStatsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.dashboard)),
+      appBar: ShellAppBar(title: Text(l10n.dashboard)),
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(productStatsProvider);
@@ -589,13 +619,13 @@ class _CounterDashboard extends ConsumerWidget {
               child: switch (stats) {
                 AsyncData(:final value) => _StatsBody(stats: value),
                 AsyncError(:final error) => _InlineError(
-                    error: error,
-                    onRetry: () => ref.invalidate(productStatsProvider),
-                  ),
+                  error: error,
+                  onRetry: () => ref.invalidate(productStatsProvider),
+                ),
                 _ => const Padding(
-                    padding: EdgeInsets.all(Insets.s24),
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
+                  padding: EdgeInsets.all(Insets.s24),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
               },
             ),
           ],
@@ -624,21 +654,25 @@ class _InlineError extends StatelessWidget {
       );
     }
     final retryable = error is! ForbiddenException;
-    return RowsCard(children: [
-      ListTile(
-        leading: Icon(
-          retryable ? Icons.error_outline : Icons.lock_outline,
-          color: palette.muted,
+    return RowsCard(
+      children: [
+        ListTile(
+          leading: Icon(
+            retryable ? Icons.error_outline : Icons.lock_outline,
+            color: palette.muted,
+          ),
+          title: Text(
+            error is ApiException
+                ? (error as ApiException).message
+                : l10n.genericError,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          trailing: retryable
+              ? TextButton(onPressed: onRetry, child: Text(l10n.retry))
+              : null,
         ),
-        title: Text(
-          error is ApiException ? (error as ApiException).message : l10n.genericError,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        trailing: retryable
-            ? TextButton(onPressed: onRetry, child: Text(l10n.retry))
-            : null,
-      ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -658,22 +692,26 @@ class _DrawerCard extends ConsumerWidget {
 
     return ReportSection(
       title: l10n.cashDrawer,
-      child: RowsCard(children: [
-        if (lookups.isLoading && data == null)
-          const LinearProgressIndicator()
-        else if (lookups.hasError && data == null)
-          FigureRow(label: l10n.genericError, value: '')
-        else
-          FigureRow(
-            label: shift == null ? l10n.drawerClosed : l10n.drawerOpen,
-            detail: shift == null
-                ? l10n.drawerClosedBody
-                : l10n.openedAt(AppDates.stamp(shift.openedAt, locale: locale)),
-            value: shift == null ? '' : money.format(shift.openingCash),
-            tone: shift == null ? palette.muted : palette.positive,
-            onTap: () => context.go('/sell'),
-          ),
-      ]),
+      child: RowsCard(
+        children: [
+          if (lookups.isLoading && data == null)
+            const LinearProgressIndicator()
+          else if (lookups.hasError && data == null)
+            FigureRow(label: l10n.genericError, value: '')
+          else
+            FigureRow(
+              label: shift == null ? l10n.drawerClosed : l10n.drawerOpen,
+              detail: shift == null
+                  ? l10n.drawerClosedBody
+                  : l10n.openedAt(
+                      AppDates.stamp(shift.openedAt, locale: locale),
+                    ),
+              value: shift == null ? '' : money.format(shift.openingCash),
+              tone: shift == null ? palette.muted : palette.positive,
+              onTap: () => context.go('/sell'),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -713,33 +751,37 @@ class _StatsBody extends ConsumerWidget {
           title: l10n.lowStock,
           child: stats.low.isEmpty
               ? SectionEmpty(l10n.nothingLow)
-              : RowsCard(children: [
-                  for (final a in stats.low)
-                    FigureRow(
-                      label: a.name,
-                      detail: a.minimum == null
-                          ? null
-                          : l10n.minimumIs(qtyText(a.minimum!)),
-                      value: qtyText(a.quantity ?? 0),
-                      tone: palette.warning,
-                    ),
-                ]),
+              : RowsCard(
+                  children: [
+                    for (final a in stats.low)
+                      FigureRow(
+                        label: a.name,
+                        detail: a.minimum == null
+                            ? null
+                            : l10n.minimumIs(qtyText(a.minimum!)),
+                        value: qtyText(a.quantity ?? 0),
+                        tone: palette.warning,
+                      ),
+                  ],
+                ),
         ),
         ReportSection(
           title: l10n.expiringSoon,
           child: stats.expiring.isEmpty
               ? SectionEmpty(l10n.nothingExpiring)
-              : RowsCard(children: [
-                  for (final a in stats.expiring)
-                    FigureRow(
-                      label: a.name,
-                      detail: a.quantity == null
-                          ? null
-                          : l10n.onHand(qtyText(a.quantity!)),
-                      value: AppDates.day(a.expiresAt, locale: locale),
-                      tone: palette.danger,
-                    ),
-                ]),
+              : RowsCard(
+                  children: [
+                    for (final a in stats.expiring)
+                      FigureRow(
+                        label: a.name,
+                        detail: a.quantity == null
+                            ? null
+                            : l10n.onHand(qtyText(a.quantity!)),
+                        value: AppDates.day(a.expiresAt, locale: locale),
+                        tone: palette.danger,
+                      ),
+                  ],
+                ),
         ),
       ],
     );
