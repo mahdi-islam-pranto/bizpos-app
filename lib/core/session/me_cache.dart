@@ -48,3 +48,34 @@ class MeCache {
     }
   }
 }
+
+/// The store platform staff were in before entering another for support, so
+/// "Leave" knows where back is — across a restart, too, since the token itself
+/// stays in the shop it was moved into.
+class SupportReturn {
+  const SupportReturn._();
+
+  static const _key = 'bizpos.supportReturn';
+
+  static Future<int?> read() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getInt(_key);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> write(int? storeId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (storeId == null) {
+        await prefs.remove(_key);
+      } else {
+        await prefs.setInt(_key, storeId);
+      }
+    } catch (e) {
+      developer.log('could not keep the support return: $e', name: 'session');
+    }
+  }
+}

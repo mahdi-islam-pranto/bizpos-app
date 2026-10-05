@@ -25,6 +25,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _password = TextEditingController();
   bool _obscure = true;
 
+  /// The server error whose field messages have been set aside — by typing,
+  /// or by trying again. The session keeps a failed sign-in's error until the
+  /// next one, and the validators read it: without this, a wrong password
+  /// stayed bound under the email field, every later submit failed its own
+  /// validation, and the right password never reached the server.
+  Object? _dismissed;
+
   @override
   void dispose() {
     _email.dispose();
@@ -33,6 +40,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _submit() async {
+    // Only this form's own rules decide whether to send; the last attempt's
+    // answer is about the last attempt.
+    _dismissed = ref.read(sessionControllerProvider).error;
     if (!_form.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
 
@@ -41,6 +51,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     await ref
         .read(sessionControllerProvider.notifier)
         .signIn(email: _email.text.trim(), password: _password.text);
+
+    // Put the server's field messages ("these credentials do not match")
+    // under their fields now, not on the next press.
+    if (!mounted) return;
+    if (ref.read(sessionControllerProvider).error is ValidationException) {
+      _form.currentState?.validate();
+    }
+  }
+
+  /// Editing a field sets the server's complaint about it aside.
+  void _edited(String _) {
+    final error = ref.read(sessionControllerProvider).error;
+    if (error != null && !identical(error, _dismissed)) {
+      setState(() => _dismissed = error);
+      _form.currentState?.validate();
+    }
   }
 
   @override
@@ -94,13 +120,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       textInputAction: TextInputAction.next,
                       autocorrect: false,
                       autofillHints: const [AutofillHints.username],
+                      onChanged: _edited,
                       // The server's own messages are bound below; this only
                       // catches an empty or obviously wrong address.
                       validator: (value) {
                         final v = value?.trim() ?? '';
                         if (v.isEmpty) return l10n.requiredField;
                         if (!v.contains('@')) return l10n.invalidEmail;
-                        return _serverError(session, 'email');
+                        return _serverError('email');
                       },
                     ),
                     const SizedBox(height: Insets.s16),
@@ -123,13 +150,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
                       autofillHints: const [AutofillHints.password],
+                      onChanged: _edited,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => busy ? null : _submit(),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return l10n.requiredField;
                         }
-                        return _serverError(session, 'password');
+                        return _serverError('password');
                       },
                     ),
                     const SizedBox(height: Insets.s24),
@@ -171,8 +199,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   /// Binds `error.fields` from a 422 under the field it belongs to.
-  String? _serverError(AsyncValue<Object?> session, String field) {
-    final error = session.error;
+  ///
+  /// Reads the session now rather than the one this frame was built from: the
+  /// form is validated straight after a sign-in, before the next build.
+  String? _serverError(String field) {
+    final error = ref.read(sessionControllerProvider).error;
+    if (identical(error, _dismissed)) return null;
     if (error is ValidationException) return error.first(field);
     return null;
   }

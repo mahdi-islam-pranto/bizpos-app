@@ -282,6 +282,43 @@ class SessionController extends AsyncNotifier<SessionState> {
     await refreshMe();
   }
 
+  /// Platform staff entering a shop for support. The server moves this device
+  /// (and logs it); `/me` then says `impersonating`, and the shell shows the
+  /// support banner with a way back.
+  Future<void> impersonate(int storeId) async {
+    final current = state.value;
+    // Hopping from one supported shop to another keeps the first way back.
+    final home = current is SessionActive && !current.me.impersonating
+        ? current.scope.storeId
+        : await SupportReturn.read();
+    await _api.impersonate(storeId);
+    await SupportReturn.write(home);
+    _epoch++;
+    await refreshMe();
+  }
+
+  /// Leaves support mode: `POST /auth/switch-store` back to the store this
+  /// device was in before, or — when that is unknown — to the first of the
+  /// person's own stores that is not this one.
+  Future<void> leaveSupport() async {
+    final current = state.value;
+    final me = current is SessionActive ? current.me : null;
+    var target = await SupportReturn.read();
+    if (target == null && me != null) {
+      for (final s in me.stores) {
+        if (s.id != me.store?.id) {
+          target = s.id;
+          break;
+        }
+      }
+    }
+    if (target == null) {
+      throw StateError('No store to go back to.');
+    }
+    await switchStore(target);
+    await SupportReturn.write(null);
+  }
+
   /// Stock, sales, shifts and reports are per branch, so every screen reloads.
   Future<void> switchBranch(int branchId) async {
     await _api.switchBranch(branchId);
@@ -334,6 +371,7 @@ class SessionController extends AsyncNotifier<SessionState> {
     _holder.clear();
     await _tokens.clear();
     await MeCache.clear();
+    await SupportReturn.write(null);
   }
 
   /// Shows in the device list, so it should say something a person recognises.

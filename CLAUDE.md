@@ -63,9 +63,11 @@ What the NEW doc changed over UPDATED, and where the app stands on each:
   sections `null` when not permitted) and **salary expenses** (`isSalary`,
   `employeeName`, `salaryMonth`, `employees[]` and `monthSalary` on
   `GET /accounts`) — phase 3. Built.
-- **Later phases, not built**: `PATCH /admin/stores/{id}` and `/extend`
-  (phase 4). (Phase 2's catalogue and purchase additions are built — see
-  below.)
+- **`PATCH /admin/stores/{id}`** (only the changed fields, `storeTypeChanged`
+  in the reply) and **`POST /admin/stores/{id}/extend`** (`days` or
+  `unlimited`, `activate` sent only when false), plus `phone` on
+  `POST /admin/stores` and the trial / lock / `db*` columns on
+  `GET /admin/overview` — phase 4. Built.
 
 What the UPDATED doc had already changed (all built where the phase is):
 
@@ -82,10 +84,10 @@ What the UPDATED doc had already changed (all built where the phase is):
   ("Not in my store"), plus `GET /catalog/lookups` for units and brands, and
   entries carry `pending`. Phase 2.
 - **`/admin/catalog`** (`admin.catalog.manage`) gives the platform direct
-  control of the shared catalogue. Phase 4.
+  control of the shared catalogue. Phase 4, built.
 
-The build plan lives at `~/.claude/plans/piped-twirling-crab.md`. **Phases 0, 1,
-2 and 3 are done**; phase 4 (team, store and platform) is next. Phase 0 is the
+The build plan lives at `~/.claude/plans/piped-twirling-crab.md`. **Phases 0 to 4
+are done**; phase 5 (printing and polish) is next. Phase 0 is the
 transport/session/permission spine, login, a permission-built navigation shell
 and a profile screen. Phase 1 is the counter: POS with camera scanning, cart,
 customer picker, split payment, loyalty redemption, cash drawer and held carts;
@@ -100,7 +102,7 @@ catalogue's prices and MRP, suggest with a live `/catalog/check` verdict and the
 `409` → `confirmedNew` resend, and the review queue); and
 `lib/features/purchases/` (bill list, goods-in at `/purchase/new` with supplier
 search or a new `supplierName`, batch/expiry lines, bill `discountPercent`,
-paid-from account, and bill photos). Later phases add money, team and
+paid-from account, and bill photos). Phases 3 and 4 add money, team and
 platform; printing comes last.
 
 Phase 2 details that are easy to break:
@@ -135,6 +137,34 @@ smaller one from `/products/stats` plus the open drawer). Easy to break:
 - **A dashboard section that is `null` renders as `LockedSection`**, and a
   null profit in `headline` as a locked figure — never as zero.
 - **Report buckets go through `parseBucket`**, which never converts zones.
+
+Phase 4 is `lib/features/team/` (Team and store settings off one
+`GET /settings`: members with add / suspend / change role and each role's
+permissions, branches, store details, VAT / receipt paper / invoice prefix /
+credit, loyalty, and the activity log with period, subject and search) and
+`lib/features/platform/` (all stores with trial, lock and database badges,
+new store, edit, extend trial, suspend, enter for support; suggestion review;
+the shared catalogue at `/admin/catalog`, paged, with create / edit / soft
+delete / restore). Easy to break:
+
+- **Two ids on one member row.** Suspending takes `storeUserId`, changing a
+  role takes the user `id`. They are the extension types `StoreUserId` and
+  `UserId`, so swapping them does not compile.
+- **`PATCH /settings/store` needs `name` every time** —
+  `StoreDraft.loyaltyOnly` sends the shop's name with a loyalty change.
+  Loyalty keys are snake_case both ways, as in `/pos/lookups`, and the
+  `settings{}` block is read in either case (`StoreProfile.fromJson`).
+- **Nobody acts on their own member row** (`422 self`): the sheet shows a
+  line instead of the actions.
+- **Support mode belongs to the session**, not the platform screen:
+  `SessionController.impersonate` keeps the store the device came from in
+  `SupportReturn` (shared preferences, across restarts and across hopping
+  from one shop to the next), and the support banner's Leave calls
+  `leaveSupport`, a switch-store back. Sign-out clears it.
+- **A shop can exist without its database** — `StoreCreated.dbOk` false
+  shows `dbProblem` / `dbDetail` rather than a plain success note.
+- A super admin with **no store of their own** gets the no-store screen and
+  cannot reach `/platform`; the platform needs an active store today.
 
 **Landing is Sell for anyone who may sell** (owner included), and Sell is the
 first tab; others land on the first *built* screen in gate order (`homeFor()`
@@ -173,7 +203,7 @@ flutter pub get
 flutter gen-l10n                 # after editing lib/l10n/*.arb (also runs during build)
 flutter run --dart-define=BIZPOS_BASE_URL=http://10.0.2.2:8000/api/v1
 flutter analyze                  # lints via flutter_lints (analysis_options.yaml)
-flutter test                     # 211 tests
+flutter test                     # 242 tests
 flutter test test/app/screen_gates_test.dart --plain-name "cashier"   # one test
 flutter build apk --debug
 ```

@@ -121,6 +121,38 @@ class ApiPaths {
   static const reportStock = '/reports/stock';
   static const reportDues = '/reports/dues';
 
+  // Settings and team — section 5.9 and section 6, "Settings and team"
+  static const settings = '/settings';
+  static const settingsStore = '/settings/store';
+  static const settingsBranches = '/settings/branches';
+  static String settingsBranch(int id) => '/settings/branches/$id';
+  static const settingsMembers = '/settings/members';
+
+  /// Takes the member's `storeUserId`.
+  static String settingsMemberStatus(int storeUserId) =>
+      '/settings/members/$storeUserId/status';
+
+  /// Takes the user's own `id`.
+  static String settingsMemberRole(int userId) =>
+      '/settings/members/$userId/role';
+  static String settingsRole(int id) => '/settings/roles/$id';
+  static const settingsActivity = '/settings/activity';
+
+  // Super admin — section 5.10 and section 6, "Super admin"
+  static const adminOverview = '/admin/overview';
+  static const adminStores = '/admin/stores';
+  static String adminStore(int id) => '/admin/stores/$id';
+  static String adminStoreStatus(int id) => '/admin/stores/$id/status';
+  static String adminStoreExtend(int id) => '/admin/stores/$id/extend';
+  static String adminStoreImpersonate(int id) =>
+      '/admin/stores/$id/impersonate';
+  static String adminSuggestionReview(int id) =>
+      '/admin/suggestions/$id/review';
+  static const adminCatalog = '/admin/catalog';
+  static const adminCatalogLookups = '/admin/catalog/lookups';
+  static String adminCatalogEntry(int id) => '/admin/catalog/$id';
+  static String adminCatalogRestore(int id) => '/admin/catalog/$id/restore';
+
   /// The two endpoints that need no token. The auth interceptor skips these.
   static const anonymous = {
     login,

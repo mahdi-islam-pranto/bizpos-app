@@ -2256,4 +2256,606 @@ class AppL10nBn extends AppL10n {
 
   @override
   String get txnRefund => 'ফেরত';
+
+  @override
+  String get qtyPickerTitle => 'পরিমাণ';
+
+  @override
+  String get qtyCustom => 'নিজে পরিমাণ লিখুন';
+
+  @override
+  String get teamMembers => 'সদস্য';
+
+  @override
+  String get branchesTab => 'শাখা';
+
+  @override
+  String get storeTab => 'দোকান';
+
+  @override
+  String get activityTab => 'কার্যকলাপ';
+
+  @override
+  String get addMember => 'সদস্য যোগ করুন';
+
+  @override
+  String get addBranch => 'শাখা যোগ করুন';
+
+  @override
+  String get editBranch => 'শাখা সম্পাদনা';
+
+  @override
+  String activeMembers(int count) {
+    return 'সক্রিয় ($count)';
+  }
+
+  @override
+  String suspendedMembers(int count) {
+    return 'স্থগিত ($count)';
+  }
+
+  @override
+  String get membersEmpty => 'দলে এখনো কেউ নেই';
+
+  @override
+  String get youBadge => 'আপনি';
+
+  @override
+  String get activeBadge => 'সক্রিয়';
+
+  @override
+  String get suspendedBadge => 'স্থগিত';
+
+  @override
+  String get lockedBadge => 'বন্ধ';
+
+  @override
+  String get neverSignedIn => 'কখনো সাইন ইন করেননি';
+
+  @override
+  String lastSignedIn(String when) {
+    return 'শেষ সাইন ইন $when';
+  }
+
+  @override
+  String get changeRole => 'ভূমিকা বদলান';
+
+  @override
+  String get chooseRole => 'ভূমিকা বেছে নিন';
+
+  @override
+  String whatRoleCanDo(String role) {
+    return '$role কী কী করতে পারেন';
+  }
+
+  @override
+  String get builtInRole => 'নির্ধারিত ভূমিকা। এর অনুমতি প্ল্যাটফর্ম ঠিক করে।';
+
+  @override
+  String roleChanged(String name, String role) {
+    return '$name এখন $role';
+  }
+
+  @override
+  String get suspendMember => 'স্থগিত করুন';
+
+  @override
+  String get reactivateMember => 'আবার চালু করুন';
+
+  @override
+  String suspendMemberTitle(String name) {
+    return '$name-কে স্থগিত করবেন?';
+  }
+
+  @override
+  String reactivateMemberTitle(String name) {
+    return '$name-কে আবার চালু করবেন?';
+  }
+
+  @override
+  String get suspendMemberBody =>
+      'পরের পদক্ষেপেই তিনি এই দোকানে ঢুকতে পারবেন না। তাঁর কোনো কাজ মুছে যাবে না, যেকোনো সময় আবার চালু করা যাবে।';
+
+  @override
+  String get reactivateMemberBody =>
+      'তিনি আগের ভূমিকা নিয়ে আবার এই দোকানে সাইন ইন করতে পারবেন।';
+
+  @override
+  String memberSuspended(String name) {
+    return '$name স্থগিত হয়েছেন';
+  }
+
+  @override
+  String memberReactivated(String name) {
+    return '$name আবার সাইন ইন করতে পারবেন';
+  }
+
+  @override
+  String get cannotChangeSelf =>
+      'এটি আপনি। কেউ নিজের ভূমিকা বদলাতে বা নিজেকে স্থগিত করতে পারেন না — অন্য মালিককে বলুন।';
+
+  @override
+  String get readOnlyTeam => 'আপনি দলটি দেখতে পারেন, বদলাতে পারেন না।';
+
+  @override
+  String get fullName => 'পুরো নাম';
+
+  @override
+  String get memberFormNote =>
+      'এই ইমেইলে আগে থেকেই bizPOS অ্যাকাউন্ট থাকলে তিনি নিজের পাসওয়ার্ডেই যোগ দেবেন, ওপরেরটি ব্যবহার হবে না।';
+
+  @override
+  String memberAdded(String name) {
+    return '$name দলে যুক্ত হয়েছেন';
+  }
+
+  @override
+  String memberReusedAccount(String name) {
+    return '$name যুক্ত হয়েছেন — তাঁর আগেই অ্যাকাউন্ট ছিল, তাই নিজের পাসওয়ার্ডে সাইন ইন করবেন।';
+  }
+
+  @override
+  String get branchName => 'শাখার নাম';
+
+  @override
+  String get branchCode => 'কোড';
+
+  @override
+  String get branchCodeHelp => 'ছোট ও আলাদা, যেমন MRP';
+
+  @override
+  String get branchSaved => 'শাখা সংরক্ষিত';
+
+  @override
+  String get branchesNote =>
+      'স্টক, বিক্রি, ক্যাশ ড্রয়ার ও রিপোর্ট শাখা অনুযায়ী থাকে। প্রোফাইল থেকে শাখা বদলান।';
+
+  @override
+  String get youAreHere => 'আপনি এখানে';
+
+  @override
+  String get storeDetails => 'বিবরণ';
+
+  @override
+  String get edit => 'সম্পাদনা';
+
+  @override
+  String get editStore => 'দোকান সম্পাদনা';
+
+  @override
+  String get addressLabel => 'ঠিকানা';
+
+  @override
+  String get cityLabel => 'শহর';
+
+  @override
+  String get currencyLabel => 'মুদ্রা';
+
+  @override
+  String get atTheCounter => 'কাউন্টারে';
+
+  @override
+  String get vatInclusive => 'দামের মধ্যে ধরা';
+
+  @override
+  String get vatExclusive => 'দামের ওপর যোগ';
+
+  @override
+  String get receiptPaper => 'রসিদের কাগজ';
+
+  @override
+  String get invoicePrefix => 'ইনভয়েস প্রিফিক্স';
+
+  @override
+  String get invoicePrefixHelp => 'প্রতিটি ইনভয়েস নম্বরের আগে ছাপা হয়';
+
+  @override
+  String get allowCreditSale => 'বাকিতে বিক্রি';
+
+  @override
+  String get allowCreditSaleHelp =>
+      'নাম দেওয়া ক্রেতা বিলের চেয়ে কম দিয়ে বাকিটা পরে দিতে পারবেন।';
+
+  @override
+  String get allowed => 'চালু';
+
+  @override
+  String get notAllowed => 'বন্ধ';
+
+  @override
+  String get storeSaved => 'সংরক্ষিত';
+
+  @override
+  String get loyaltyTitle => 'লয়্যালটি পয়েন্ট';
+
+  @override
+  String get loyaltyStatus => 'প্রোগ্রাম';
+
+  @override
+  String get loyaltyOn => 'চালু';
+
+  @override
+  String get loyaltyOff => 'বন্ধ';
+
+  @override
+  String get loyaltyEnabled => 'ক্রেতারা পয়েন্ট পাবেন';
+
+  @override
+  String get loyaltyEarning => 'পয়েন্ট পাওয়া';
+
+  @override
+  String loyaltyEarnRule(String points, String amount) {
+    return 'প্রতি $amount কেনায় $points পয়েন্ট';
+  }
+
+  @override
+  String get loyaltyEarnPoints => 'পয়েন্ট';
+
+  @override
+  String get loyaltyEarnPer => 'প্রতি';
+
+  @override
+  String get loyaltyWorth => 'এক পয়েন্টের মূল্য';
+
+  @override
+  String loyaltyPointValue(String amount) {
+    return '১ পয়েন্ট = $amount';
+  }
+
+  @override
+  String get loyaltyMinRedeem => 'খরচ করতে কমপক্ষে পয়েন্ট';
+
+  @override
+  String get loyaltyMaxRedeemPct => 'বিলের সর্বোচ্চ কত % পয়েন্টে';
+
+  @override
+  String get loyaltyRound => 'পাওয়া পয়েন্টের রাউন্ডিং';
+
+  @override
+  String get roundDown => 'নিচে';
+
+  @override
+  String get roundNearest => 'কাছের';
+
+  @override
+  String get roundUp => 'ওপরে';
+
+  @override
+  String get mustBePositive => '০-এর বেশি হতে হবে';
+
+  @override
+  String get percentRange => '১ থেকে ১০০-এর মধ্যে';
+
+  @override
+  String get activityLocked => 'কার্যকলাপের লগ আপনার জন্য খোলা নয়।';
+
+  @override
+  String get activitySearchHint => 'লগে খুঁজুন';
+
+  @override
+  String get activitySubject => 'কী বদলেছে';
+
+  @override
+  String get activityAllSubjects => 'সব';
+
+  @override
+  String get activityEmpty => 'এই সময়ে কিছু বদলায়নি';
+
+  @override
+  String get activityEmptyBody => 'আরও লম্বা সময় বা অন্য ফিল্টার দেখুন।';
+
+  @override
+  String get activitySystem => 'সিস্টেম';
+
+  @override
+  String get emptyValue => '(খালি)';
+
+  @override
+  String get platformStores => 'দোকান';
+
+  @override
+  String platformSuggestions(int count) {
+    return 'প্রস্তাব ($count)';
+  }
+
+  @override
+  String get platformCatalogue => 'ক্যাটালগ';
+
+  @override
+  String get newStore => 'নতুন দোকান';
+
+  @override
+  String get createStore => 'দোকান তৈরি করুন';
+
+  @override
+  String get storeSearchHint => 'নাম, ফোন, ইমেইল বা মালিক';
+
+  @override
+  String allStoresCount(int count) {
+    return 'সব ($count)';
+  }
+
+  @override
+  String trialEndingCount(int count) {
+    return 'ট্রায়াল শেষের পথে ($count)';
+  }
+
+  @override
+  String lockedCount(int count) {
+    return 'বন্ধ ($count)';
+  }
+
+  @override
+  String get noStoresMatch => 'কোনো দোকান মেলেনি';
+
+  @override
+  String get trialOver => 'ট্রায়াল শেষ';
+
+  @override
+  String get dbNotReady => 'ডাটাবেস প্রস্তুত নয়';
+
+  @override
+  String get dbNotMoved => 'এখনো নিজের ডাটাবেসে সরানো হয়নি';
+
+  @override
+  String get dbServing => 'নিজের ডাটাবেস থেকে চলছে';
+
+  @override
+  String get planLabel => 'প্ল্যান';
+
+  @override
+  String get noPlan => 'প্ল্যান নেই';
+
+  @override
+  String get trialLabel => 'ট্রায়াল';
+
+  @override
+  String get noTimeLimit => 'সময়সীমা নেই';
+
+  @override
+  String get ownerLabel => 'মালিক';
+
+  @override
+  String get createdLabel => 'তৈরি';
+
+  @override
+  String get databaseLabel => 'ডাটাবেস';
+
+  @override
+  String get timezoneLabel => 'টাইম জোন';
+
+  @override
+  String get enterStore => 'সাপোর্টের জন্য ঢুকুন';
+
+  @override
+  String enterStoreTitle(String name) {
+    return '$name-এ ঢুকবেন?';
+  }
+
+  @override
+  String get enterStoreBody =>
+      'এই ডিভাইসটি প্ল্যাটফর্ম কর্মী হিসেবে ওই দোকানে যাবে। সেখানে আপনার সব কাজ লগ হবে, ওপরের ব্যানার থেকে ফিরে আসা যাবে।';
+
+  @override
+  String get youAreInThisStore => 'এই ডিভাইস এখন এই দোকানে';
+
+  @override
+  String get reactivateFirst => 'আগে দোকানটি চালু করুন';
+
+  @override
+  String get leaveSupport => 'বের হন';
+
+  @override
+  String get leaveSupportFailed =>
+      'সাপোর্ট মোড থেকে বের হওয়া গেল না। প্রোফাইল থেকে দোকান বদলান।';
+
+  @override
+  String get editStoreDetails => 'বিবরণ সম্পাদনা';
+
+  @override
+  String get storeTypeChangeWarning =>
+      'অন্য ধরনের দোকান অন্য শেয়ার্ড ক্যাটালগ দেখে। আগের পণ্য থাকবে, তবে ক্যাটালগে আর না-ও পাওয়া যেতে পারে।';
+
+  @override
+  String get storeTypeChangedNote =>
+      'সংরক্ষিত। দোকানটি এখন অন্য ধরনের ক্যাটালগ দেখবে।';
+
+  @override
+  String get extendTrial => 'ট্রায়াল বাড়ান';
+
+  @override
+  String get extendUnlimited => 'সময়সীমা নেই';
+
+  @override
+  String get extendUnlimitedHelp => 'যে দোকান টাকা দেওয়া শুরু করেছে তার জন্য।';
+
+  @override
+  String get extendDays => 'কত দিন যোগ হবে';
+
+  @override
+  String get extendDaysRange => '১ থেকে ৩৬৫০ দিনের মধ্যে';
+
+  @override
+  String get extendActivate => 'দোকানটিও চালু করুন';
+
+  @override
+  String get extendFromEnd => 'বর্তমান শেষ তারিখের পর থেকে দিন যোগ হবে।';
+
+  @override
+  String get extendFromToday => 'ট্রায়াল শেষ, তাই আজ থেকে দিন গোনা হবে।';
+
+  @override
+  String trialCurrentlyEnds(String date) {
+    return 'ট্রায়াল শেষ হবে $date';
+  }
+
+  @override
+  String trialNowEnds(String name, String date) {
+    return '$name: ট্রায়াল এখন শেষ হবে $date';
+  }
+
+  @override
+  String trialNowUnlimited(String name) {
+    return '$name-এর এখন কোনো সময়সীমা নেই';
+  }
+
+  @override
+  String daysCount(int count) {
+    return '$count দিন';
+  }
+
+  @override
+  String get suspendStore => 'দোকান স্থগিত করুন';
+
+  @override
+  String get reactivateStore => 'দোকান আবার চালু করুন';
+
+  @override
+  String suspendStoreTitle(String name) {
+    return '$name স্থগিত করবেন?';
+  }
+
+  @override
+  String reactivateStoreTitle(String name) {
+    return '$name আবার চালু করবেন?';
+  }
+
+  @override
+  String get suspendStoreBody =>
+      'স্থগিত থাকা অবস্থায় কেউ এই দোকানে সাইন ইন করতে পারবেন না। কিছুই মুছে যাবে না।';
+
+  @override
+  String get reactivateStoreBody => 'এর দল আবার সাইন ইন করতে পারবে।';
+
+  @override
+  String storeSuspended(String name) {
+    return '$name স্থগিত';
+  }
+
+  @override
+  String storeReactivated(String name) {
+    return '$name আবার চালু';
+  }
+
+  @override
+  String get optionalDetails => 'ঐচ্ছিক';
+
+  @override
+  String storeCreated(String name) {
+    return '$name তৈরি হয়েছে';
+  }
+
+  @override
+  String get ownerReusedAccount =>
+      'মালিকের আগেই অ্যাকাউন্ট ছিল, সেটি দিয়েই সাইন ইন করবেন।';
+
+  @override
+  String get dbProblemTitle =>
+      'দোকান তৈরি হয়েছে, কিন্তু ডাটাবেস সম্পূর্ণ হয়নি';
+
+  @override
+  String dbSteps(String created, String migrated) {
+    return 'ডাটাবেস তৈরি: $created · টেবিল তৈরি: $migrated';
+  }
+
+  @override
+  String get dbProblemNote =>
+      'সার্ভারে এটি ঠিক না হওয়া পর্যন্ত মালিক এতে কাজ করতে পারবেন না (php artisan tenancy:status)।';
+
+  @override
+  String get no => 'না';
+
+  @override
+  String get approve => 'অনুমোদন';
+
+  @override
+  String suggestedFrom(String who) {
+    return '$who থেকে';
+  }
+
+  @override
+  String get platformSuggestionsEmpty => 'কোনো প্রস্তাব অপেক্ষায় নেই';
+
+  @override
+  String get platformSuggestionsEmptyBody =>
+      'দোকানগুলো শেয়ার্ড ক্যাটালগের জন্য যে পণ্য প্রস্তাব করে, তা এখানে আসবে।';
+
+  @override
+  String get platformSuggestionAdded => 'শেয়ার্ড ক্যাটালগে যুক্ত হয়েছে';
+
+  @override
+  String get platformSuggestionMatched =>
+      'অনুমোদিত — ক্যাটালগের একটি পুরোনো এন্ট্রির সাথে মিলেছে';
+
+  @override
+  String get platformSuggestionRejected => 'বাতিল';
+
+  @override
+  String get newCatalogEntry => 'নতুন এন্ট্রি';
+
+  @override
+  String get editCatalogEntry => 'এন্ট্রি সম্পাদনা';
+
+  @override
+  String get allTypes => 'সব ধরন';
+
+  @override
+  String get allStatuses => 'যেকোনো অবস্থা';
+
+  @override
+  String deletedCount(int count) {
+    return 'মুছে ফেলা ($count)';
+  }
+
+  @override
+  String inStoresCount(int count) {
+    return '$countটি দোকানে';
+  }
+
+  @override
+  String get catalogStatus => 'অবস্থা';
+
+  @override
+  String get catalogStatusApproved => 'অনুমোদিত';
+
+  @override
+  String get catalogStatusPending => 'অপেক্ষমাণ';
+
+  @override
+  String get catalogStatusDraft => 'খসড়া';
+
+  @override
+  String get catalogStatusRejected => 'বাতিল';
+
+  @override
+  String catalogEditNote(int count) {
+    return '$countটি দোকান এটি বিক্রি করে। এখানে সম্পাদনায় তাদের নিজেদের নাম ও দাম বদলাবে না।';
+  }
+
+  @override
+  String get catalogEntrySaved => 'সংরক্ষিত';
+
+  @override
+  String deleteCatalogEntryTitle(String name) {
+    return '$name মুছবেন?';
+  }
+
+  @override
+  String get deleteCatalogEntryBody =>
+      'এটি সব ক্যাটালগ তালিকা ও ডুপ্লিকেট যাচাই থেকে সরে যাবে। যারা আগে থেকে বিক্রি করছে, তাদের পণ্য ও ইতিহাস থাকবে।';
+
+  @override
+  String catalogEntryDeleted(int count) {
+    return 'মুছে ফেলা হয়েছে — $countটি দোকানে থেকে যাবে';
+  }
+
+  @override
+  String get catalogEntryIsDeleted =>
+      'এই এন্ট্রিটি মুছে ফেলা। ফিরিয়ে আনলে আবার সব ক্যাটালগ তালিকায় দেখা যাবে।';
+
+  @override
+  String get catalogRestore => 'ফিরিয়ে আনুন';
+
+  @override
+  String get catalogEntryRestored => 'ফিরিয়ে আনা হয়েছে';
 }

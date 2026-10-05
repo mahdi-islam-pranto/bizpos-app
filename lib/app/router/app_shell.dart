@@ -68,6 +68,21 @@ class AppShell extends ConsumerWidget {
                 text: l10n.supportMode,
                 background: palette.warning,
                 foreground: palette.surface,
+                // The way out is on the banner itself: support mode is a
+                // place staff must never forget they are in.
+                actionLabel: l10n.leaveSupport,
+                onAction: () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  try {
+                    await ref
+                        .read(sessionControllerProvider.notifier)
+                        .leaveSupport();
+                  } catch (_) {
+                    messenger.showSnackBar(
+                      SnackBar(content: Text(l10n.leaveSupportFailed)),
+                    );
+                  }
+                },
               ),
             // A self-signed-up shop stops at the end of its trial, and sign-in
             // is refused from then on. Saying so on the last day is the
@@ -348,12 +363,16 @@ class _Banner extends StatelessWidget {
     required this.background,
     required this.foreground,
     this.icon = Icons.shield_outlined,
+    this.actionLabel,
+    this.onAction,
   });
 
   final String text;
   final IconData icon;
   final Color background;
   final Color foreground;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) => Material(
@@ -376,6 +395,15 @@ class _Banner extends StatelessWidget {
                     ?.copyWith(color: foreground),
               ),
             ),
+            if (actionLabel != null && onAction != null)
+              TextButton(
+                onPressed: onAction,
+                style: TextButton.styleFrom(
+                  foregroundColor: foreground,
+                  visualDensity: VisualDensity.compact,
+                ),
+                child: Text(actionLabel!),
+              ),
           ],
         ),
       ),

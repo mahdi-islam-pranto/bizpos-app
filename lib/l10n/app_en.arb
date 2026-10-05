@@ -1286,5 +1286,427 @@
   "accountMfs": "Mobile money",
   "txnSale": "Sale",
   "txnDuePayment": "Due collected",
-  "txnRefund": "Refund"
+  "txnRefund": "Refund",
+  "qtyPickerTitle": "Quantity",
+  "qtyCustom": "Custom quantity",
+  "teamMembers": "Members",
+  "branchesTab": "Branches",
+  "storeTab": "Store",
+  "activityTab": "Activity",
+  "addMember": "Add member",
+  "addBranch": "Add branch",
+  "editBranch": "Edit branch",
+  "activeMembers": "Active ({count})",
+  "@activeMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suspendedMembers": "Suspended ({count})",
+  "@suspendedMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "membersEmpty": "No one on the team yet",
+  "youBadge": "You",
+  "activeBadge": "Active",
+  "suspendedBadge": "Suspended",
+  "lockedBadge": "Locked",
+  "neverSignedIn": "Never signed in",
+  "lastSignedIn": "Last signed in {when}",
+  "@lastSignedIn": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "changeRole": "Change role",
+  "chooseRole": "Choose a role",
+  "whatRoleCanDo": "What {role} can do",
+  "@whatRoleCanDo": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "builtInRole": "A built-in role. Its permissions are set by the platform.",
+  "roleChanged": "{name} is now {role}",
+  "@roleChanged": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "suspendMember": "Suspend",
+  "reactivateMember": "Reactivate",
+  "suspendMemberTitle": "Suspend {name}?",
+  "@suspendMemberTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reactivateMemberTitle": "Reactivate {name}?",
+  "@reactivateMemberTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "suspendMemberBody": "They lose access to this store at their next step. Nothing they did is deleted, and you can reactivate them at any time.",
+  "reactivateMemberBody": "They can sign in to this store again, with the role they had.",
+  "memberSuspended": "{name} suspended",
+  "@memberSuspended": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "memberReactivated": "{name} can sign in again",
+  "@memberReactivated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cannotChangeSelf": "This is you. Nobody can change their own role or suspend themselves — ask another owner.",
+  "readOnlyTeam": "You can see the team but not change it.",
+  "fullName": "Full name",
+  "memberFormNote": "If this email already has a bizPOS account, they join with their own password and the one above is not used.",
+  "memberAdded": "{name} added to the team",
+  "@memberAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "memberReusedAccount": "{name} added — they already had an account, so they sign in with their own password.",
+  "@memberReusedAccount": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "branchName": "Branch name",
+  "branchCode": "Code",
+  "branchCodeHelp": "Short and unique, e.g. MRP",
+  "branchSaved": "Branch saved",
+  "branchesNote": "Stock, sales, cash drawers and reports are kept per branch. Switch branch from your profile.",
+  "youAreHere": "You are here",
+  "storeDetails": "Details",
+  "edit": "Edit",
+  "editStore": "Edit store",
+  "addressLabel": "Address",
+  "cityLabel": "City",
+  "currencyLabel": "Currency",
+  "atTheCounter": "At the counter",
+  "vatInclusive": "Included in prices",
+  "vatExclusive": "Added on top",
+  "receiptPaper": "Receipt paper",
+  "invoicePrefix": "Invoice prefix",
+  "invoicePrefixHelp": "Printed before every invoice number",
+  "allowCreditSale": "Sales on credit (due)",
+  "allowCreditSaleHelp": "A named customer may pay less than the bill and owe the rest.",
+  "allowed": "Allowed",
+  "notAllowed": "Not allowed",
+  "storeSaved": "Saved",
+  "loyaltyTitle": "Loyalty points",
+  "loyaltyStatus": "Programme",
+  "loyaltyOn": "On",
+  "loyaltyOff": "Off",
+  "loyaltyEnabled": "Customers earn points",
+  "loyaltyEarning": "Earning",
+  "loyaltyEarnRule": "{points} point(s) for every {amount} spent",
+  "@loyaltyEarnRule": {
+    "placeholders": {
+      "points": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "loyaltyEarnPoints": "Points earned",
+  "loyaltyEarnPer": "For every",
+  "loyaltyWorth": "One point is worth",
+  "loyaltyPointValue": "1 point = {amount}",
+  "@loyaltyPointValue": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "loyaltyMinRedeem": "Fewest points to redeem",
+  "loyaltyMaxRedeemPct": "Most of a bill paid by points (%)",
+  "loyaltyRound": "Rounding of points earned",
+  "roundDown": "Down",
+  "roundNearest": "Nearest",
+  "roundUp": "Up",
+  "mustBePositive": "Must be more than 0",
+  "percentRange": "Between 1 and 100",
+  "activityLocked": "The activity log is not open to you.",
+  "activitySearchHint": "Search the log",
+  "activitySubject": "What changed",
+  "activityAllSubjects": "Everything",
+  "activityEmpty": "Nothing changed in this period",
+  "activityEmptyBody": "Try a longer period or another filter.",
+  "activitySystem": "System",
+  "emptyValue": "(empty)",
+  "platformStores": "Stores",
+  "platformSuggestions": "Suggestions ({count})",
+  "@platformSuggestions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "platformCatalogue": "Catalogue",
+  "newStore": "New store",
+  "createStore": "Create store",
+  "storeSearchHint": "Name, phone, email or owner",
+  "allStoresCount": "All ({count})",
+  "@allStoresCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trialEndingCount": "Trial ending ({count})",
+  "@trialEndingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lockedCount": "Locked ({count})",
+  "@lockedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noStoresMatch": "No stores match",
+  "trialOver": "Trial over",
+  "dbNotReady": "Database not ready",
+  "dbNotMoved": "Not moved to its own database yet",
+  "dbServing": "Served from its own database",
+  "planLabel": "Plan",
+  "noPlan": "No plan",
+  "trialLabel": "Trial",
+  "noTimeLimit": "No time limit",
+  "ownerLabel": "Owner",
+  "createdLabel": "Created",
+  "databaseLabel": "Database",
+  "timezoneLabel": "Time zone",
+  "enterStore": "Enter for support",
+  "enterStoreTitle": "Enter {name}?",
+  "@enterStoreTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "enterStoreBody": "This device moves into that store as platform staff. Everything you do there is logged, and the banner at the top brings you back.",
+  "youAreInThisStore": "This device is in this store now",
+  "reactivateFirst": "Reactivate the store first",
+  "leaveSupport": "Leave",
+  "leaveSupportFailed": "Could not leave support mode. Switch store from your profile.",
+  "editStoreDetails": "Edit details",
+  "storeTypeChangeWarning": "A different kind of shop reads a different shared catalogue. Products it already has stay, but may no longer be found there.",
+  "storeTypeChangedNote": "Saved. The store now reads another kind of shop's catalogue.",
+  "extendTrial": "Extend trial",
+  "extendUnlimited": "No time limit",
+  "extendUnlimitedHelp": "For a shop that has started paying.",
+  "extendDays": "Days to add",
+  "extendDaysRange": "Between 1 and 3650 days",
+  "extendActivate": "Switch the store on as well",
+  "extendFromEnd": "Days are added after the current end date.",
+  "extendFromToday": "The trial has ended, so days count from today.",
+  "trialCurrentlyEnds": "The trial ends {date}",
+  "@trialCurrentlyEnds": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "trialNowEnds": "{name}: trial now ends {date}",
+  "@trialNowEnds": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "trialNowUnlimited": "{name} has no time limit now",
+  "@trialNowUnlimited": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "daysCount": "{count, plural, =1{1 day} other{{count} days}}",
+  "@daysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "suspendStore": "Suspend store",
+  "reactivateStore": "Reactivate store",
+  "suspendStoreTitle": "Suspend {name}?",
+  "@suspendStoreTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reactivateStoreTitle": "Reactivate {name}?",
+  "@reactivateStoreTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "suspendStoreBody": "Nobody can sign in to this store while it is suspended. Nothing in it is deleted.",
+  "reactivateStoreBody": "Its team can sign in again.",
+  "storeSuspended": "{name} suspended",
+  "@storeSuspended": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "storeReactivated": "{name} is active again",
+  "@storeReactivated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "optionalDetails": "Optional",
+  "storeCreated": "{name} created",
+  "@storeCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ownerReusedAccount": "The owner already had an account and signs in with it.",
+  "dbProblemTitle": "The store exists, but its database was not finished",
+  "dbSteps": "Database created: {created} · Tables made: {migrated}",
+  "@dbSteps": {
+    "placeholders": {
+      "created": {
+        "type": "String"
+      },
+      "migrated": {
+        "type": "String"
+      }
+    }
+  },
+  "dbProblemNote": "The owner cannot work in it until this is fixed on the server (php artisan tenancy:status).",
+  "no": "No",
+  "approve": "Approve",
+  "suggestedFrom": "From {who}",
+  "@suggestedFrom": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      }
+    }
+  },
+  "platformSuggestionsEmpty": "No suggestions waiting",
+  "platformSuggestionsEmptyBody": "Products shops put up for the shared catalogue appear here.",
+  "platformSuggestionAdded": "Added to the shared catalogue",
+  "platformSuggestionMatched": "Approved — it matched an entry already in the catalogue",
+  "platformSuggestionRejected": "Rejected",
+  "newCatalogEntry": "New entry",
+  "editCatalogEntry": "Edit entry",
+  "allTypes": "All kinds",
+  "allStatuses": "Any status",
+  "deletedCount": "Deleted ({count})",
+  "@deletedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inStoresCount": "{count, plural, =0{In no shops} =1{In 1 shop} other{In {count} shops}}",
+  "@inStoresCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogStatus": "Status",
+  "catalogStatusApproved": "Approved",
+  "catalogStatusPending": "Pending",
+  "catalogStatusDraft": "Draft",
+  "catalogStatusRejected": "Rejected",
+  "catalogEditNote": "{count, plural, =1{1 shop sells this.} other{{count} shops sell this.}} Their own names and prices are not touched by an edit here.",
+  "@catalogEditNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogEntrySaved": "Saved",
+  "deleteCatalogEntryTitle": "Delete {name}?",
+  "@deleteCatalogEntryTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteCatalogEntryBody": "It leaves every catalogue list and the duplicate check. Shops already selling it keep their product and its history.",
+  "catalogEntryDeleted": "{count, plural, =0{Deleted} =1{Deleted — 1 shop keeps it on its shelf} other{Deleted — {count} shops keep it on their shelves}}",
+  "@catalogEntryDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogEntryIsDeleted": "This entry is deleted. Restoring it puts it back on every catalogue list.",
+  "catalogRestore": "Restore",
+  "catalogEntryRestored": "Restored"
 }

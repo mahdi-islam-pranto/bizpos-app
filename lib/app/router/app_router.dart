@@ -18,10 +18,10 @@ import '../../features/customers/ui/customer_detail_screen.dart';
 import '../../features/customers/ui/customers_screen.dart';
 import '../../features/dashboard/ui/dashboard_screen.dart';
 import '../../features/home/not_allowed_screen.dart';
-import '../../features/home/placeholder_screen.dart';
 import '../../features/packages/ui/packages_screen.dart';
 import '../../features/products/ui/product_detail_screen.dart';
 import '../../features/products/ui/products_screen.dart';
+import '../../features/platform/ui/platform_screen.dart';
 import '../../features/pos/ui/pos_screen.dart';
 import '../../features/purchases/ui/goods_in_screen.dart';
 import '../../features/purchases/ui/purchases_screen.dart';
@@ -30,6 +30,7 @@ import '../../features/sales/ui/invoice_detail_screen.dart';
 import '../../features/sales/ui/invoices_screen.dart';
 import '../../features/settings/devices_screen.dart';
 import '../../features/settings/profile_screen.dart';
+import '../../features/team/ui/team_screen.dart';
 import 'app_shell.dart';
 import 'screen_gates.dart';
 import 'shell_nav.dart';
@@ -214,9 +215,9 @@ String? _redirectActive(Ref ref, Me me, String where) {
 ///
 /// Phase 1 is the counter: Sell, Invoices and Customers. Phase 2 adds Products
 /// and stock, Packages, the Catalogue with its Suggestions queue, and
-/// Purchases. Phase 3 adds the Dashboard, Accounts and Reports. The rest still say so plainly rather than looking broken, and
-/// swapping one in later is a line here — the gate table, the nav bar and the
-/// route guard need no edit.
+/// Purchases. Phase 3 adds the Dashboard, Accounts and Reports; phase 4 Team
+/// and store settings and the Platform. Every gate now has a real screen;
+/// `PlaceholderScreen` stays for whatever the gate table names next.
 Widget screenFor(ScreenGate gate) => switch (gate.screen) {
   AppScreen.pos => const PosScreen(),
   AppScreen.invoices => const InvoicesScreen(),
@@ -229,7 +230,8 @@ Widget screenFor(ScreenGate gate) => switch (gate.screen) {
   AppScreen.dashboard => const DashboardScreen(),
   AppScreen.accounts => const AccountsScreen(),
   AppScreen.reports => const ReportsScreen(),
-  _ => PlaceholderScreen(gate: gate),
+  AppScreen.team => const TeamScreen(),
+  AppScreen.platform => const PlatformScreen(),
 };
 
 /// The screens [screenFor] has something real behind. Kept beside it so the two
@@ -246,6 +248,8 @@ const Set<AppScreen> builtScreens = {
   AppScreen.dashboard,
   AppScreen.accounts,
   AppScreen.reports,
+  AppScreen.team,
+  AppScreen.platform,
 };
 
 /// Where somebody lands when they sign in.

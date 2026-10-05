@@ -10,6 +10,10 @@ import '../theme/tokens.dart';
 /// times, which is the whole difference between a demo and a counter.
 /// [max] is the branch stock — going past it is allowed but marked, because the
 /// server is the one that refuses an oversell and it says so in its own words.
+///
+/// [onTapQty] replaces the plain typing dialog with the caller's own picker
+/// (the cart's quick quantities), and marks the number with a small arrow so
+/// it reads as something to tap.
 class QtyStepper extends StatelessWidget {
   const QtyStepper({
     required this.qty,
@@ -17,6 +21,7 @@ class QtyStepper extends StatelessWidget {
     this.max,
     this.min = 1,
     this.compact = false,
+    this.onTapQty,
     super.key,
   });
 
@@ -25,6 +30,7 @@ class QtyStepper extends StatelessWidget {
   final num? max;
   final num min;
   final bool compact;
+  final VoidCallback? onTapQty;
 
   bool get _overStock => max != null && qty > max!;
 
@@ -51,16 +57,28 @@ class QtyStepper extends StatelessWidget {
             tone: qty <= min ? palette.danger : palette.text,
           ),
           GestureDetector(
-            onTap: () => _typeQty(context),
+            onTap: onTapQty ?? () => _typeQty(context),
+            behavior: HitTestBehavior.opaque,
             child: Container(
-              constraints: BoxConstraints(minWidth: size),
+              constraints: BoxConstraints(minWidth: size, minHeight: size),
               alignment: Alignment.center,
-              child: Text(
-                _pretty(qty),
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                  color: _overStock ? palette.warning : palette.text,
-                ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _pretty(qty),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                      color: _overStock ? palette.warning : palette.text,
+                    ),
+                  ),
+                  if (onTapQty != null)
+                    Icon(
+                      Icons.arrow_drop_down,
+                      size: 16,
+                      color: _overStock ? palette.warning : palette.muted,
+                    ),
+                ],
               ),
             ),
           ),

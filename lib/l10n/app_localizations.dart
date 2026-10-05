@@ -4098,6 +4098,1038 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Refund'**
   String get txnRefund;
+
+  /// No description provided for @qtyPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get qtyPickerTitle;
+
+  /// No description provided for @qtyCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom quantity'**
+  String get qtyCustom;
+
+  /// No description provided for @teamMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get teamMembers;
+
+  /// No description provided for @branchesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Branches'**
+  String get branchesTab;
+
+  /// No description provided for @storeTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Store'**
+  String get storeTab;
+
+  /// No description provided for @activityTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get activityTab;
+
+  /// No description provided for @addMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Add member'**
+  String get addMember;
+
+  /// No description provided for @addBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Add branch'**
+  String get addBranch;
+
+  /// No description provided for @editBranch.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit branch'**
+  String get editBranch;
+
+  /// No description provided for @activeMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Active ({count})'**
+  String activeMembers(int count);
+
+  /// No description provided for @suspendedMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspended ({count})'**
+  String suspendedMembers(int count);
+
+  /// No description provided for @membersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one on the team yet'**
+  String get membersEmpty;
+
+  /// No description provided for @youBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get youBadge;
+
+  /// No description provided for @activeBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get activeBadge;
+
+  /// No description provided for @suspendedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspended'**
+  String get suspendedBadge;
+
+  /// No description provided for @lockedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get lockedBadge;
+
+  /// No description provided for @neverSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Never signed in'**
+  String get neverSignedIn;
+
+  /// No description provided for @lastSignedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Last signed in {when}'**
+  String lastSignedIn(String when);
+
+  /// No description provided for @changeRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Change role'**
+  String get changeRole;
+
+  /// No description provided for @chooseRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a role'**
+  String get chooseRole;
+
+  /// No description provided for @whatRoleCanDo.
+  ///
+  /// In en, this message translates to:
+  /// **'What {role} can do'**
+  String whatRoleCanDo(String role);
+
+  /// No description provided for @builtInRole.
+  ///
+  /// In en, this message translates to:
+  /// **'A built-in role. Its permissions are set by the platform.'**
+  String get builtInRole;
+
+  /// No description provided for @roleChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is now {role}'**
+  String roleChanged(String name, String role);
+
+  /// No description provided for @suspendMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend'**
+  String get suspendMember;
+
+  /// No description provided for @reactivateMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get reactivateMember;
+
+  /// No description provided for @suspendMemberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend {name}?'**
+  String suspendMemberTitle(String name);
+
+  /// No description provided for @reactivateMemberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate {name}?'**
+  String reactivateMemberTitle(String name);
+
+  /// No description provided for @suspendMemberBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They lose access to this store at their next step. Nothing they did is deleted, and you can reactivate them at any time.'**
+  String get suspendMemberBody;
+
+  /// No description provided for @reactivateMemberBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They can sign in to this store again, with the role they had.'**
+  String get reactivateMemberBody;
+
+  /// No description provided for @memberSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} suspended'**
+  String memberSuspended(String name);
+
+  /// No description provided for @memberReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can sign in again'**
+  String memberReactivated(String name);
+
+  /// No description provided for @cannotChangeSelf.
+  ///
+  /// In en, this message translates to:
+  /// **'This is you. Nobody can change their own role or suspend themselves — ask another owner.'**
+  String get cannotChangeSelf;
+
+  /// No description provided for @readOnlyTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'You can see the team but not change it.'**
+  String get readOnlyTeam;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get fullName;
+
+  /// No description provided for @memberFormNote.
+  ///
+  /// In en, this message translates to:
+  /// **'If this email already has a bizPOS account, they join with their own password and the one above is not used.'**
+  String get memberFormNote;
+
+  /// No description provided for @memberAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added to the team'**
+  String memberAdded(String name);
+
+  /// No description provided for @memberReusedAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added — they already had an account, so they sign in with their own password.'**
+  String memberReusedAccount(String name);
+
+  /// No description provided for @branchName.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch name'**
+  String get branchName;
+
+  /// No description provided for @branchCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get branchCode;
+
+  /// No description provided for @branchCodeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Short and unique, e.g. MRP'**
+  String get branchCodeHelp;
+
+  /// No description provided for @branchSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch saved'**
+  String get branchSaved;
+
+  /// No description provided for @branchesNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock, sales, cash drawers and reports are kept per branch. Switch branch from your profile.'**
+  String get branchesNote;
+
+  /// No description provided for @youAreHere.
+  ///
+  /// In en, this message translates to:
+  /// **'You are here'**
+  String get youAreHere;
+
+  /// No description provided for @storeDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get storeDetails;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @editStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit store'**
+  String get editStore;
+
+  /// No description provided for @addressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get addressLabel;
+
+  /// No description provided for @cityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get cityLabel;
+
+  /// No description provided for @currencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currencyLabel;
+
+  /// No description provided for @atTheCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'At the counter'**
+  String get atTheCounter;
+
+  /// No description provided for @vatInclusive.
+  ///
+  /// In en, this message translates to:
+  /// **'Included in prices'**
+  String get vatInclusive;
+
+  /// No description provided for @vatExclusive.
+  ///
+  /// In en, this message translates to:
+  /// **'Added on top'**
+  String get vatExclusive;
+
+  /// No description provided for @receiptPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt paper'**
+  String get receiptPaper;
+
+  /// No description provided for @invoicePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice prefix'**
+  String get invoicePrefix;
+
+  /// No description provided for @invoicePrefixHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Printed before every invoice number'**
+  String get invoicePrefixHelp;
+
+  /// No description provided for @allowCreditSale.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales on credit (due)'**
+  String get allowCreditSale;
+
+  /// No description provided for @allowCreditSaleHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A named customer may pay less than the bill and owe the rest.'**
+  String get allowCreditSaleHelp;
+
+  /// No description provided for @allowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get allowed;
+
+  /// No description provided for @notAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not allowed'**
+  String get notAllowed;
+
+  /// No description provided for @storeSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get storeSaved;
+
+  /// No description provided for @loyaltyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty points'**
+  String get loyaltyTitle;
+
+  /// No description provided for @loyaltyStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Programme'**
+  String get loyaltyStatus;
+
+  /// No description provided for @loyaltyOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get loyaltyOn;
+
+  /// No description provided for @loyaltyOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get loyaltyOff;
+
+  /// No description provided for @loyaltyEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers earn points'**
+  String get loyaltyEnabled;
+
+  /// No description provided for @loyaltyEarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Earning'**
+  String get loyaltyEarning;
+
+  /// No description provided for @loyaltyEarnRule.
+  ///
+  /// In en, this message translates to:
+  /// **'{points} point(s) for every {amount} spent'**
+  String loyaltyEarnRule(String points, String amount);
+
+  /// No description provided for @loyaltyEarnPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Points earned'**
+  String get loyaltyEarnPoints;
+
+  /// No description provided for @loyaltyEarnPer.
+  ///
+  /// In en, this message translates to:
+  /// **'For every'**
+  String get loyaltyEarnPer;
+
+  /// No description provided for @loyaltyWorth.
+  ///
+  /// In en, this message translates to:
+  /// **'One point is worth'**
+  String get loyaltyWorth;
+
+  /// No description provided for @loyaltyPointValue.
+  ///
+  /// In en, this message translates to:
+  /// **'1 point = {amount}'**
+  String loyaltyPointValue(String amount);
+
+  /// No description provided for @loyaltyMinRedeem.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewest points to redeem'**
+  String get loyaltyMinRedeem;
+
+  /// No description provided for @loyaltyMaxRedeemPct.
+  ///
+  /// In en, this message translates to:
+  /// **'Most of a bill paid by points (%)'**
+  String get loyaltyMaxRedeemPct;
+
+  /// No description provided for @loyaltyRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounding of points earned'**
+  String get loyaltyRound;
+
+  /// No description provided for @roundDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Down'**
+  String get roundDown;
+
+  /// No description provided for @roundNearest.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearest'**
+  String get roundNearest;
+
+  /// No description provided for @roundUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Up'**
+  String get roundUp;
+
+  /// No description provided for @mustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be more than 0'**
+  String get mustBePositive;
+
+  /// No description provided for @percentRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Between 1 and 100'**
+  String get percentRange;
+
+  /// No description provided for @activityLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'The activity log is not open to you.'**
+  String get activityLocked;
+
+  /// No description provided for @activitySearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the log'**
+  String get activitySearchHint;
+
+  /// No description provided for @activitySubject.
+  ///
+  /// In en, this message translates to:
+  /// **'What changed'**
+  String get activitySubject;
+
+  /// No description provided for @activityAllSubjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything'**
+  String get activityAllSubjects;
+
+  /// No description provided for @activityEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing changed in this period'**
+  String get activityEmpty;
+
+  /// No description provided for @activityEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a longer period or another filter.'**
+  String get activityEmptyBody;
+
+  /// No description provided for @activitySystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get activitySystem;
+
+  /// No description provided for @emptyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'(empty)'**
+  String get emptyValue;
+
+  /// No description provided for @platformStores.
+  ///
+  /// In en, this message translates to:
+  /// **'Stores'**
+  String get platformStores;
+
+  /// No description provided for @platformSuggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestions ({count})'**
+  String platformSuggestions(int count);
+
+  /// No description provided for @platformCatalogue.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalogue'**
+  String get platformCatalogue;
+
+  /// No description provided for @newStore.
+  ///
+  /// In en, this message translates to:
+  /// **'New store'**
+  String get newStore;
+
+  /// No description provided for @createStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Create store'**
+  String get createStore;
+
+  /// No description provided for @storeSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, phone, email or owner'**
+  String get storeSearchHint;
+
+  /// No description provided for @allStoresCount.
+  ///
+  /// In en, this message translates to:
+  /// **'All ({count})'**
+  String allStoresCount(int count);
+
+  /// No description provided for @trialEndingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial ending ({count})'**
+  String trialEndingCount(int count);
+
+  /// No description provided for @lockedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked ({count})'**
+  String lockedCount(int count);
+
+  /// No description provided for @noStoresMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No stores match'**
+  String get noStoresMatch;
+
+  /// No description provided for @trialOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial over'**
+  String get trialOver;
+
+  /// No description provided for @dbNotReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Database not ready'**
+  String get dbNotReady;
+
+  /// No description provided for @dbNotMoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Not moved to its own database yet'**
+  String get dbNotMoved;
+
+  /// No description provided for @dbServing.
+  ///
+  /// In en, this message translates to:
+  /// **'Served from its own database'**
+  String get dbServing;
+
+  /// No description provided for @planLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get planLabel;
+
+  /// No description provided for @noPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'No plan'**
+  String get noPlan;
+
+  /// No description provided for @trialLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial'**
+  String get trialLabel;
+
+  /// No description provided for @noTimeLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'No time limit'**
+  String get noTimeLimit;
+
+  /// No description provided for @ownerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get ownerLabel;
+
+  /// No description provided for @createdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get createdLabel;
+
+  /// No description provided for @databaseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Database'**
+  String get databaseLabel;
+
+  /// No description provided for @timezoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time zone'**
+  String get timezoneLabel;
+
+  /// No description provided for @enterStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter for support'**
+  String get enterStore;
+
+  /// No description provided for @enterStoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter {name}?'**
+  String enterStoreTitle(String name);
+
+  /// No description provided for @enterStoreBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This device moves into that store as platform staff. Everything you do there is logged, and the banner at the top brings you back.'**
+  String get enterStoreBody;
+
+  /// No description provided for @youAreInThisStore.
+  ///
+  /// In en, this message translates to:
+  /// **'This device is in this store now'**
+  String get youAreInThisStore;
+
+  /// No description provided for @reactivateFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate the store first'**
+  String get reactivateFirst;
+
+  /// No description provided for @leaveSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get leaveSupport;
+
+  /// No description provided for @leaveSupportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not leave support mode. Switch store from your profile.'**
+  String get leaveSupportFailed;
+
+  /// No description provided for @editStoreDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get editStoreDetails;
+
+  /// No description provided for @storeTypeChangeWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'A different kind of shop reads a different shared catalogue. Products it already has stay, but may no longer be found there.'**
+  String get storeTypeChangeWarning;
+
+  /// No description provided for @storeTypeChangedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. The store now reads another kind of shop\'s catalogue.'**
+  String get storeTypeChangedNote;
+
+  /// No description provided for @extendTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Extend trial'**
+  String get extendTrial;
+
+  /// No description provided for @extendUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'No time limit'**
+  String get extendUnlimited;
+
+  /// No description provided for @extendUnlimitedHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'For a shop that has started paying.'**
+  String get extendUnlimitedHelp;
+
+  /// No description provided for @extendDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Days to add'**
+  String get extendDays;
+
+  /// No description provided for @extendDaysRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Between 1 and 3650 days'**
+  String get extendDaysRange;
+
+  /// No description provided for @extendActivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch the store on as well'**
+  String get extendActivate;
+
+  /// No description provided for @extendFromEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Days are added after the current end date.'**
+  String get extendFromEnd;
+
+  /// No description provided for @extendFromToday.
+  ///
+  /// In en, this message translates to:
+  /// **'The trial has ended, so days count from today.'**
+  String get extendFromToday;
+
+  /// No description provided for @trialCurrentlyEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'The trial ends {date}'**
+  String trialCurrentlyEnds(String date);
+
+  /// No description provided for @trialNowEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: trial now ends {date}'**
+  String trialNowEnds(String name, String date);
+
+  /// No description provided for @trialNowUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} has no time limit now'**
+  String trialNowUnlimited(String name);
+
+  /// No description provided for @daysCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String daysCount(int count);
+
+  /// No description provided for @suspendStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend store'**
+  String get suspendStore;
+
+  /// No description provided for @reactivateStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate store'**
+  String get reactivateStore;
+
+  /// No description provided for @suspendStoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend {name}?'**
+  String suspendStoreTitle(String name);
+
+  /// No description provided for @reactivateStoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate {name}?'**
+  String reactivateStoreTitle(String name);
+
+  /// No description provided for @suspendStoreBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody can sign in to this store while it is suspended. Nothing in it is deleted.'**
+  String get suspendStoreBody;
+
+  /// No description provided for @reactivateStoreBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its team can sign in again.'**
+  String get reactivateStoreBody;
+
+  /// No description provided for @storeSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} suspended'**
+  String storeSuspended(String name);
+
+  /// No description provided for @storeReactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is active again'**
+  String storeReactivated(String name);
+
+  /// No description provided for @optionalDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get optionalDetails;
+
+  /// No description provided for @storeCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} created'**
+  String storeCreated(String name);
+
+  /// No description provided for @ownerReusedAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'The owner already had an account and signs in with it.'**
+  String get ownerReusedAccount;
+
+  /// No description provided for @dbProblemTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The store exists, but its database was not finished'**
+  String get dbProblemTitle;
+
+  /// No description provided for @dbSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Database created: {created} · Tables made: {migrated}'**
+  String dbSteps(String created, String migrated);
+
+  /// No description provided for @dbProblemNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The owner cannot work in it until this is fixed on the server (php artisan tenancy:status).'**
+  String get dbProblemNote;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approve;
+
+  /// No description provided for @suggestedFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {who}'**
+  String suggestedFrom(String who);
+
+  /// No description provided for @platformSuggestionsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No suggestions waiting'**
+  String get platformSuggestionsEmpty;
+
+  /// No description provided for @platformSuggestionsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Products shops put up for the shared catalogue appear here.'**
+  String get platformSuggestionsEmptyBody;
+
+  /// No description provided for @platformSuggestionAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to the shared catalogue'**
+  String get platformSuggestionAdded;
+
+  /// No description provided for @platformSuggestionMatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved — it matched an entry already in the catalogue'**
+  String get platformSuggestionMatched;
+
+  /// No description provided for @platformSuggestionRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get platformSuggestionRejected;
+
+  /// No description provided for @newCatalogEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'New entry'**
+  String get newCatalogEntry;
+
+  /// No description provided for @editCatalogEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit entry'**
+  String get editCatalogEntry;
+
+  /// No description provided for @allTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'All kinds'**
+  String get allTypes;
+
+  /// No description provided for @allStatuses.
+  ///
+  /// In en, this message translates to:
+  /// **'Any status'**
+  String get allStatuses;
+
+  /// No description provided for @deletedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted ({count})'**
+  String deletedCount(int count);
+
+  /// No description provided for @inStoresCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{In no shops} =1{In 1 shop} other{In {count} shops}}'**
+  String inStoresCount(int count);
+
+  /// No description provided for @catalogStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get catalogStatus;
+
+  /// No description provided for @catalogStatusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get catalogStatusApproved;
+
+  /// No description provided for @catalogStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get catalogStatusPending;
+
+  /// No description provided for @catalogStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get catalogStatusDraft;
+
+  /// No description provided for @catalogStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get catalogStatusRejected;
+
+  /// No description provided for @catalogEditNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 shop sells this.} other{{count} shops sell this.}} Their own names and prices are not touched by an edit here.'**
+  String catalogEditNote(int count);
+
+  /// No description provided for @catalogEntrySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get catalogEntrySaved;
+
+  /// No description provided for @deleteCatalogEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String deleteCatalogEntryTitle(String name);
+
+  /// No description provided for @deleteCatalogEntryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It leaves every catalogue list and the duplicate check. Shops already selling it keep their product and its history.'**
+  String get deleteCatalogEntryBody;
+
+  /// No description provided for @catalogEntryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Deleted} =1{Deleted — 1 shop keeps it on its shelf} other{Deleted — {count} shops keep it on their shelves}}'**
+  String catalogEntryDeleted(int count);
+
+  /// No description provided for @catalogEntryIsDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'This entry is deleted. Restoring it puts it back on every catalogue list.'**
+  String get catalogEntryIsDeleted;
+
+  /// No description provided for @catalogRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get catalogRestore;
+
+  /// No description provided for @catalogEntryRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored'**
+  String get catalogEntryRestored;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

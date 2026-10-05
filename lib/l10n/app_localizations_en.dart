@@ -2313,4 +2313,634 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get txnRefund => 'Refund';
+
+  @override
+  String get qtyPickerTitle => 'Quantity';
+
+  @override
+  String get qtyCustom => 'Custom quantity';
+
+  @override
+  String get teamMembers => 'Members';
+
+  @override
+  String get branchesTab => 'Branches';
+
+  @override
+  String get storeTab => 'Store';
+
+  @override
+  String get activityTab => 'Activity';
+
+  @override
+  String get addMember => 'Add member';
+
+  @override
+  String get addBranch => 'Add branch';
+
+  @override
+  String get editBranch => 'Edit branch';
+
+  @override
+  String activeMembers(int count) {
+    return 'Active ($count)';
+  }
+
+  @override
+  String suspendedMembers(int count) {
+    return 'Suspended ($count)';
+  }
+
+  @override
+  String get membersEmpty => 'No one on the team yet';
+
+  @override
+  String get youBadge => 'You';
+
+  @override
+  String get activeBadge => 'Active';
+
+  @override
+  String get suspendedBadge => 'Suspended';
+
+  @override
+  String get lockedBadge => 'Locked';
+
+  @override
+  String get neverSignedIn => 'Never signed in';
+
+  @override
+  String lastSignedIn(String when) {
+    return 'Last signed in $when';
+  }
+
+  @override
+  String get changeRole => 'Change role';
+
+  @override
+  String get chooseRole => 'Choose a role';
+
+  @override
+  String whatRoleCanDo(String role) {
+    return 'What $role can do';
+  }
+
+  @override
+  String get builtInRole =>
+      'A built-in role. Its permissions are set by the platform.';
+
+  @override
+  String roleChanged(String name, String role) {
+    return '$name is now $role';
+  }
+
+  @override
+  String get suspendMember => 'Suspend';
+
+  @override
+  String get reactivateMember => 'Reactivate';
+
+  @override
+  String suspendMemberTitle(String name) {
+    return 'Suspend $name?';
+  }
+
+  @override
+  String reactivateMemberTitle(String name) {
+    return 'Reactivate $name?';
+  }
+
+  @override
+  String get suspendMemberBody =>
+      'They lose access to this store at their next step. Nothing they did is deleted, and you can reactivate them at any time.';
+
+  @override
+  String get reactivateMemberBody =>
+      'They can sign in to this store again, with the role they had.';
+
+  @override
+  String memberSuspended(String name) {
+    return '$name suspended';
+  }
+
+  @override
+  String memberReactivated(String name) {
+    return '$name can sign in again';
+  }
+
+  @override
+  String get cannotChangeSelf =>
+      'This is you. Nobody can change their own role or suspend themselves — ask another owner.';
+
+  @override
+  String get readOnlyTeam => 'You can see the team but not change it.';
+
+  @override
+  String get fullName => 'Full name';
+
+  @override
+  String get memberFormNote =>
+      'If this email already has a bizPOS account, they join with their own password and the one above is not used.';
+
+  @override
+  String memberAdded(String name) {
+    return '$name added to the team';
+  }
+
+  @override
+  String memberReusedAccount(String name) {
+    return '$name added — they already had an account, so they sign in with their own password.';
+  }
+
+  @override
+  String get branchName => 'Branch name';
+
+  @override
+  String get branchCode => 'Code';
+
+  @override
+  String get branchCodeHelp => 'Short and unique, e.g. MRP';
+
+  @override
+  String get branchSaved => 'Branch saved';
+
+  @override
+  String get branchesNote =>
+      'Stock, sales, cash drawers and reports are kept per branch. Switch branch from your profile.';
+
+  @override
+  String get youAreHere => 'You are here';
+
+  @override
+  String get storeDetails => 'Details';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get editStore => 'Edit store';
+
+  @override
+  String get addressLabel => 'Address';
+
+  @override
+  String get cityLabel => 'City';
+
+  @override
+  String get currencyLabel => 'Currency';
+
+  @override
+  String get atTheCounter => 'At the counter';
+
+  @override
+  String get vatInclusive => 'Included in prices';
+
+  @override
+  String get vatExclusive => 'Added on top';
+
+  @override
+  String get receiptPaper => 'Receipt paper';
+
+  @override
+  String get invoicePrefix => 'Invoice prefix';
+
+  @override
+  String get invoicePrefixHelp => 'Printed before every invoice number';
+
+  @override
+  String get allowCreditSale => 'Sales on credit (due)';
+
+  @override
+  String get allowCreditSaleHelp =>
+      'A named customer may pay less than the bill and owe the rest.';
+
+  @override
+  String get allowed => 'Allowed';
+
+  @override
+  String get notAllowed => 'Not allowed';
+
+  @override
+  String get storeSaved => 'Saved';
+
+  @override
+  String get loyaltyTitle => 'Loyalty points';
+
+  @override
+  String get loyaltyStatus => 'Programme';
+
+  @override
+  String get loyaltyOn => 'On';
+
+  @override
+  String get loyaltyOff => 'Off';
+
+  @override
+  String get loyaltyEnabled => 'Customers earn points';
+
+  @override
+  String get loyaltyEarning => 'Earning';
+
+  @override
+  String loyaltyEarnRule(String points, String amount) {
+    return '$points point(s) for every $amount spent';
+  }
+
+  @override
+  String get loyaltyEarnPoints => 'Points earned';
+
+  @override
+  String get loyaltyEarnPer => 'For every';
+
+  @override
+  String get loyaltyWorth => 'One point is worth';
+
+  @override
+  String loyaltyPointValue(String amount) {
+    return '1 point = $amount';
+  }
+
+  @override
+  String get loyaltyMinRedeem => 'Fewest points to redeem';
+
+  @override
+  String get loyaltyMaxRedeemPct => 'Most of a bill paid by points (%)';
+
+  @override
+  String get loyaltyRound => 'Rounding of points earned';
+
+  @override
+  String get roundDown => 'Down';
+
+  @override
+  String get roundNearest => 'Nearest';
+
+  @override
+  String get roundUp => 'Up';
+
+  @override
+  String get mustBePositive => 'Must be more than 0';
+
+  @override
+  String get percentRange => 'Between 1 and 100';
+
+  @override
+  String get activityLocked => 'The activity log is not open to you.';
+
+  @override
+  String get activitySearchHint => 'Search the log';
+
+  @override
+  String get activitySubject => 'What changed';
+
+  @override
+  String get activityAllSubjects => 'Everything';
+
+  @override
+  String get activityEmpty => 'Nothing changed in this period';
+
+  @override
+  String get activityEmptyBody => 'Try a longer period or another filter.';
+
+  @override
+  String get activitySystem => 'System';
+
+  @override
+  String get emptyValue => '(empty)';
+
+  @override
+  String get platformStores => 'Stores';
+
+  @override
+  String platformSuggestions(int count) {
+    return 'Suggestions ($count)';
+  }
+
+  @override
+  String get platformCatalogue => 'Catalogue';
+
+  @override
+  String get newStore => 'New store';
+
+  @override
+  String get createStore => 'Create store';
+
+  @override
+  String get storeSearchHint => 'Name, phone, email or owner';
+
+  @override
+  String allStoresCount(int count) {
+    return 'All ($count)';
+  }
+
+  @override
+  String trialEndingCount(int count) {
+    return 'Trial ending ($count)';
+  }
+
+  @override
+  String lockedCount(int count) {
+    return 'Locked ($count)';
+  }
+
+  @override
+  String get noStoresMatch => 'No stores match';
+
+  @override
+  String get trialOver => 'Trial over';
+
+  @override
+  String get dbNotReady => 'Database not ready';
+
+  @override
+  String get dbNotMoved => 'Not moved to its own database yet';
+
+  @override
+  String get dbServing => 'Served from its own database';
+
+  @override
+  String get planLabel => 'Plan';
+
+  @override
+  String get noPlan => 'No plan';
+
+  @override
+  String get trialLabel => 'Trial';
+
+  @override
+  String get noTimeLimit => 'No time limit';
+
+  @override
+  String get ownerLabel => 'Owner';
+
+  @override
+  String get createdLabel => 'Created';
+
+  @override
+  String get databaseLabel => 'Database';
+
+  @override
+  String get timezoneLabel => 'Time zone';
+
+  @override
+  String get enterStore => 'Enter for support';
+
+  @override
+  String enterStoreTitle(String name) {
+    return 'Enter $name?';
+  }
+
+  @override
+  String get enterStoreBody =>
+      'This device moves into that store as platform staff. Everything you do there is logged, and the banner at the top brings you back.';
+
+  @override
+  String get youAreInThisStore => 'This device is in this store now';
+
+  @override
+  String get reactivateFirst => 'Reactivate the store first';
+
+  @override
+  String get leaveSupport => 'Leave';
+
+  @override
+  String get leaveSupportFailed =>
+      'Could not leave support mode. Switch store from your profile.';
+
+  @override
+  String get editStoreDetails => 'Edit details';
+
+  @override
+  String get storeTypeChangeWarning =>
+      'A different kind of shop reads a different shared catalogue. Products it already has stay, but may no longer be found there.';
+
+  @override
+  String get storeTypeChangedNote =>
+      'Saved. The store now reads another kind of shop\'s catalogue.';
+
+  @override
+  String get extendTrial => 'Extend trial';
+
+  @override
+  String get extendUnlimited => 'No time limit';
+
+  @override
+  String get extendUnlimitedHelp => 'For a shop that has started paying.';
+
+  @override
+  String get extendDays => 'Days to add';
+
+  @override
+  String get extendDaysRange => 'Between 1 and 3650 days';
+
+  @override
+  String get extendActivate => 'Switch the store on as well';
+
+  @override
+  String get extendFromEnd => 'Days are added after the current end date.';
+
+  @override
+  String get extendFromToday =>
+      'The trial has ended, so days count from today.';
+
+  @override
+  String trialCurrentlyEnds(String date) {
+    return 'The trial ends $date';
+  }
+
+  @override
+  String trialNowEnds(String name, String date) {
+    return '$name: trial now ends $date';
+  }
+
+  @override
+  String trialNowUnlimited(String name) {
+    return '$name has no time limit now';
+  }
+
+  @override
+  String daysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get suspendStore => 'Suspend store';
+
+  @override
+  String get reactivateStore => 'Reactivate store';
+
+  @override
+  String suspendStoreTitle(String name) {
+    return 'Suspend $name?';
+  }
+
+  @override
+  String reactivateStoreTitle(String name) {
+    return 'Reactivate $name?';
+  }
+
+  @override
+  String get suspendStoreBody =>
+      'Nobody can sign in to this store while it is suspended. Nothing in it is deleted.';
+
+  @override
+  String get reactivateStoreBody => 'Its team can sign in again.';
+
+  @override
+  String storeSuspended(String name) {
+    return '$name suspended';
+  }
+
+  @override
+  String storeReactivated(String name) {
+    return '$name is active again';
+  }
+
+  @override
+  String get optionalDetails => 'Optional';
+
+  @override
+  String storeCreated(String name) {
+    return '$name created';
+  }
+
+  @override
+  String get ownerReusedAccount =>
+      'The owner already had an account and signs in with it.';
+
+  @override
+  String get dbProblemTitle =>
+      'The store exists, but its database was not finished';
+
+  @override
+  String dbSteps(String created, String migrated) {
+    return 'Database created: $created · Tables made: $migrated';
+  }
+
+  @override
+  String get dbProblemNote =>
+      'The owner cannot work in it until this is fixed on the server (php artisan tenancy:status).';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get approve => 'Approve';
+
+  @override
+  String suggestedFrom(String who) {
+    return 'From $who';
+  }
+
+  @override
+  String get platformSuggestionsEmpty => 'No suggestions waiting';
+
+  @override
+  String get platformSuggestionsEmptyBody =>
+      'Products shops put up for the shared catalogue appear here.';
+
+  @override
+  String get platformSuggestionAdded => 'Added to the shared catalogue';
+
+  @override
+  String get platformSuggestionMatched =>
+      'Approved — it matched an entry already in the catalogue';
+
+  @override
+  String get platformSuggestionRejected => 'Rejected';
+
+  @override
+  String get newCatalogEntry => 'New entry';
+
+  @override
+  String get editCatalogEntry => 'Edit entry';
+
+  @override
+  String get allTypes => 'All kinds';
+
+  @override
+  String get allStatuses => 'Any status';
+
+  @override
+  String deletedCount(int count) {
+    return 'Deleted ($count)';
+  }
+
+  @override
+  String inStoresCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'In $count shops',
+      one: 'In 1 shop',
+      zero: 'In no shops',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get catalogStatus => 'Status';
+
+  @override
+  String get catalogStatusApproved => 'Approved';
+
+  @override
+  String get catalogStatusPending => 'Pending';
+
+  @override
+  String get catalogStatusDraft => 'Draft';
+
+  @override
+  String get catalogStatusRejected => 'Rejected';
+
+  @override
+  String catalogEditNote(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count shops sell this.',
+      one: '1 shop sells this.',
+    );
+    return '$_temp0 Their own names and prices are not touched by an edit here.';
+  }
+
+  @override
+  String get catalogEntrySaved => 'Saved';
+
+  @override
+  String deleteCatalogEntryTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get deleteCatalogEntryBody =>
+      'It leaves every catalogue list and the duplicate check. Shops already selling it keep their product and its history.';
+
+  @override
+  String catalogEntryDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Deleted — $count shops keep it on their shelves',
+      one: 'Deleted — 1 shop keeps it on its shelf',
+      zero: 'Deleted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get catalogEntryIsDeleted =>
+      'This entry is deleted. Restoring it puts it back on every catalogue list.';
+
+  @override
+  String get catalogRestore => 'Restore';
+
+  @override
+  String get catalogEntryRestored => 'Restored';
 }

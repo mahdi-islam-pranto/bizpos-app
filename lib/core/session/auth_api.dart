@@ -133,6 +133,13 @@ class AuthApi {
     parse: parseNothing,
   );
 
+  /// `POST /admin/stores/{id}/impersonate` — platform staff entering a shop
+  /// for support. Like [switchStore] it moves this device, and is logged.
+  Future<void> impersonate(int storeId) => _client.post<void>(
+    ApiPaths.adminStoreImpersonate(storeId),
+    parse: parseNothing,
+  );
+
   Future<void> switchBranch(int branchId) => _client.post<void>(
     ApiPaths.switchBranch,
     body: {'branchId': branchId},

@@ -22,6 +22,9 @@ Future<T?> showAppSheet<T>(
     isDismissible: dismissible,
     enableDrag: dismissible,
     useSafeArea: true,
+    // The frame draws its own grabber. The theme's Material handle on top of
+    // it was a second 48 px band of empty space above every sheet's title.
+    showDragHandle: false,
     backgroundColor: context.palette.surface,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(Radii.sheet)),
@@ -78,9 +81,9 @@ class AppSheetFrame extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 Insets.gutter,
-                Insets.s12,
-                Insets.s8,
-                Insets.s8,
+                Insets.s4,
+                Insets.s4,
+                Insets.s4,
               ),
               child: Row(
                 children: [

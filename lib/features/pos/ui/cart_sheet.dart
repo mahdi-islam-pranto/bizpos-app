@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/format/money.dart';
@@ -63,7 +64,7 @@ class CartSheet extends ConsumerWidget {
         Flexible(
           child: ListView(
             shrinkWrap: true,
-            padding: const EdgeInsets.symmetric(vertical: Insets.s8),
+            padding: const EdgeInsets.only(bottom: Insets.s8),
             children: [
               for (final line in cart.lines)
                 _CartRow(
@@ -272,6 +273,15 @@ class _CartRow extends StatelessWidget {
                   max: line.item.stock,
                   onChanged: onQty,
                   compact: true,
+                  onTapQty: () async {
+                    final picked = await QtyPickerSheet.show(
+                      context,
+                      current: line.qty,
+                      stock: line.item.stock,
+                      unit: line.item.unit,
+                    );
+                    if (picked != null) onQty(picked);
+                  },
                 ),
                 SizedBox(
                   width: 76,
@@ -615,6 +625,177 @@ class _AmountPromptState extends State<_AmountPrompt> {
       ],
     ),
   );
+}
+
+/// Quick quantities for a line, plus any figure typed by hand.
+///
+/// Stepping `+` thirty times is how a counter loses a queue. The common
+/// round numbers are one tap each; anything else (`7`, `2.5` kg) goes in the
+/// box underneath.
+class QtyPickerSheet extends StatefulWidget {
+  const QtyPickerSheet({
+    required this.current,
+    this.stock,
+    this.unit,
+    super.key,
+  });
+
+  final num current;
+  final num? stock;
+  final String? unit;
+
+  static const presets = <num>[1, 2, 3, 5, 10, 20, 30, 50];
+
+  static Future<num?> show(
+    BuildContext context, {
+    required num current,
+    num? stock,
+    String? unit,
+  }) => showAppSheet<num>(
+    context,
+    title: AppL10n.of(context).qtyPickerTitle,
+    builder: (_) => QtyPickerSheet(current: current, stock: stock, unit: unit),
+  );
+
+  @override
+  State<QtyPickerSheet> createState() => _QtyPickerSheetState();
+}
+
+class _QtyPickerSheetState extends State<QtyPickerSheet> {
+  // Owned here so it dies with the sheet, not when the sheet's future
+  // completes — see [_AmountPrompt].
+  late final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _pick(num? qty) {
+    if (qty == null || qty <= 0) return;
+    FocusScope.of(context).unfocus();
+    Navigator.of(context).pop(qty);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final palette = context.palette;
+    final text = Theme.of(context).textTheme;
+    final stock = widget.stock;
+    const perRow = 4;
+    const presets = QtyPickerSheet.presets;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(Insets.gutter),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (stock != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Insets.s12),
+                child: Text(
+                  l10n.onShelf(_rate(stock)),
+                  style: text.bodySmall?.copyWith(color: palette.muted),
+                ),
+              ),
+            for (var start = 0; start < presets.length; start += perRow) ...[
+              if (start > 0) const SizedBox(height: Insets.s8),
+              Row(
+                children: [
+                  for (var i = start; i < start + perRow; i++) ...[
+                    if (i > start) const SizedBox(width: Insets.s8),
+                    Expanded(
+                      child: i < presets.length
+                          ? _PresetButton(
+                              qty: presets[i],
+                              selected: presets[i] == widget.current,
+                              overStock: stock != null && presets[i] > stock,
+                              onTap: () => _pick(presets[i]),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+            const SizedBox(height: Insets.s16),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    textInputAction: TextInputAction.done,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*\.?\d{0,3}'),
+                      ),
+                    ],
+                    onSubmitted: (value) => _pick(num.tryParse(value.trim())),
+                    decoration: InputDecoration(
+                      labelText: l10n.qtyCustom,
+                      hintText: _rate(widget.current),
+                      suffixText: widget.unit,
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: Insets.s8),
+                FilledButton(
+                  onPressed: () => _pick(num.tryParse(_controller.text.trim())),
+                  child: Text(l10n.apply),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PresetButton extends StatelessWidget {
+  const _PresetButton({
+    required this.qty,
+    required this.selected,
+    required this.overStock,
+    required this.onTap,
+  });
+
+  final num qty;
+  final bool selected;
+  final bool overStock;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final label = Text(
+      _rate(qty),
+      style: const TextStyle(fontFeatures: [FontFeature.tabularFigures()]),
+    );
+
+    if (selected) return FilledButton(onPressed: onTap, child: label);
+    return OutlinedButton(
+      onPressed: onTap,
+      // Allowed — the server is the one that refuses an oversell — but
+      // marked, the same way the stepper marks it.
+      style: overStock
+          ? OutlinedButton.styleFrom(
+              foregroundColor: palette.warning,
+              side: BorderSide(color: palette.warning),
+            )
+          : null,
+      child: label,
+    );
+  }
 }
 
 String _rate(num value) => value == value.roundToDouble()
