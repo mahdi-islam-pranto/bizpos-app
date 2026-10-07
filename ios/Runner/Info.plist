@@ -2,16 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>BizPOS prints receipts on a Bluetooth printer.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>BizPOS saves receipts to your photos when no printer is connected.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>bizPOS uses the camera to scan barcodes at the till and to photograph supplier bills.</string>
+	<string>BizPOS uses the camera to scan barcodes at the till and to photograph supplier bills.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>bizPOS attaches photos of supplier bills from your gallery to a purchase.</string>
+	<string>BizPOS attaches photos of supplier bills from your gallery to a purchase.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Bizpos App</string>
+	<string>BizPOS</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -19,7 +23,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>bizpos_app</string>
+	<string>BizPOS</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

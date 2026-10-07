@@ -10,7 +10,7 @@ class AppL10nEn extends AppL10n {
   AppL10nEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'bizPOS';
+  String get appName => 'BizPOS';
 
   @override
   String get signInTitle => 'Sign in';
@@ -718,9 +718,6 @@ class AppL10nEn extends AppL10n {
   String get printReceipt => 'Print';
 
   @override
-  String get printingSoon => 'Bluetooth printing arrives in a later phase.';
-
-  @override
   String get share => 'Share';
 
   @override
@@ -1280,7 +1277,7 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get openingBalanceHelp =>
-      'What they owed before this shop used bizPOS.';
+      'What they owed before this shop used BizPOS.';
 
   @override
   String get ledgerSale => 'Sale';
@@ -2440,7 +2437,7 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get memberFormNote =>
-      'If this email already has a bizPOS account, they join with their own password and the one above is not used.';
+      'If this email already has a BizPOS account, they join with their own password and the one above is not used.';
 
   @override
   String memberAdded(String name) {
@@ -2943,4 +2940,131 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get catalogEntryRestored => 'Restored';
+
+  @override
+  String noStockLeft(String name) {
+    return 'No more $name in stock';
+  }
+
+  @override
+  String get sellingPriceLabel => 'Selling price';
+
+  @override
+  String maxLineDiscount(String amount) {
+    return 'Up to $amount keeps this line above cost';
+  }
+
+  @override
+  String lineDiscountTooHigh(String amount) {
+    return 'More than $amount sells below cost';
+  }
+
+  @override
+  String unitPriceBelowCost(String amount) {
+    return 'Below the cost of $amount';
+  }
+
+  @override
+  String maxBillDiscount(String rate, String amount) {
+    return 'Up to $rate% ($amount) keeps the bill above cost';
+  }
+
+  @override
+  String billDiscountTooHigh(String rate) {
+    return 'More than $rate% sells below cost';
+  }
+
+  @override
+  String get noDiscountRoom =>
+      'No room for a discount — the bill is already at cost';
+
+  @override
+  String get chooseUnit => 'Choose a unit';
+
+  @override
+  String get unitSearchHint => 'Search units, or type a new one';
+
+  @override
+  String useNewUnit(String unit) {
+    return 'Use “$unit” as a new unit';
+  }
+
+  @override
+  String get receiptTitle => 'Receipt';
+
+  @override
+  String get receiptServedBy => 'Served by';
+
+  @override
+  String get receiptItem => 'Item';
+
+  @override
+  String get receiptAmount => 'Amount';
+
+  @override
+  String get receiptLineDiscounts => 'Item discounts';
+
+  @override
+  String get receiptTotal => 'TOTAL';
+
+  @override
+  String get receiptYouSaved => 'YOU SAVED';
+
+  @override
+  String get receiptThanks => 'Thank you, please come again';
+
+  @override
+  String receiptMrpSave(String mrp, String amount, String rate) {
+    return 'MRP $mrp · save $amount$rate';
+  }
+
+  @override
+  String get noPrinterChosen => 'No printer chosen';
+
+  @override
+  String get changePrinter => 'Printer';
+
+  @override
+  String get choosePrinter => 'Choose a printer';
+
+  @override
+  String get paperWidth => 'Paper width';
+
+  @override
+  String get noPairedPrinters =>
+      'No paired printers. Pair the printer in the phone\'s Bluetooth settings, then try again.';
+
+  @override
+  String get bluetoothOff => 'Bluetooth is off. Turn it on to print.';
+
+  @override
+  String get bluetoothDenied =>
+      'Bluetooth permission was refused. Allow it in the app\'s settings to print.';
+
+  @override
+  String get saveAsImage => 'Save as image';
+
+  @override
+  String get receiptSaved => 'Receipt saved to the gallery';
+
+  @override
+  String get receiptSaveFailed => 'Couldn\'t save the receipt image';
+
+  @override
+  String printSent(String printer) {
+    return 'Printed on $printer';
+  }
+
+  @override
+  String printerUnreachableSaved(String printer) {
+    return 'Couldn\'t reach $printer, so the receipt was saved to the gallery.';
+  }
+
+  @override
+  String get bluetoothOffSaved =>
+      'Bluetooth is off, so the receipt was saved to the gallery.';
+
+  @override
+  String get bluetoothDeniedSaved =>
+      'No Bluetooth permission, so the receipt was saved to the gallery.';
 }

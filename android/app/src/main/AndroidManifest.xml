@@ -9,14 +9,21 @@
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
 
+    <!-- Receipts. The printer plugin brings the Bluetooth permissions (and asks
+         for BLUETOOTH_CONNECT itself on Android 12+); Bluetooth is optional
+         hardware for the same reason the camera is. Saving a receipt to the
+         gallery needs storage only on Android 9 and older. -->
+    <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>
+
     <!-- allowBackup is off deliberately: the session token lives in the
          keystore, and auto-backup would carry it to a restored device, where it
          would become a second signed-in phone nobody chose to create. One
          token is meant to be one device. -->
     <application
-        android:label="bizPOS"
+        android:label="BizPOS"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:allowBackup="false"
         android:fullBackupContent="false">
         <activity

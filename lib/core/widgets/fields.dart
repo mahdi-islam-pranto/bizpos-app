@@ -11,6 +11,9 @@ import '../theme/tokens.dart';
 /// [max] is the branch stock — going past it is allowed but marked, because the
 /// server is the one that refuses an oversell and it says so in its own words.
 ///
+/// With [capAtMax] the `+` stops at [max] instead — the till, which will not
+/// put more on a bill than the branch has.
+///
 /// [onTapQty] replaces the plain typing dialog with the caller's own picker
 /// (the cart's quick quantities), and marks the number with a small arrow so
 /// it reads as something to tap.
@@ -21,6 +24,7 @@ class QtyStepper extends StatelessWidget {
     this.max,
     this.min = 1,
     this.compact = false,
+    this.capAtMax = false,
     this.onTapQty,
     super.key,
   });
@@ -30,9 +34,11 @@ class QtyStepper extends StatelessWidget {
   final num? max;
   final num min;
   final bool compact;
+  final bool capAtMax;
   final VoidCallback? onTapQty;
 
   bool get _overStock => max != null && qty > max!;
+  bool get _atCap => capAtMax && max != null && qty >= max!;
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +91,8 @@ class QtyStepper extends StatelessWidget {
           _Round(
             icon: Icons.add,
             size: size,
-            onTap: () => onChanged(qty + 1),
-            tone: palette.text,
+            onTap: _atCap ? null : () => onChanged(qty + 1),
+            tone: _atCap ? palette.muted : palette.text,
           ),
         ],
       ),
@@ -137,7 +143,7 @@ class _Round extends StatelessWidget {
 
   final IconData icon;
   final double size;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Color tone;
 
   @override

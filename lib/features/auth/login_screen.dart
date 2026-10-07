@@ -7,6 +7,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/session/session_controller.dart';
 import '../../core/theme/palette.dart';
 import '../../core/theme/tokens.dart';
+import '../../core/widgets/brand_logo.dart';
 import '../../l10n/app_localizations.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -72,7 +73,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
-    final palette = context.palette;
     final text = Theme.of(context).textTheme;
     final session = ref.watch(sessionControllerProvider);
     final busy = session.isLoading;
@@ -89,18 +89,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
-                      height: 52,
-                      width: 52,
-                      decoration: BoxDecoration(
-                        color: palette.accentSoft,
-                        borderRadius: BorderRadius.circular(Radii.sheet),
-                      ),
-                      child: Icon(
-                        Icons.storefront_outlined,
-                        color: palette.accent,
-                      ),
-                    ),
+                    const Center(child: BrandLogo(size: 104)),
                     const SizedBox(height: Insets.s24),
                     Text(l10n.signInTitle, style: text.headlineSmall),
                     const SizedBox(height: Insets.s4),

@@ -100,7 +100,7 @@ abstract class AppL10n {
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:
-  /// **'bizPOS'**
+  /// **'BizPOS'**
   String get appName;
 
   /// No description provided for @signInTitle.
@@ -1345,12 +1345,6 @@ abstract class AppL10n {
   /// **'Print'**
   String get printReceipt;
 
-  /// No description provided for @printingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Bluetooth printing arrives in a later phase.'**
-  String get printingSoon;
-
   /// No description provided for @share.
   ///
   /// In en, this message translates to:
@@ -2296,7 +2290,7 @@ abstract class AppL10n {
   /// No description provided for @openingBalanceHelp.
   ///
   /// In en, this message translates to:
-  /// **'What they owed before this shop used bizPOS.'**
+  /// **'What they owed before this shop used BizPOS.'**
   String get openingBalanceHelp;
 
   /// No description provided for @ledgerSale.
@@ -4306,7 +4300,7 @@ abstract class AppL10n {
   /// No description provided for @memberFormNote.
   ///
   /// In en, this message translates to:
-  /// **'If this email already has a bizPOS account, they join with their own password and the one above is not used.'**
+  /// **'If this email already has a BizPOS account, they join with their own password and the one above is not used.'**
   String get memberFormNote;
 
   /// No description provided for @memberAdded.
@@ -5130,6 +5124,210 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Restored'**
   String get catalogEntryRestored;
+
+  /// No description provided for @noStockLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'No more {name} in stock'**
+  String noStockLeft(String name);
+
+  /// No description provided for @sellingPriceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Selling price'**
+  String get sellingPriceLabel;
+
+  /// No description provided for @maxLineDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {amount} keeps this line above cost'**
+  String maxLineDiscount(String amount);
+
+  /// No description provided for @lineDiscountTooHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'More than {amount} sells below cost'**
+  String lineDiscountTooHigh(String amount);
+
+  /// No description provided for @unitPriceBelowCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Below the cost of {amount}'**
+  String unitPriceBelowCost(String amount);
+
+  /// No description provided for @maxBillDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {rate}% ({amount}) keeps the bill above cost'**
+  String maxBillDiscount(String rate, String amount);
+
+  /// No description provided for @billDiscountTooHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'More than {rate}% sells below cost'**
+  String billDiscountTooHigh(String rate);
+
+  /// No description provided for @noDiscountRoom.
+  ///
+  /// In en, this message translates to:
+  /// **'No room for a discount — the bill is already at cost'**
+  String get noDiscountRoom;
+
+  /// No description provided for @chooseUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a unit'**
+  String get chooseUnit;
+
+  /// No description provided for @unitSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search units, or type a new one'**
+  String get unitSearchHint;
+
+  /// No description provided for @useNewUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Use “{unit}” as a new unit'**
+  String useNewUnit(String unit);
+
+  /// No description provided for @receiptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get receiptTitle;
+
+  /// No description provided for @receiptServedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Served by'**
+  String get receiptServedBy;
+
+  /// No description provided for @receiptItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get receiptItem;
+
+  /// No description provided for @receiptAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get receiptAmount;
+
+  /// No description provided for @receiptLineDiscounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Item discounts'**
+  String get receiptLineDiscounts;
+
+  /// No description provided for @receiptTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'TOTAL'**
+  String get receiptTotal;
+
+  /// No description provided for @receiptYouSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'YOU SAVED'**
+  String get receiptYouSaved;
+
+  /// No description provided for @receiptThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you, please come again'**
+  String get receiptThanks;
+
+  /// No description provided for @receiptMrpSave.
+  ///
+  /// In en, this message translates to:
+  /// **'MRP {mrp} · save {amount}{rate}'**
+  String receiptMrpSave(String mrp, String amount, String rate);
+
+  /// No description provided for @noPrinterChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'No printer chosen'**
+  String get noPrinterChosen;
+
+  /// No description provided for @changePrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Printer'**
+  String get changePrinter;
+
+  /// No description provided for @choosePrinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a printer'**
+  String get choosePrinter;
+
+  /// No description provided for @paperWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper width'**
+  String get paperWidth;
+
+  /// No description provided for @noPairedPrinters.
+  ///
+  /// In en, this message translates to:
+  /// **'No paired printers. Pair the printer in the phone\'s Bluetooth settings, then try again.'**
+  String get noPairedPrinters;
+
+  /// No description provided for @bluetoothOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth is off. Turn it on to print.'**
+  String get bluetoothOff;
+
+  /// No description provided for @bluetoothDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth permission was refused. Allow it in the app\'s settings to print.'**
+  String get bluetoothDenied;
+
+  /// No description provided for @saveAsImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as image'**
+  String get saveAsImage;
+
+  /// No description provided for @receiptSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt saved to the gallery'**
+  String get receiptSaved;
+
+  /// No description provided for @receiptSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the receipt image'**
+  String get receiptSaveFailed;
+
+  /// No description provided for @printSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Printed on {printer}'**
+  String printSent(String printer);
+
+  /// No description provided for @printerUnreachableSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach {printer}, so the receipt was saved to the gallery.'**
+  String printerUnreachableSaved(String printer);
+
+  /// No description provided for @bluetoothOffSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth is off, so the receipt was saved to the gallery.'**
+  String get bluetoothOffSaved;
+
+  /// No description provided for @bluetoothDeniedSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'No Bluetooth permission, so the receipt was saved to the gallery.'**
+  String get bluetoothDeniedSaved;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

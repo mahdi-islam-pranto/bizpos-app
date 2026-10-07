@@ -42,6 +42,9 @@ class CartLine {
 
   bool get overStock => item.stock != null && qty > item.stock!;
 
+  /// Everything the branch has of this is already on the line.
+  bool get atStock => item.stock != null && qty >= item.stock!;
+
   /// What one unit goes out at once its own discount is off.
   Decimal get netUnitPrice {
     if (qty <= 0) return Decimal.zero;
@@ -63,6 +66,16 @@ class CartLine {
     final cost = item.purchasePrice;
     if (cost == null || cost <= 0 || item.isPackage) return null;
     return Exact.of(cost) * Exact.of(qty);
+  }
+
+  /// The most money off this line that keeps it at or above its cost, at
+  /// [price] a unit (the line's own price when not given). Null when the cost
+  /// is hidden — there is nothing to measure the room against.
+  Decimal? maxLineDiscount({num? price}) {
+    final cost = knownCost;
+    if (cost == null) return null;
+    final room = Exact.of(price ?? effectivePrice) * Exact.of(qty) - cost;
+    return room < Decimal.zero ? Decimal.zero : room;
   }
 
   /// Lines are identified by what they are, not by position: scanning the same
@@ -232,6 +245,29 @@ class Cart {
 
   bool get belowCost => hasBelowCostLine || discountBelowCost;
 
+  /// The highest bill rate that keeps the basket at or above the cost of its
+  /// goods, floored to two places so the paisa rounding of
+  /// [orderDiscountAmount] cannot tip it over. Null when any line's cost is
+  /// hidden, exactly as [discountBelowCost] cannot judge such a basket.
+  Decimal? get maxOrderDiscountPercent {
+    final costs = [for (final line in lines) line.knownCost];
+    if (costs.isEmpty || costs.any((c) => c == null)) return null;
+    final goods = linesTotal;
+    if (goods <= Decimal.zero) return null;
+    final cost = Exact.sum(costs.whereType<Decimal>());
+    if (goods <= cost) return Decimal.zero;
+    var rate = ((goods - cost) * Decimal.fromInt(100) / goods)
+        .toDecimal(scaleOnInfinitePrecision: 6)
+        .floor(scale: 2);
+    final step = Decimal.parse('0.01');
+    while (rate > Decimal.zero &&
+        goods - Exact.paisa((goods * rate).shift(-2)) < cost) {
+      rate -= step;
+    }
+    final hundred = Decimal.fromInt(100);
+    return rate > hundred ? hundred : rate;
+  }
+
   /// A named customer, not the walk-in one. Credit and points both need this.
   bool get hasNamedCustomer => customer != null && !customer!.isWalkIn;
 
@@ -379,8 +415,21 @@ class CartController extends Notifier<Cart> {
 
   /// Adds one, or bumps the line that is already there. Scanning the same
   /// barcode five times makes one line of five, not five lines of one.
-  void add(SellableItem item, {num qty = 1}) {
+  ///
+  /// Returns false, and changes nothing, when the branch has none left beyond
+  /// what is already in the cart (and adds only what is left when that is less
+  /// than [qty]) — the server refuses an oversell, and an
+  /// out-of-stock item has no business on the bill. Unknown stock is let
+  /// through; the server judges it.
+  bool add(SellableItem item, {num qty = 1}) {
     final existing = state.lineFor(item);
+    final stock = item.stock;
+    if (stock != null) {
+      final left = stock - (existing?.qty ?? 0);
+      if (left <= 0) return false;
+      // Half a kilo left is still half a kilo to sell.
+      if (qty > left) qty = left;
+    }
     if (existing == null) {
       state = state.copyWith(
         lines: [
@@ -388,15 +437,25 @@ class CartController extends Notifier<Cart> {
           CartLine(item: item, qty: qty),
         ],
       );
-      return;
+      return true;
     }
     setQty(existing.key, existing.qty + qty);
+    return true;
   }
 
+  /// A quantity past the branch's stock is held at the stock. A line that is
+  /// already over it (a held cart whose stock has since sold) can still come
+  /// down, but never go further up.
   void setQty(String key, num qty) {
     if (qty <= 0) {
       remove(key);
       return;
+    }
+    final line = state.lines.where((l) => l.key == key).firstOrNull;
+    final stock = line?.item.stock;
+    if (line != null && stock != null && qty > stock && qty > line.qty) {
+      qty = stock > line.qty ? stock : line.qty;
+      if (qty == line.qty) return;
     }
     state = state.copyWith(
       lines: [

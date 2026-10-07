@@ -7,6 +7,7 @@ import '../../core/session/session_controller.dart';
 import '../../core/session/session_state.dart';
 import '../../core/theme/palette.dart';
 import '../../core/theme/tokens.dart';
+import '../../core/widgets/brand_logo.dart';
 import '../../l10n/app_localizations.dart';
 import 'app_router.dart';
 import 'screen_gates.dart';
@@ -245,14 +246,7 @@ class _DrawerHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: 26,
-            backgroundColor: soft,
-            child: Text(
-              name.isEmpty ? '?' : name.characters.first.toUpperCase(),
-              style: text.titleLarge?.copyWith(color: palette.onAccent),
-            ),
-          ),
+          const BrandLogo(size: 56),
           const SizedBox(height: Insets.s12),
           Text(
             name,

@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/format/money.dart';
+import '../../../core/permissions/permission_gate.dart';
+import '../../../core/permissions/permissions.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_sheet.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../printing/receipt_sheet.dart';
 import '../data/pos_models.dart';
 
 /// What the server said happened.
@@ -117,18 +120,38 @@ class CheckoutDoneSheet extends ConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: Insets.gutter),
-            child: SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  // The receipt screen is the invoice detail: it already has the
-                  // store, branch, items, payments and totals a receipt needs.
-                  context.go('/invoices/${result.saleId}');
-                },
-                icon: const Icon(Icons.receipt_long_outlined),
-                label: Text(l10n.viewReceipt),
-              ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      context.go('/invoices/${result.saleId}');
+                    },
+                    icon: const Icon(Icons.receipt_long_outlined),
+                    label: Text(l10n.viewReceipt),
+                  ),
+                ),
+                // The printed slip comes from `GET /sales/{id}`, the same
+                // figures as the invoice, so it opens on the sale just made.
+                if (ref.can(P.posSalePrint)) ...[
+                  const SizedBox(width: Insets.s12),
+                  Expanded(
+                    child: FilledButton.tonalIcon(
+                      onPressed: () {
+                        final navigator = Navigator.of(context)..pop();
+                        ReceiptSheet.show(
+                          navigator.context,
+                          saleId: result.saleId,
+                          afterSale: true,
+                        );
+                      },
+                      icon: const Icon(Icons.print_outlined),
+                      label: Text(l10n.printReceipt),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
           SheetAction(

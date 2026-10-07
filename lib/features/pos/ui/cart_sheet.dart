@@ -1,3 +1,4 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -233,6 +234,15 @@ class _CartRow extends StatelessWidget {
                             ],
                           ],
                         ),
+                        if (line.item.stock != null)
+                          Text(
+                            _stockLabel(l10n, line.item),
+                            style: text.labelSmall?.copyWith(
+                              color: line.atStock
+                                  ? palette.warning
+                                  : palette.muted,
+                            ),
+                          ),
                         const SizedBox(height: Insets.s4),
                         Row(
                           children: [
@@ -271,6 +281,7 @@ class _CartRow extends StatelessWidget {
                 QtyStepper(
                   qty: line.qty,
                   max: line.item.stock,
+                  capAtMax: true,
                   onChanged: onQty,
                   compact: true,
                   onTapQty: () async {
@@ -398,11 +409,29 @@ class _DiscountRow extends ConsumerWidget {
         // percent off when another item goes in the basket.
         TextButton(
           onPressed: () async {
+            // How far the rate can go before the bill drops under what its
+            // goods cost — known only when every line's cost is.
+            final maxRate = cart.maxOrderDiscountPercent;
+            final maxOff = maxRate == null
+                ? null
+                : Exact.paisa((cart.linesTotal * maxRate).shift(-2));
             final rate = await _askAmount(
               context,
               title: l10n.orderDiscountPercent,
               initial: cart.orderDiscountPercent,
               suffix: '%',
+              max: maxRate?.toDouble(),
+              helperText: maxRate == null
+                  ? null
+                  : maxRate <= Decimal.zero
+                  ? l10n.noDiscountRoom
+                  : l10n.maxBillDiscount(
+                      _rate(maxRate.toDouble()),
+                      money.format(maxOff!.toDouble()),
+                    ),
+              overMaxText: maxRate == null
+                  ? null
+                  : l10n.billDiscountTooHigh(_rate(maxRate.toDouble())),
             );
             ref.read(cartProvider.notifier).setOrderDiscountPercent(rate);
           },
@@ -499,6 +528,22 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final money = ref.watch(moneyProvider);
+    final line = widget.line;
+
+    // What one unit cost the shop, beside what it sells for, so the cashier
+    // can see how much room there is to give. Null without
+    // `inventory.product.view_cost`, and for a bundle, whose cost is judged
+    // across its products — then only the selling price shows.
+    final cost = line.knownCost == null ? null : line.item.purchasePrice;
+    final typedPrice = widget.mayChangePrice ? AmountField.read(_price) : null;
+    final price = widget.mayChangePrice
+        ? typedPrice ?? line.item.salePrice
+        : line.effectivePrice;
+    final priceBelowCost = cost != null && typedPrice != null && price < cost;
+    final maxOff = line.maxLineDiscount(price: price);
+    final discount = widget.mayDiscount ? AmountField.read(_discount) : null;
+    final discountTooHigh =
+        maxOff != null && discount != null && Exact.of(discount) > maxOff;
 
     return SingleChildScrollView(
       child: Column(
@@ -508,12 +553,22 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
             padding: const EdgeInsets.all(Insets.gutter),
             child: Column(
               children: [
+                _PriceFacts(
+                  salePrice: line.item.salePrice,
+                  cost: cost,
+                  money: money,
+                ),
+                const SizedBox(height: Insets.s16),
                 if (widget.mayChangePrice)
                   AmountField(
                     controller: _price,
                     label: l10n.unitPrice,
                     prefix: money.sign,
-                    helperText: money.format(widget.line.item.salePrice),
+                    helperText: money.format(line.item.salePrice),
+                    errorText: priceBelowCost
+                        ? l10n.unitPriceBelowCost(money.format(cost))
+                        : null,
+                    onChanged: (_) => setState(() {}),
                   ),
                 if (widget.mayChangePrice && widget.mayDiscount)
                   const SizedBox(height: Insets.s16),
@@ -522,6 +577,17 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
                     controller: _discount,
                     label: l10n.lineDiscount,
                     prefix: money.sign,
+                    helperText: maxOff == null
+                        ? null
+                        : l10n.maxLineDiscount(
+                            money.format(maxOff.toDouble()),
+                          ),
+                    errorText: discountTooHigh
+                        ? l10n.lineDiscountTooHigh(
+                            money.format(maxOff.toDouble()),
+                          )
+                        : null,
+                    onChanged: (_) => setState(() {}),
                   ),
                 const SizedBox(height: Insets.s16),
                 SizedBox(
@@ -544,7 +610,62 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
               ],
             ),
           ),
-          SheetAction(label: l10n.apply, icon: Icons.check, onPressed: _apply),
+          SheetAction(
+            label: l10n.apply,
+            icon: Icons.check,
+            // The server refuses a line under its cost; better said here.
+            onPressed: priceBelowCost || discountTooHigh ? null : _apply,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Selling price and, when the role may see it, cost — side by side.
+class _PriceFacts extends StatelessWidget {
+  const _PriceFacts({
+    required this.salePrice,
+    required this.cost,
+    required this.money,
+  });
+
+  final num salePrice;
+  final num? cost;
+  final Money money;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final palette = context.palette;
+    final text = Theme.of(context).textTheme;
+
+    Widget fact(String label, num value) => Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: text.labelSmall?.copyWith(color: palette.muted)),
+          const SizedBox(height: Insets.s4),
+          Text(
+            money.format(value),
+            style: text.titleMedium?.copyWith(
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(Insets.s12),
+      decoration: BoxDecoration(
+        color: palette.surfaceAlt,
+        borderRadius: BorderRadius.circular(Radii.row),
+      ),
+      child: Row(
+        children: [
+          fact(l10n.sellingPriceLabel, salePrice),
+          if (cost != null) fact(l10n.costLabel, cost!),
         ],
       ),
     );
@@ -553,15 +674,27 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
 
 /// A one-field money prompt. Returns null when the field is left empty, which
 /// is how a discount is removed rather than set to zero.
+///
+/// With [max], a figure past it shows [overMaxText] and cannot be applied.
 Future<num?> _askAmount(
   BuildContext context, {
   required String title,
   num? initial,
   String? suffix,
+  num? max,
+  String? helperText,
+  String? overMaxText,
 }) => showAppSheet<num?>(
   context,
   title: title,
-  builder: (_) => _AmountPrompt(title: title, initial: initial, suffix: suffix),
+  builder: (_) => _AmountPrompt(
+    title: title,
+    initial: initial,
+    suffix: suffix,
+    max: max,
+    helperText: helperText,
+    overMaxText: overMaxText,
+  ),
 );
 
 /// The prompt owns its controller, so the controller dies with the sheet.
@@ -572,11 +705,21 @@ Future<num?> _askAmount(
 /// field tore the overlay down mid-frame (`_dependents.isEmpty`), and Apply
 /// showed a red screen instead of a discount.
 class _AmountPrompt extends StatefulWidget {
-  const _AmountPrompt({required this.title, this.initial, this.suffix});
+  const _AmountPrompt({
+    required this.title,
+    this.initial,
+    this.suffix,
+    this.max,
+    this.helperText,
+    this.overMaxText,
+  });
 
   final String title;
   final num? initial;
   final String? suffix;
+  final num? max;
+  final String? helperText;
+  final String? overMaxText;
 
   @override
   State<_AmountPrompt> createState() => _AmountPromptState();
@@ -595,7 +738,14 @@ class _AmountPromptState extends State<_AmountPrompt> {
     super.dispose();
   }
 
+  bool get _overMax {
+    final max = widget.max;
+    final value = AmountField.read(_controller);
+    return max != null && value != null && value > max;
+  }
+
   void _submit() {
+    if (_overMax) return;
     // Keyboard down first, so the sheet closes without a focused field.
     FocusScope.of(context).unfocus();
     Navigator.of(context).pop(AmountField.read(_controller));
@@ -612,13 +762,16 @@ class _AmountPromptState extends State<_AmountPrompt> {
           label: widget.title,
           prefix: widget.suffix,
           autofocus: true,
+          helperText: widget.helperText,
+          errorText: _overMax ? widget.overMaxText : null,
+          onChanged: (_) => setState(() {}),
           onSubmitted: (_) => _submit(),
         ),
         const SizedBox(height: Insets.s24),
         SizedBox(
           width: double.infinity,
           child: FilledButton(
-            onPressed: _submit,
+            onPressed: _overMax ? null : _submit,
             child: Text(AppL10n.of(context).apply),
           ),
         ),
@@ -714,7 +867,9 @@ class _QtyPickerSheetState extends State<QtyPickerSheet> {
                           ? _PresetButton(
                               qty: presets[i],
                               selected: presets[i] == widget.current,
-                              overStock: stock != null && presets[i] > stock,
+                              overStock: stock != null &&
+                                  presets[i] > stock &&
+                                  presets[i] != widget.current,
                               onTap: () => _pick(presets[i]),
                             )
                           : const SizedBox.shrink(),
@@ -783,19 +938,27 @@ class _PresetButton extends StatelessWidget {
     );
 
     if (selected) return FilledButton(onPressed: onTap, child: label);
+    // More than the branch has is not on offer: the server would refuse it.
     return OutlinedButton(
-      onPressed: onTap,
-      // Allowed — the server is the one that refuses an oversell — but
-      // marked, the same way the stepper marks it.
+      onPressed: overStock ? null : onTap,
       style: overStock
           ? OutlinedButton.styleFrom(
-              foregroundColor: palette.warning,
-              side: BorderSide(color: palette.warning),
+              disabledForegroundColor: palette.muted,
+              side: BorderSide(color: palette.hairline),
             )
           : null,
       child: label,
     );
   }
+}
+
+/// "12 in stock" for a product, "3 can be made" for a bundle.
+String _stockLabel(AppL10n l10n, SellableItem item) {
+  final stock = item.stock!;
+  if (stock <= 0) return l10n.outOfStock;
+  return item.isPackage
+      ? l10n.buildable(_rate(stock))
+      : l10n.inStock(_rate(stock));
 }
 
 String _rate(num value) => value == value.roundToDouble()

@@ -87,7 +87,7 @@ What the UPDATED doc had already changed (all built where the phase is):
   control of the shared catalogue. Phase 4, built.
 
 The build plan lives at `~/.claude/plans/piped-twirling-crab.md`. **Phases 0 to 4
-are done**; phase 5 (printing and polish) is next. Phase 0 is the
+are done**; in phase 5, receipt printing is built and the polish pass is next. Phase 0 is the
 transport/session/permission spine, login, a permission-built navigation shell
 and a profile screen. Phase 1 is the counter: POS with camera scanning, cart,
 customer picker, split payment, loyalty redemption, cash drawer and held carts;
@@ -175,6 +175,28 @@ derived provider. `builtScreens` lists the gates with a real screen behind
 them; landing a phase means adding its `AppScreen` to both `screenFor()` and
 `builtScreens`.
 
+## Printing (phase 5, receipts)
+
+`lib/features/printing/`. Print (invoice detail, and the after-sale sheet)
+opens `ReceiptSheet`: a preview of `ReceiptView` built from `GET /sales/{id}`,
+never from the cart. Easy to break:
+
+- **The receipt is a picture, not text.** No ESC/POS code page has Bangla, so
+  the `RepaintBoundary` around `ReceiptView` is captured at
+  `ReceiptPaper.pixelRatio` (384 dots for 58 mm, 576 for 80 mm) and
+  `escposRaster` turns it into `GS v 0` bands. `ReceiptView` reads no theme —
+  a dark phone must still print black on white.
+- **No printer means an image.** No printer chosen → the picker (with "Save
+  as image"); Bluetooth off or refused, or the printer not answering → the
+  same PNG goes to the gallery through `gal`, with a note saying why.
+- The printer (name, MAC, paper) is a **device** preference in shared
+  preferences (`printerSetupProvider`), not the store's `receiptPaper`, which
+  a cashier cannot read. `print_bluetooth_thermal` asks for Android 12's
+  `BLUETOOTH_CONNECT` itself; it lists *paired* printers only — pairing is
+  done in the phone's settings.
+- Tests swap the Bluetooth side via `printerTransportProvider`; the capture
+  needs real time, so they alternate `pump()` with `runAsync` delays.
+
 ## Navigation (shell, sidebar, Back)
 
 - The bottom bar is the first four screens plus **Products**
@@ -203,10 +225,16 @@ flutter pub get
 flutter gen-l10n                 # after editing lib/l10n/*.arb (also runs during build)
 flutter run --dart-define=BIZPOS_BASE_URL=http://10.0.2.2:8000/api/v1
 flutter analyze                  # lints via flutter_lints (analysis_options.yaml)
-flutter test                     # 242 tests
+flutter test                     # 268 tests
 flutter test test/app/screen_gates_test.dart --plain-name "cashier"   # one test
 flutter build apk --debug
+dart run flutter_launcher_icons   # after changing assets/brand/icon_*.png
 ```
+
+The app is **BizPOS** (capital B). `assets/brand/logo.png` is the in-app mark
+(`BrandLogo`: sign-in, splash, sidebar); the `icon_*.png` files feed the
+launcher icons — the Android foreground is full-bleed with the artwork inside
+the adaptive safe circle, so its inset stays 0.
 
 The base URL defaults to `http://10.0.2.2:8000/api/v1` (how the Android emulator
 reaches the host's `127.0.0.1`); pass a LAN address for a physical phone.

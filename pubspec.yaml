@@ -46,6 +46,8 @@ dependencies:
   decimal: ^3.2.6
   mobile_scanner: ^7.4.2
   image_picker: ^1.2.3
+  print_bluetooth_thermal: ^1.2.5
+  gal: ^2.3.3
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +60,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   http_mock_adapter: ^0.6.1
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -75,9 +78,9 @@ flutter:
   # labels of its own, so retrofitting strings later would be pure waste.
   generate: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  # The BizPOS logo, for the sign-in screen and the sidebar.
+  assets:
+    - assets/brand/logo.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -105,3 +108,20 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# `dart run flutter_launcher_icons` regenerates every launcher icon from
+# assets/brand/. Android 8+ gets an adaptive icon: a full-bleed foreground with
+# the artwork shrunk into the 66/108 safe circle, so a round mask never cuts
+# "BizPOS". iOS rounds the full-bleed square itself.
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/brand/icon_legacy.png"
+  image_path_ios: "assets/brand/icon_full.png"
+  remove_alpha_ios: true
+  adaptive_icon_background: "#127F59"
+  adaptive_icon_foreground: "assets/brand/icon_foreground.png"
+  # The foreground already leaves the safe-zone margin; the default 16% inset
+  # would add a flat border around the gradient.
+  adaptive_icon_foreground_inset: 0
+  min_sdk_android: 21

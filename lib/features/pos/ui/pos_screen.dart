@@ -153,7 +153,12 @@ class _PosScreenState extends ConsumerState<PosScreen> {
   }
 
   void _addToCart(SellableItem item) {
-    ref.read(cartProvider.notifier).add(item);
+    // Out of stock, or every last one already in the cart. Said out loud,
+    // because a scan that silently does nothing reads as a broken scanner.
+    if (!ref.read(cartProvider.notifier).add(item)) {
+      showNote(context, AppL10n.of(context).noStockLeft(item.name));
+      return;
+    }
     _justAddedTimer?.cancel();
     setState(() => _justAdded = item.name);
     _justAddedTimer = Timer(const Duration(milliseconds: 1600), () {
@@ -321,6 +326,8 @@ class _ProductRow extends ConsumerWidget {
 
     return ListTile(
       onTap: onTap,
+      // Nothing on the shelf, nothing to sell: greyed out and untappable.
+      enabled: stock == null || stock > 0,
       title: Row(
         children: [
           Flexible(

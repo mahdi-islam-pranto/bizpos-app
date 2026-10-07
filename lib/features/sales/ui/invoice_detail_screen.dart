@@ -12,6 +12,7 @@ import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/async_view.dart';
 import '../../../core/widgets/states.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../printing/receipt_sheet.dart';
 import '../data/sale_models.dart';
 import '../data/sales_repository.dart';
 import 'invoice_actions.dart';
@@ -42,9 +43,7 @@ class InvoiceDetailScreen extends ConsumerWidget {
             child: IconButton(
               tooltip: l10n.printReceipt,
               icon: const Icon(Icons.print_outlined),
-              // Bluetooth printing is the last phase; saying so is kinder than
-              // a button that appears to do nothing.
-              onPressed: () => showNote(context, l10n.printingSoon),
+              onPressed: () => ReceiptSheet.show(context, saleId: saleId),
             ),
           ),
         ],

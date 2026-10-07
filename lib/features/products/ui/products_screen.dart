@@ -330,8 +330,13 @@ class _ProductRow extends ConsumerWidget {
       // Null is a role without `inventory.stock.view`, not an empty shelf.
       null => (null, palette.muted),
       final s when s <= 0 => (l10n.outOfStock, palette.danger),
-      _ when product.isLow => (l10n.lowStock, palette.warning),
-      final s => (l10n.onShelf(s.toStringAsFixed(0)), palette.muted),
+      // Low still says how many: "low" alone sends the reader to the detail
+      // page for the one figure they wanted.
+      final s when product.isLow => (
+        '${l10n.lowStock} · ${l10n.onShelf(_qty(s))}',
+        palette.warning,
+      ),
+      final s => (l10n.onShelf(_qty(s)), palette.muted),
     };
 
     return ListTile(
@@ -391,3 +396,8 @@ class _ProductRow extends ConsumerWidget {
     );
   }
 }
+
+/// 12 stays 12, and 2.5 kg stays 2.5 rather than rounding to 3.
+String _qty(num value) => value == value.roundToDouble()
+    ? value.toStringAsFixed(0)
+    : value.toString();

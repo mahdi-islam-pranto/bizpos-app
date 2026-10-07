@@ -38,9 +38,17 @@ void main() {
 
   testWidgets('a quick quantity is one tap', (tester) async {
     final results = await open(tester);
-    await tester.tap(find.widgetWithText(OutlinedButton, '20'));
+    await tester.tap(find.widgetWithText(OutlinedButton, '10'));
     await tester.pumpAndSettle();
-    expect(results, [20]);
+    expect(results, [10]);
+  });
+
+  testWidgets('a quick quantity past the stock is not on offer', (tester) async {
+    await open(tester);
+    final twenty = tester.widget<OutlinedButton>(
+      find.widgetWithText(OutlinedButton, '20'),
+    );
+    expect(twenty.onPressed, isNull);
   });
 
   testWidgets('any other quantity can be typed', (tester) async {

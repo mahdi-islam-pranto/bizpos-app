@@ -1,5 +1,7 @@
+import 'package:bizpos_app/core/session/session_controller.dart';
 import 'package:bizpos_app/features/pos/data/pos_models.dart';
 import 'package:bizpos_app/features/pos/state/cart.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// The rules the till has to get right before anything is sent.
@@ -201,7 +203,126 @@ void main() {
     });
   });
 
-  group('over-stock is flagged, never blocked', () {
+  group('the till sells only what is on the shelf', () {
+    ProviderContainer till() {
+      final container = ProviderContainer(
+        overrides: [scopeKeyProvider.overrideWithValue('test')],
+      );
+      addTearDown(container.dispose);
+      return container;
+    }
+
+    test('an out-of-stock item is refused', () {
+      final container = till();
+      final added = container
+          .read(cartProvider.notifier)
+          .add(product(42, stock: 0));
+
+      expect(added, isFalse);
+      expect(container.read(cartProvider).isEmpty, isTrue);
+    });
+
+    test('once every last one is in the cart, another tap is refused', () {
+      final container = till();
+      final controller = container.read(cartProvider.notifier);
+      final napa = product(42, stock: 2);
+
+      expect(controller.add(napa), isTrue);
+      expect(controller.add(napa), isTrue);
+      expect(controller.add(napa), isFalse);
+      expect(container.read(cartProvider).lines.single.qty, 2);
+    });
+
+    test('half a kilo left is added as half a kilo', () {
+      final container = till();
+      expect(
+        container.read(cartProvider.notifier).add(product(42, stock: 0.5)),
+        isTrue,
+      );
+      expect(container.read(cartProvider).lines.single.qty, 0.5);
+    });
+
+    test('unknown stock is left to the server', () {
+      final container = till();
+      expect(
+        container.read(cartProvider.notifier).add(product(42, stock: null)),
+        isTrue,
+      );
+    });
+
+    test('a quantity past the stock is held at the stock', () {
+      final container = till();
+      final controller = container.read(cartProvider.notifier);
+      controller.add(product(42, stock: 5));
+      controller.setQty('sp:42', 30);
+
+      expect(container.read(cartProvider).lines.single.qty, 5);
+    });
+
+    test('a line already over its stock can come down but not go up', () {
+      final container = till();
+      final controller = container.read(cartProvider.notifier);
+      controller.replace(
+        Cart(lines: [CartLine(item: product(42, stock: 3), qty: 6)]),
+      );
+
+      controller.setQty('sp:42', 7);
+      expect(container.read(cartProvider).lines.single.qty, 6);
+      controller.setQty('sp:42', 4);
+      expect(container.read(cartProvider).lines.single.qty, 4);
+    });
+  });
+
+  group('how much discount there is room for', () {
+    test('a line can give what it makes over its cost', () {
+      final line = CartLine(item: product(42, price: 10, cost: 8), qty: 3);
+
+      expect(line.maxLineDiscount()!.toDouble(), 6);
+      // Measured against a price typed in the sheet, not the shelf price.
+      expect(line.maxLineDiscount(price: 9)!.toDouble(), 3);
+      expect(line.maxLineDiscount(price: 7)!.toDouble(), 0);
+    });
+
+    test('no room is shown when the cost is hidden', () {
+      expect(CartLine(item: product(42), qty: 1).maxLineDiscount(), isNull);
+    });
+
+    test('the bill rate stops where the basket meets its cost', () {
+      final cart = Cart(
+        lines: [CartLine(item: product(42, price: 10, cost: 9), qty: 10)],
+      );
+
+      expect(cart.maxOrderDiscountPercent!.toDouble(), 10);
+      final atMax = cart.copyWith(orderDiscountPercent: 10);
+      expect(atMax.discountBelowCost, isFalse);
+    });
+
+    test('the bill rate is floored so paisa rounding cannot tip it over', () {
+      final cart = Cart(
+        lines: [CartLine(item: product(42, price: 3, cost: 2), qty: 1)],
+      );
+
+      final max = cart.maxOrderDiscountPercent!;
+      expect(max.toDouble(), 33.33);
+      expect(
+        cart.copyWith(orderDiscountPercent: max.toDouble()).discountBelowCost,
+        isFalse,
+      );
+    });
+
+    test('one hidden cost hides the bill ceiling', () {
+      final cart = Cart(
+        lines: [
+          CartLine(item: product(42, price: 10, cost: 9), qty: 1),
+          CartLine(item: product(43, price: 10), qty: 1),
+        ],
+      );
+
+      expect(cart.maxOrderDiscountPercent, isNull);
+    });
+  });
+
+  group('a line past the stock is flagged', () {
     test('a line past this branch stock is marked', () {
       final cart = Cart(
         lines: [CartLine(item: product(42, stock: 4), qty: 10)],

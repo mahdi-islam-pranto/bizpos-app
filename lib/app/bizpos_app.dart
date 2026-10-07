@@ -65,7 +65,7 @@ class _BizposAppState extends ConsumerState<BizposApp>
     final locale = preferences?.locale;
 
     return MaterialApp.router(
-      title: 'bizPOS',
+      title: 'BizPOS',
       debugShowCheckedModeBanner: false,
       routerConfig: router,
       theme: AppTheme.of(variant, locale: locale?.languageCode ?? 'en'),

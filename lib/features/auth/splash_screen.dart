@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/palette.dart';
 import '../../core/theme/tokens.dart';
-import '../../l10n/app_localizations.dart';
+import '../../core/widgets/brand_logo.dart';
 
 /// Shown while the stored token is read and `/me` answers. Usually a blink; on
 /// a slow counter connection, a few seconds.
@@ -18,24 +18,8 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              height: 56,
-              width: 56,
-              decoration: BoxDecoration(
-                color: palette.accentSoft,
-                borderRadius: BorderRadius.circular(Radii.sheet),
-              ),
-              child: Icon(
-                Icons.storefront_outlined,
-                color: palette.accent,
-                size: 28,
-              ),
-            ),
-            const SizedBox(height: Insets.s16),
-            Text(
-              AppL10n.of(context).appName,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            // The mark already says BizPOS; no name under it.
+            const BrandLogo(size: 96),
             const SizedBox(height: Insets.s24),
             SizedBox(
               height: 2,

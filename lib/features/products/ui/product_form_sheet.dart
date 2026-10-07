@@ -10,6 +10,7 @@ import '../../../l10n/app_localizations.dart';
 import '../data/product_models.dart';
 import '../data/products_repository.dart';
 import 'pricing_fields.dart';
+import 'unit_field.dart';
 
 /// What a new product came back as — enough for the till to find it again.
 typedef CreatedProduct = ({int id, String name, String? barcode});
@@ -242,14 +243,11 @@ class _ProductFormSheetState extends ConsumerState<ProductFormSheet> {
                     ),
                     const SizedBox(width: Insets.s12),
                     SizedBox(
-                      width: 112,
-                      child: SuggestingField(
+                      width: 128,
+                      child: UnitField(
                         controller: _unit,
                         label: l10n.unitLabel,
-                        options: [
-                          for (final unit in lookups?.units ?? const [])
-                            unit.short,
-                        ],
+                        units: lookups?.units ?? const [],
                       ),
                     ),
                   ],

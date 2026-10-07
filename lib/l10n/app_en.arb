@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appName": "bizPOS",
+  "appName": "BizPOS",
   "signInTitle": "Sign in",
   "signInSubtitle": "Use the account your store owner gave you.",
   "email": "Email",
@@ -400,7 +400,6 @@
   "acceptReturn": "Accept a return",
   "voidInvoice": "Cancel this sale",
   "printReceipt": "Print",
-  "printingSoon": "Bluetooth printing arrives in a later phase.",
   "share": "Share",
   "collectTitle": "Collect a due",
   "outstanding": "Outstanding",
@@ -704,7 +703,7 @@
   "lineDiscounts": "Line discounts",
   "youSaved": "You saved (vs MRP)",
   "openingBalance": "Opening balance",
-  "openingBalanceHelp": "What they owed before this shop used bizPOS.",
+  "openingBalanceHelp": "What they owed before this shop used BizPOS.",
   "ledgerSale": "Sale",
   "ledgerPayment": "Payment",
   "ledgerReturn": "Return",
@@ -1387,7 +1386,7 @@
   "cannotChangeSelf": "This is you. Nobody can change their own role or suspend themselves — ask another owner.",
   "readOnlyTeam": "You can see the team but not change it.",
   "fullName": "Full name",
-  "memberFormNote": "If this email already has a bizPOS account, they join with their own password and the one above is not used.",
+  "memberFormNote": "If this email already has a BizPOS account, they join with their own password and the one above is not used.",
   "memberAdded": "{name} added to the team",
   "@memberAdded": {
     "placeholders": {
@@ -1708,5 +1707,118 @@
   },
   "catalogEntryIsDeleted": "This entry is deleted. Restoring it puts it back on every catalogue list.",
   "catalogRestore": "Restore",
-  "catalogEntryRestored": "Restored"
+  "catalogEntryRestored": "Restored",
+  "noStockLeft": "No more {name} in stock",
+  "@noStockLeft": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sellingPriceLabel": "Selling price",
+  "maxLineDiscount": "Up to {amount} keeps this line above cost",
+  "@maxLineDiscount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "lineDiscountTooHigh": "More than {amount} sells below cost",
+  "@lineDiscountTooHigh": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "unitPriceBelowCost": "Below the cost of {amount}",
+  "@unitPriceBelowCost": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "maxBillDiscount": "Up to {rate}% ({amount}) keeps the bill above cost",
+  "@maxBillDiscount": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "billDiscountTooHigh": "More than {rate}% sells below cost",
+  "@billDiscountTooHigh": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "noDiscountRoom": "No room for a discount — the bill is already at cost",
+  "chooseUnit": "Choose a unit",
+  "unitSearchHint": "Search units, or type a new one",
+  "useNewUnit": "Use “{unit}” as a new unit",
+  "@useNewUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptTitle": "Receipt",
+  "receiptServedBy": "Served by",
+  "receiptItem": "Item",
+  "receiptAmount": "Amount",
+  "receiptLineDiscounts": "Item discounts",
+  "receiptTotal": "TOTAL",
+  "receiptYouSaved": "YOU SAVED",
+  "receiptThanks": "Thank you, please come again",
+  "receiptMrpSave": "MRP {mrp} · save {amount}{rate}",
+  "@receiptMrpSave": {
+    "placeholders": {
+      "mrp": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "noPrinterChosen": "No printer chosen",
+  "changePrinter": "Printer",
+  "choosePrinter": "Choose a printer",
+  "paperWidth": "Paper width",
+  "noPairedPrinters": "No paired printers. Pair the printer in the phone's Bluetooth settings, then try again.",
+  "bluetoothOff": "Bluetooth is off. Turn it on to print.",
+  "bluetoothDenied": "Bluetooth permission was refused. Allow it in the app's settings to print.",
+  "saveAsImage": "Save as image",
+  "receiptSaved": "Receipt saved to the gallery",
+  "receiptSaveFailed": "Couldn't save the receipt image",
+  "printSent": "Printed on {printer}",
+  "@printSent": {
+    "placeholders": {
+      "printer": {
+        "type": "String"
+      }
+    }
+  },
+  "printerUnreachableSaved": "Couldn't reach {printer}, so the receipt was saved to the gallery.",
+  "@printerUnreachableSaved": {
+    "placeholders": {
+      "printer": {
+        "type": "String"
+      }
+    }
+  },
+  "bluetoothOffSaved": "Bluetooth is off, so the receipt was saved to the gallery.",
+  "bluetoothDeniedSaved": "No Bluetooth permission, so the receipt was saved to the gallery."
 }

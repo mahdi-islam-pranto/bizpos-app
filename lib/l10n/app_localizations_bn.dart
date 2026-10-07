@@ -10,7 +10,7 @@ class AppL10nBn extends AppL10n {
   AppL10nBn([String locale = 'bn']) : super(locale);
 
   @override
-  String get appName => 'বিজপস';
+  String get appName => 'BizPOS';
 
   @override
   String get signInTitle => 'সাইন ইন';
@@ -718,9 +718,6 @@ class AppL10nBn extends AppL10n {
   String get printReceipt => 'প্রিন্ট';
 
   @override
-  String get printingSoon => 'ব্লুটুথ প্রিন্ট পরের ধাপে আসছে।';
-
-  @override
   String get share => 'শেয়ার';
 
   @override
@@ -1264,7 +1261,7 @@ class AppL10nBn extends AppL10n {
   String get openingBalance => 'প্রারম্ভিক বাকি';
 
   @override
-  String get openingBalanceHelp => 'bizPOS ব্যবহারের আগে থেকে যা বাকি ছিল।';
+  String get openingBalanceHelp => 'BizPOS ব্যবহারের আগে থেকে যা বাকি ছিল।';
 
   @override
   String get ledgerSale => 'বিক্রি';
@@ -2382,7 +2379,7 @@ class AppL10nBn extends AppL10n {
 
   @override
   String get memberFormNote =>
-      'এই ইমেইলে আগে থেকেই bizPOS অ্যাকাউন্ট থাকলে তিনি নিজের পাসওয়ার্ডেই যোগ দেবেন, ওপরেরটি ব্যবহার হবে না।';
+      'এই ইমেইলে আগে থেকেই BizPOS অ্যাকাউন্ট থাকলে তিনি নিজের পাসওয়ার্ডেই যোগ দেবেন, ওপরেরটি ব্যবহার হবে না।';
 
   @override
   String memberAdded(String name) {
@@ -2858,4 +2855,130 @@ class AppL10nBn extends AppL10n {
 
   @override
   String get catalogEntryRestored => 'ফিরিয়ে আনা হয়েছে';
+
+  @override
+  String noStockLeft(String name) {
+    return '$name আর স্টকে নেই';
+  }
+
+  @override
+  String get sellingPriceLabel => 'বিক্রয়মূল্য';
+
+  @override
+  String maxLineDiscount(String amount) {
+    return 'সর্বোচ্চ $amount ছাড় দিলে ক্রয়মূল্যের উপরে থাকবে';
+  }
+
+  @override
+  String lineDiscountTooHigh(String amount) {
+    return '$amount-এর বেশি ছাড়ে ক্রয়মূল্যের নিচে বিক্রি হবে';
+  }
+
+  @override
+  String unitPriceBelowCost(String amount) {
+    return 'ক্রয়মূল্য $amount-এর নিচে';
+  }
+
+  @override
+  String maxBillDiscount(String rate, String amount) {
+    return 'সর্বোচ্চ $rate% ($amount) ছাড় দিলে বিল ক্রয়মূল্যের উপরে থাকবে';
+  }
+
+  @override
+  String billDiscountTooHigh(String rate) {
+    return '$rate%-এর বেশি ছাড়ে ক্রয়মূল্যের নিচে বিক্রি হবে';
+  }
+
+  @override
+  String get noDiscountRoom => 'ছাড়ের সুযোগ নেই — বিল ইতিমধ্যে ক্রয়মূল্যে';
+
+  @override
+  String get chooseUnit => 'একক বাছুন';
+
+  @override
+  String get unitSearchHint => 'একক খুঁজুন, বা নতুন লিখুন';
+
+  @override
+  String useNewUnit(String unit) {
+    return '“$unit” নতুন একক হিসেবে নিন';
+  }
+
+  @override
+  String get receiptTitle => 'রসিদ';
+
+  @override
+  String get receiptServedBy => 'বিক্রেতা';
+
+  @override
+  String get receiptItem => 'পণ্য';
+
+  @override
+  String get receiptAmount => 'টাকা';
+
+  @override
+  String get receiptLineDiscounts => 'পণ্যে ছাড়';
+
+  @override
+  String get receiptTotal => 'সর্বমোট';
+
+  @override
+  String get receiptYouSaved => 'আপনার সাশ্রয়';
+
+  @override
+  String get receiptThanks => 'ধন্যবাদ, আবার আসবেন';
+
+  @override
+  String receiptMrpSave(String mrp, String amount, String rate) {
+    return 'এমআরপি $mrp · সাশ্রয় $amount$rate';
+  }
+
+  @override
+  String get noPrinterChosen => 'কোনো প্রিন্টার বাছা হয়নি';
+
+  @override
+  String get changePrinter => 'প্রিন্টার';
+
+  @override
+  String get choosePrinter => 'প্রিন্টার বাছুন';
+
+  @override
+  String get paperWidth => 'কাগজের মাপ';
+
+  @override
+  String get noPairedPrinters =>
+      'কোনো প্রিন্টার যুক্ত নেই। ফোনের ব্লুটুথ সেটিংসে প্রিন্টারটি যুক্ত (pair) করে আবার চেষ্টা করুন।';
+
+  @override
+  String get bluetoothOff => 'ব্লুটুথ বন্ধ। প্রিন্ট করতে চালু করুন।';
+
+  @override
+  String get bluetoothDenied =>
+      'ব্লুটুথের অনুমতি দেওয়া হয়নি। প্রিন্ট করতে অ্যাপের সেটিংসে অনুমতি দিন।';
+
+  @override
+  String get saveAsImage => 'ছবি হিসেবে রাখুন';
+
+  @override
+  String get receiptSaved => 'রসিদ গ্যালারিতে রাখা হয়েছে';
+
+  @override
+  String get receiptSaveFailed => 'রসিদের ছবি রাখা যায়নি';
+
+  @override
+  String printSent(String printer) {
+    return '$printer-এ প্রিন্ট হয়েছে';
+  }
+
+  @override
+  String printerUnreachableSaved(String printer) {
+    return '$printer-এ সংযোগ হয়নি, তাই রসিদ গ্যালারিতে রাখা হয়েছে।';
+  }
+
+  @override
+  String get bluetoothOffSaved =>
+      'ব্লুটুথ বন্ধ, তাই রসিদ গ্যালারিতে রাখা হয়েছে।';
+
+  @override
+  String get bluetoothDeniedSaved =>
+      'ব্লুটুথের অনুমতি নেই, তাই রসিদ গ্যালারিতে রাখা হয়েছে।';
 }
