@@ -3008,15 +3008,7 @@ class AppL10nEn extends AppL10n {
   String get receiptTotal => 'TOTAL';
 
   @override
-  String get receiptYouSaved => 'YOU SAVED';
-
-  @override
   String get receiptThanks => 'Thank you, please come again';
-
-  @override
-  String receiptMrpSave(String mrp, String amount, String rate) {
-    return 'MRP $mrp · save $amount$rate';
-  }
 
   @override
   String get noPrinterChosen => 'No printer chosen';
@@ -3056,15 +3048,7 @@ class AppL10nEn extends AppL10n {
   }
 
   @override
-  String printerUnreachableSaved(String printer) {
-    return 'Couldn\'t reach $printer, so the receipt was saved to the gallery.';
+  String printerUnreachable(String printer) {
+    return 'Couldn\'t reach $printer. Check it is switched on, has paper and is not printing for another phone, then try again.';
   }
-
-  @override
-  String get bluetoothOffSaved =>
-      'Bluetooth is off, so the receipt was saved to the gallery.';
-
-  @override
-  String get bluetoothDeniedSaved =>
-      'No Bluetooth permission, so the receipt was saved to the gallery.';
 }

@@ -5227,23 +5227,11 @@ abstract class AppL10n {
   /// **'TOTAL'**
   String get receiptTotal;
 
-  /// No description provided for @receiptYouSaved.
-  ///
-  /// In en, this message translates to:
-  /// **'YOU SAVED'**
-  String get receiptYouSaved;
-
   /// No description provided for @receiptThanks.
   ///
   /// In en, this message translates to:
   /// **'Thank you, please come again'**
   String get receiptThanks;
-
-  /// No description provided for @receiptMrpSave.
-  ///
-  /// In en, this message translates to:
-  /// **'MRP {mrp} · save {amount}{rate}'**
-  String receiptMrpSave(String mrp, String amount, String rate);
 
   /// No description provided for @noPrinterChosen.
   ///
@@ -5311,23 +5299,11 @@ abstract class AppL10n {
   /// **'Printed on {printer}'**
   String printSent(String printer);
 
-  /// No description provided for @printerUnreachableSaved.
+  /// No description provided for @printerUnreachable.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t reach {printer}, so the receipt was saved to the gallery.'**
-  String printerUnreachableSaved(String printer);
-
-  /// No description provided for @bluetoothOffSaved.
-  ///
-  /// In en, this message translates to:
-  /// **'Bluetooth is off, so the receipt was saved to the gallery.'**
-  String get bluetoothOffSaved;
-
-  /// No description provided for @bluetoothDeniedSaved.
-  ///
-  /// In en, this message translates to:
-  /// **'No Bluetooth permission, so the receipt was saved to the gallery.'**
-  String get bluetoothDeniedSaved;
+  /// **'Couldn\'t reach {printer}. Check it is switched on, has paper and is not printing for another phone, then try again.'**
+  String printerUnreachable(String printer);
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

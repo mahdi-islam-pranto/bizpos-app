@@ -1777,22 +1777,7 @@
   "receiptAmount": "Amount",
   "receiptLineDiscounts": "Item discounts",
   "receiptTotal": "TOTAL",
-  "receiptYouSaved": "YOU SAVED",
   "receiptThanks": "Thank you, please come again",
-  "receiptMrpSave": "MRP {mrp} · save {amount}{rate}",
-  "@receiptMrpSave": {
-    "placeholders": {
-      "mrp": {
-        "type": "String"
-      },
-      "amount": {
-        "type": "String"
-      },
-      "rate": {
-        "type": "String"
-      }
-    }
-  },
   "noPrinterChosen": "No printer chosen",
   "changePrinter": "Printer",
   "choosePrinter": "Choose a printer",
@@ -1811,14 +1796,12 @@
       }
     }
   },
-  "printerUnreachableSaved": "Couldn't reach {printer}, so the receipt was saved to the gallery.",
-  "@printerUnreachableSaved": {
+  "printerUnreachable": "Couldn't reach {printer}. Check it is switched on, has paper and is not printing for another phone, then try again.",
+  "@printerUnreachable": {
     "placeholders": {
       "printer": {
         "type": "String"
       }
     }
-  },
-  "bluetoothOffSaved": "Bluetooth is off, so the receipt was saved to the gallery.",
-  "bluetoothDeniedSaved": "No Bluetooth permission, so the receipt was saved to the gallery."
+  }
 }

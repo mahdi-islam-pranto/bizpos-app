@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,10 +20,11 @@ import 'receipt_view.dart';
 /// The receipt as it will come out of the printer, with Print beside it.
 ///
 /// Built from `GET /sales/{id}`, never from the cart: the server's totals are
-/// the sale. Print sends it to this phone's Bluetooth printer; with no printer
-/// to reach — none chosen, Bluetooth off or refused, or the printer not
-/// answering — the same picture is saved to the gallery instead, so a sale
-/// never leaves without its receipt.
+/// the sale. Print sends it to this phone's Bluetooth printer; when it cannot —
+/// Bluetooth off or refused, or the printer not answering — a note says why
+/// and nothing else happens. Saving the picture to the gallery is only ever
+/// the person's own choice (the image button, or "Save as image" in the
+/// picker).
 class ReceiptSheet extends ConsumerStatefulWidget {
   const ReceiptSheet({required this.saleId, this.afterSale = false, super.key});
 
@@ -89,11 +92,9 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
     final state = await transport.check();
     if (!mounted) return;
     if (state != BluetoothState.ready) {
-      return _saveImage(
-        sale,
-        why: state == BluetoothState.off
-            ? l10n.bluetoothOffSaved
-            : l10n.bluetoothDeniedSaved,
+      return showNote(
+        context,
+        state == BluetoothState.off ? l10n.bluetoothOff : l10n.bluetoothDenied,
       );
     }
 
@@ -103,17 +104,16 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
       final bytes = await ReceiptOutput.rasterFor(render, setup.paper);
       await transport.send(setup.mac!, bytes);
       if (mounted) showNote(context, l10n.printSent(setup.name ?? ''));
-    } catch (_) {
-      if (!mounted) return;
-      await _saveImage(
-        sale,
-        why: l10n.printerUnreachableSaved(setup.name ?? ''),
-      );
+    } catch (e) {
+      developer.log('print failed: $e', name: 'printing');
+      if (mounted) {
+        showNote(context, l10n.printerUnreachable(setup.name ?? ''));
+      }
     }
   }
 
-  /// [why] says what stopped the print; without it this is a plain save.
-  Future<void> _saveImage(SaleDetail sale, {String? why}) async {
+  /// Only when the person asks for it — a failed print never saves on its own.
+  Future<void> _saveImage(SaleDetail sale) async {
     final l10n = AppL10n.of(context);
     final render = _render;
     if (render == null) return;
@@ -124,7 +124,7 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
     if (!mounted) return;
     showNote(
       context,
-      saved ? (why ?? l10n.receiptSaved) : l10n.receiptSaveFailed,
+      saved ? l10n.receiptSaved : l10n.receiptSaveFailed,
     );
   }
 

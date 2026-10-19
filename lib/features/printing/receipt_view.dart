@@ -152,12 +152,6 @@ class ReceiptView extends StatelessWidget {
               money.format(sale.total),
               s: style(scale: 1.25, bold: true),
             ),
-            if ((sale.mrpSaving ?? 0) > 0)
-              pair(
-                l10n.receiptYouSaved,
-                money.format(sale.mrpSaving),
-                s: style(bold: true),
-              ),
             const _Rule(),
             for (final payment in sale.payments)
               pair(payment.method.toUpperCase(), money.format(payment.amount)),
@@ -223,19 +217,6 @@ class _Item extends StatelessWidget {
             Text(fig(item.total)),
           ],
         ),
-        // The saving against the printed price is already inside the
-        // selling price; it is shown, never subtracted.
-        if ((item.mrp ?? 0) > item.unitPrice && (item.mrpDiscount ?? 0) > 0)
-          Text(
-            l10n.receiptMrpSave(
-              fig(item.mrp!),
-              fig(item.mrpDiscount!),
-              item.mrpDiscountPercent == null
-                  ? ''
-                  : ' (${pct(item.mrpDiscountPercent!)})',
-            ),
-            style: small,
-          ),
         if ((item.discount ?? 0) > 0)
           Text(
             '${l10n.discount} −${fig(item.discount!)}'

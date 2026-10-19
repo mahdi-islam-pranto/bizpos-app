@@ -2922,15 +2922,7 @@ class AppL10nBn extends AppL10n {
   String get receiptTotal => 'সর্বমোট';
 
   @override
-  String get receiptYouSaved => 'আপনার সাশ্রয়';
-
-  @override
   String get receiptThanks => 'ধন্যবাদ, আবার আসবেন';
-
-  @override
-  String receiptMrpSave(String mrp, String amount, String rate) {
-    return 'এমআরপি $mrp · সাশ্রয় $amount$rate';
-  }
 
   @override
   String get noPrinterChosen => 'কোনো প্রিন্টার বাছা হয়নি';
@@ -2970,15 +2962,7 @@ class AppL10nBn extends AppL10n {
   }
 
   @override
-  String printerUnreachableSaved(String printer) {
-    return '$printer-এ সংযোগ হয়নি, তাই রসিদ গ্যালারিতে রাখা হয়েছে।';
+  String printerUnreachable(String printer) {
+    return '$printer-এ সংযোগ হয়নি। প্রিন্টারটি চালু আছে, কাগজ আছে এবং অন্য ফোনে প্রিন্ট করছে না কিনা দেখে আবার চেষ্টা করুন।';
   }
-
-  @override
-  String get bluetoothOffSaved =>
-      'ব্লুটুথ বন্ধ, তাই রসিদ গ্যালারিতে রাখা হয়েছে।';
-
-  @override
-  String get bluetoothDeniedSaved =>
-      'ব্লুটুথের অনুমতি নেই, তাই রসিদ গ্যালারিতে রাখা হয়েছে।';
 }

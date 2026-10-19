@@ -890,9 +890,7 @@
   "receiptAmount": "টাকা",
   "receiptLineDiscounts": "পণ্যে ছাড়",
   "receiptTotal": "সর্বমোট",
-  "receiptYouSaved": "আপনার সাশ্রয়",
   "receiptThanks": "ধন্যবাদ, আবার আসবেন",
-  "receiptMrpSave": "এমআরপি {mrp} · সাশ্রয় {amount}{rate}",
   "noPrinterChosen": "কোনো প্রিন্টার বাছা হয়নি",
   "changePrinter": "প্রিন্টার",
   "choosePrinter": "প্রিন্টার বাছুন",
@@ -904,7 +902,5 @@
   "receiptSaved": "রসিদ গ্যালারিতে রাখা হয়েছে",
   "receiptSaveFailed": "রসিদের ছবি রাখা যায়নি",
   "printSent": "{printer}-এ প্রিন্ট হয়েছে",
-  "printerUnreachableSaved": "{printer}-এ সংযোগ হয়নি, তাই রসিদ গ্যালারিতে রাখা হয়েছে।",
-  "bluetoothOffSaved": "ব্লুটুথ বন্ধ, তাই রসিদ গ্যালারিতে রাখা হয়েছে।",
-  "bluetoothDeniedSaved": "ব্লুটুথের অনুমতি নেই, তাই রসিদ গ্যালারিতে রাখা হয়েছে।"
+  "printerUnreachable": "{printer}-এ সংযোগ হয়নি। প্রিন্টারটি চালু আছে, কাগজ আছে এবং অন্য ফোনে প্রিন্ট করছে না কিনা দেখে আবার চেষ্টা করুন।"
 }

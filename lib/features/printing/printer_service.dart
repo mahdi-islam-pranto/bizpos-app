@@ -153,21 +153,27 @@ class BluetoothThermalTransport implements PrinterTransport {
     final connected = await PrintBluetoothThermal.connectionStatus;
     if (!connected || _connectedTo != mac) {
       if (connected) await PrintBluetoothThermal.disconnect;
+      _connectedTo = null;
+      // Cheap printers often refuse the first RFCOMM connect straight after
+      // waking up or after another phone let go of them; the second one
+      // goes through.
       if (!await PrintBluetoothThermal.connect(macPrinterAddress: mac)) {
-        _connectedTo = null;
-        throw const PrintFailed();
+        await Future<void>.delayed(const Duration(milliseconds: 600));
+        if (!await PrintBluetoothThermal.connect(macPrinterAddress: mac)) {
+          throw const PrintFailed();
+        }
       }
       _connectedTo = mac;
     }
-    // In pieces: one huge write overruns the buffer of the cheaper printers,
-    // which then drop the middle of the receipt without saying so.
-    const piece = 4096;
-    for (var start = 0; start < bytes.length; start += piece) {
-      final end = start + piece < bytes.length ? start + piece : bytes.length;
-      if (!await PrintBluetoothThermal.writeBytes(bytes.sublist(start, end))) {
-        _connectedTo = null;
-        throw const PrintFailed();
-      }
+    // One write, as a plain List<int>. A Uint8List crosses the channel as a
+    // byte[], which the plugin's `as? List<Int>` turns into null and answers
+    // false — nothing ever reached the printer. And every writeBytes call is
+    // prefixed with a '\n' by the plugin, so splitting the job here would
+    // drop that byte into the middle of a raster band; the plugin already
+    // writes in 16 KB pieces and flushes each one.
+    if (!await PrintBluetoothThermal.writeBytes(List<int>.of(bytes))) {
+      _connectedTo = null;
+      throw const PrintFailed();
     }
   }
 }

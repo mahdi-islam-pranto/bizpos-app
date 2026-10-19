@@ -186,9 +186,14 @@ never from the cart. Easy to break:
   `ReceiptPaper.pixelRatio` (384 dots for 58 mm, 576 for 80 mm) and
   `escposRaster` turns it into `GS v 0` bands. `ReceiptView` reads no theme —
   a dark phone must still print black on white.
-- **No printer means an image.** No printer chosen → the picker (with "Save
-  as image"); Bluetooth off or refused, or the printer not answering → the
-  same PNG goes to the gallery through `gal`, with a note saying why.
+- **The gallery is manual only.** No printer chosen → the picker (with "Save
+  as image"); Bluetooth off or refused, or the printer not answering → a note
+  saying why, nothing saved. The PNG goes to the gallery (`gal`) only from the
+  image button or the picker.
+- **`writeBytes` takes a plain `List<int>`, in one call.** A `Uint8List`
+  arrives in the plugin's Kotlin as `byte[]`, its `as? List<Int>` is null and
+  the write "fails" without touching the printer. The plugin also prefixes
+  every call with a newline byte, so chunking a raster job corrupts it.
 - The printer (name, MAC, paper) is a **device** preference in shared
   preferences (`printerSetupProvider`), not the store's `receiptPaper`, which
   a cashier cannot read. `print_bluetooth_thermal` asks for Android 12's

@@ -38,8 +38,7 @@ class FakePrinter implements PrinterTransport {
 }
 
 /// The slip that leaves the shop: every figure from `GET /sales/{id}`, and a
-/// picture at the printer's own width — or the gallery, when no printer can
-/// be reached.
+/// picture at the printer's own width. The gallery only when asked.
 void main() {
   final sale = SaleDetail.fromJson({
     'id': 7,
@@ -145,9 +144,9 @@ void main() {
     expect(find.text('Abdur Rahman'), findsOneWidget);
     expect(find.text('4 × 288.50'), findsOneWidget);
     expect(find.text('1154.00'), findsOneWidget);
-    expect(find.text('MRP 350.00 · save 246.00 (17.57%)'), findsOneWidget);
+    expect(find.textContaining('MRP'), findsNothing);
     expect(find.text('TOTAL'), findsOneWidget);
-    expect(find.text('YOU SAVED'), findsOneWidget);
+    expect(find.text('YOU SAVED'), findsNothing);
     expect(find.text('CASH'), findsOneWidget);
     expect(find.text('Thank you, please come again'), findsOneWidget);
   });
@@ -184,7 +183,7 @@ void main() {
     expect(printer.sent.single.$2.sublist(6, 8), [72, 0]);
   });
 
-  testWidgets('a printer that does not answer falls back to the image', (
+  testWidgets('a printer that does not answer says so and saves nothing', (
     tester,
   ) async {
     final printer = FakePrinter(fails: true);
@@ -192,9 +191,8 @@ void main() {
     await tapPrint(tester);
 
     expect(printer.sent, isEmpty);
-    // The gallery plugin is not there in a test, so the save itself reports
-    // failure — what matters is that the receipt went that way.
-    expect(find.text("Couldn't save the receipt image"), findsOneWidget);
+    expect(find.textContaining("Couldn't reach"), findsOneWidget);
+    expect(find.text("Couldn't save the receipt image"), findsNothing);
   });
 
   testWidgets('Bluetooth off sends nothing to the printer', (tester) async {
@@ -203,7 +201,8 @@ void main() {
     await tapPrint(tester);
 
     expect(printer.sent, isEmpty);
-    expect(find.text("Couldn't save the receipt image"), findsOneWidget);
+    expect(find.text('Bluetooth is off. Turn it on to print.'), findsOneWidget);
+    expect(find.text("Couldn't save the receipt image"), findsNothing);
   });
 
   testWidgets('with no printer chosen, Print asks which one', (tester) async {
