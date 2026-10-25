@@ -194,6 +194,13 @@ never from the cart. Easy to break:
   arrives in the plugin's Kotlin as `byte[]`, its `as? List<Int>` is null and
   the write "fails" without touching the printer. The plugin also prefixes
   every call with a newline byte, so chunking a raster job corrupts it.
+- **Every print lets go of the printer.** A Bluetooth Classic printer takes
+  one connection at a time, so several phones share it by taking turns:
+  `BluetoothThermalTransport` connects, writes, holds the link a few seconds
+  (the tail of the job is still in Android's Bluetooth buffer — closing at
+  once cuts the receipt) and disconnects. A refused connect means another
+  phone is printing; it retries for up to 25 s. Never keep the connection
+  open between prints — that locks every other phone out.
 - The printer (name, MAC, paper) is a **device** preference in shared
   preferences (`printerSetupProvider`), not the store's `receiptPaper`, which
   a cashier cannot read. `print_bluetooth_thermal` asks for Android 12's
@@ -393,6 +400,12 @@ place each rather than in a widget:
   await, and the checkout call deliberately does *not* use the scope cancel
   token: a sale in flight during a branch switch must finish and be reported,
   not vanish.
+
+Every successful checkout goes through `refreshAfterSale` (`payment_sheet.dart`):
+`salesListProvider` and the customer lists are kept alive between visits, so
+a sale that skips it leaves the new invoice off the Invoices tab. With a named
+customer the cart offers **Direct invoice** beside Charge — `payments: []`,
+the whole bill on the khata, disabled when the store's `allowCredit` is off.
 
 Held carts round-trip JSON the server never reads, so `Cart.fromHoldJson` is
 deliberately forgiving — a hold from an older build brings back the lines it

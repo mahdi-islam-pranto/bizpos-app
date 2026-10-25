@@ -2965,4 +2965,21 @@ class AppL10nBn extends AppL10n {
   String printerUnreachable(String printer) {
     return '$printer-এ সংযোগ হয়নি। প্রিন্টারটি চালু আছে, কাগজ আছে এবং অন্য ফোনে প্রিন্ট করছে না কিনা দেখে আবার চেষ্টা করুন।';
   }
+
+  @override
+  String get directInvoice => 'সরাসরি ইনভয়েস';
+
+  @override
+  String get directInvoiceTitle => 'টাকা না নিয়ে ইনভয়েস করবেন?';
+
+  @override
+  String directInvoiceBody(String total, String customer) {
+    return '$total মূল্যের পুরো বিল $customer-এর বাকিতে যোগ হবে। এখন কোনো টাকা নেওয়া হবে না; পরে ইনভয়েস বা ক্রেতার পাতা থেকে আদায় করুন।';
+  }
+
+  @override
+  String get createInvoice => 'ইনভয়েস তৈরি করুন';
+
+  @override
+  String get refresh => 'রিফ্রেশ';
 }

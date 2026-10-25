@@ -3051,4 +3051,21 @@ class AppL10nEn extends AppL10n {
   String printerUnreachable(String printer) {
     return 'Couldn\'t reach $printer. Check it is switched on, has paper and is not printing for another phone, then try again.';
   }
+
+  @override
+  String get directInvoice => 'Direct invoice';
+
+  @override
+  String get directInvoiceTitle => 'Invoice without payment?';
+
+  @override
+  String directInvoiceBody(String total, String customer) {
+    return 'The whole bill of $total goes on $customer\'s due. No money is taken now; collect it later from the invoice or the customer.';
+  }
+
+  @override
+  String get createInvoice => 'Create invoice';
+
+  @override
+  String get refresh => 'Refresh';
 }

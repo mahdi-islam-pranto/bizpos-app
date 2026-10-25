@@ -9,11 +9,14 @@ import '../../../core/permissions/permissions.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/theme/tokens.dart';
 import '../../../core/widgets/app_sheet.dart';
+import '../../../core/widgets/async_view.dart';
 import '../../../core/widgets/fields.dart';
 import '../../../core/widgets/states.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/pos_models.dart';
+import '../data/pos_repository.dart';
 import '../state/cart.dart';
+import 'checkout_done_sheet.dart';
 import 'customer_picker_sheet.dart';
 import 'payment_sheet.dart';
 
@@ -126,19 +129,7 @@ class CartSheet extends ConsumerWidget {
           ),
         ),
         Divider(color: palette.hairline, height: 1),
-        SheetAction(
-          label:
-              '${l10n.charge}  ${money.format(cart.estimatedTotal.toDouble())}',
-          icon: Icons.point_of_sale,
-          // The server refuses a sale below cost. Taking the money first and
-          // being refused after is the one order a counter cannot afford.
-          onPressed: cart.belowCost
-              ? null
-              : () async {
-                  Navigator.of(context).pop();
-                  await PaymentSheet.show(context, lookups: lookups);
-                },
-        ),
+        _ChargeBar(lookups: lookups),
       ],
     );
   }
@@ -158,6 +149,162 @@ class CartSheet extends ConsumerWidget {
       mayDiscount: mayDiscount,
     ),
   );
+}
+
+/// Charge, and — for a named customer — a direct invoice beside it.
+///
+/// A direct invoice is a sale with `payments: []`: the whole bill goes on the
+/// customer's khata and nothing is taken now. The API allows exactly that for
+/// a named customer, so the walk-in customer never gets the button, and a
+/// store with credit switched off gets it disabled with the reason. A credit
+/// limit is the server's to judge; its `422` is shown as it is written.
+class _ChargeBar extends ConsumerStatefulWidget {
+  const _ChargeBar({required this.lookups});
+
+  final PosLookups lookups;
+
+  @override
+  ConsumerState<_ChargeBar> createState() => _ChargeBarState();
+}
+
+class _ChargeBarState extends ConsumerState<_ChargeBar> {
+  bool _busy = false;
+
+  /// One shot, like the payment sheet: [_busy] latches before the await,
+  /// because a second `POST /pos/checkout` is a second sale.
+  Future<void> _directInvoice() async {
+    if (_busy) return;
+    final l10n = AppL10n.of(context);
+    final money = ref.read(moneyProvider);
+    final cart = ref.read(cartProvider);
+
+    final ok = await confirmSheet(
+      context,
+      title: l10n.directInvoiceTitle,
+      message: l10n.directInvoiceBody(
+        money.format(cart.estimatedTotal.toDouble()),
+        cart.customer!.name,
+      ),
+      confirmLabel: l10n.createInvoice,
+      cancelLabel: l10n.cancel,
+    );
+    if (!ok || !mounted || _busy) return;
+    setState(() => _busy = true);
+
+    final permissions = ref.read(permissionsProvider);
+    final body = ref
+        .read(cartProvider)
+        .toCheckoutBody(
+          mayChangePrice: permissions.has(P.posSaleChangePrice),
+          mayDiscount: permissions.has(P.posSaleGiveDiscount),
+          payments: const [],
+        );
+
+    try {
+      final result = await ref.read(posRepositoryProvider).checkout(body);
+      if (!mounted) return;
+      refreshAfterSale(ref);
+      Navigator.of(context).pop();
+      await CheckoutDoneSheet.show(context, result: result);
+    } catch (e) {
+      // Nothing was sold; the cart is as it was.
+      if (mounted) showApiError(context, e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final palette = context.palette;
+    final money = ref.watch(moneyProvider);
+    final cart = ref.watch(cartProvider);
+    final allowCredit = widget.lookups.allowCredit;
+
+    // The server refuses a sale below cost. Taking the money first and being
+    // refused after is the one order a counter cannot afford.
+    final onCharge = cart.belowCost || _busy
+        ? null
+        : () async {
+            Navigator.of(context).pop();
+            await PaymentSheet.show(context, lookups: widget.lookups);
+          };
+    final chargeLabel =
+        '${l10n.charge}  ${money.format(cart.estimatedTotal.toDouble())}';
+
+    if (!cart.hasNamedCustomer) {
+      return SheetAction(
+        label: chargeLabel,
+        icon: Icons.point_of_sale,
+        onPressed: onCharge,
+      );
+    }
+
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.all(Insets.gutter),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (!allowCredit)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Insets.s8),
+                child: Text(
+                  l10n.creditOff,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: palette.muted),
+                ),
+              ),
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: OutlinedButton.icon(
+                      onPressed: cart.belowCost || !allowCredit || _busy
+                          ? null
+                          : _directInvoice,
+                      icon: _busy
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.receipt_long_outlined),
+                      label: Text(
+                        l10n.directInvoice,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: Insets.s8),
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: FilledButton.icon(
+                      onPressed: onCharge,
+                      icon: const Icon(Icons.point_of_sale),
+                      label: Text(
+                        chargeLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _CartRow extends StatelessWidget {
@@ -554,6 +701,8 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
             child: Column(
               children: [
                 _PriceFacts(
+                  mrp: line.item.mrp,
+                  showMrp: !line.item.isPackage,
                   salePrice: line.item.salePrice,
                   cost: cost,
                   money: money,
@@ -622,14 +771,20 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
   }
 }
 
-/// Selling price and, when the role may see it, cost — side by side.
+/// MRP, selling price and, when the role may see it, cost — side by side.
 class _PriceFacts extends StatelessWidget {
   const _PriceFacts({
+    required this.mrp,
+    required this.showMrp,
     required this.salePrice,
     required this.cost,
     required this.money,
   });
 
+  /// A product without a printed price shows "—"; a bundle has none to show,
+  /// so [showMrp] is off for it.
+  final num? mrp;
+  final bool showMrp;
   final num salePrice;
   final num? cost;
   final Money money;
@@ -640,14 +795,14 @@ class _PriceFacts extends StatelessWidget {
     final palette = context.palette;
     final text = Theme.of(context).textTheme;
 
-    Widget fact(String label, num value) => Expanded(
+    Widget fact(String label, num? value) => Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: text.labelSmall?.copyWith(color: palette.muted)),
           const SizedBox(height: Insets.s4),
           Text(
-            money.format(value),
+            value == null ? '—' : money.format(value),
             style: text.titleMedium?.copyWith(
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
@@ -664,8 +819,9 @@ class _PriceFacts extends StatelessWidget {
       ),
       child: Row(
         children: [
+          if (showMrp) fact(l10n.mrpLabel, mrp),
           fact(l10n.sellingPriceLabel, salePrice),
-          if (cost != null) fact(l10n.costLabel, cost!),
+          if (cost != null) fact(l10n.costLabel, cost),
         ],
       ),
     );

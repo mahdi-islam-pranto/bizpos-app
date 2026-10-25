@@ -5304,6 +5304,36 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Couldn\'t reach {printer}. Check it is switched on, has paper and is not printing for another phone, then try again.'**
   String printerUnreachable(String printer);
+
+  /// No description provided for @directInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct invoice'**
+  String get directInvoice;
+
+  /// No description provided for @directInvoiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice without payment?'**
+  String get directInvoiceTitle;
+
+  /// No description provided for @directInvoiceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The whole bill of {total} goes on {customer}\'s due. No money is taken now; collect it later from the invoice or the customer.'**
+  String directInvoiceBody(String total, String customer);
+
+  /// No description provided for @createInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Create invoice'**
+  String get createInvoice;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

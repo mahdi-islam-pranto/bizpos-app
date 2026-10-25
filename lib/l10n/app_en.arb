@@ -1803,5 +1803,20 @@
         "type": "String"
       }
     }
-  }
+  },
+  "directInvoice": "Direct invoice",
+  "directInvoiceTitle": "Invoice without payment?",
+  "directInvoiceBody": "The whole bill of {total} goes on {customer}'s due. No money is taken now; collect it later from the invoice or the customer.",
+  "@directInvoiceBody": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "customer": {
+        "type": "String"
+      }
+    }
+  },
+  "createInvoice": "Create invoice",
+  "refresh": "Refresh"
 }

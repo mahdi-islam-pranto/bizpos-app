@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer' as developer;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -124,8 +125,25 @@ abstract class PrinterTransport {
   Future<void> send(String mac, List<int> bytes);
 }
 
+/// Prints and lets go, so every phone at the counter can share one printer.
+///
+/// A Bluetooth Classic printer takes one RFCOMM connection at a time; a phone
+/// that keeps its connection open locks every other phone out until it quits.
+/// "Many phones on one printer" is really the phones taking turns, which is
+/// what this does: connect, write, wait for the job to leave the radio, and
+/// disconnect. A phone that finds the printer busy with another one keeps
+/// trying for [_busyWait] instead of failing on the first refusal.
+///
+/// Jobs from this phone run one after another, and a second print inside the
+/// linger window reuses the open connection rather than reconnecting.
 class BluetoothThermalTransport implements PrinterTransport {
+  /// How long to keep knocking while another phone has the printer. Its job
+  /// plus its linger is a few seconds; this covers a couple of those.
+  static const _busyWait = Duration(seconds: 25);
+
   String? _connectedTo;
+  Timer? _release;
+  Future<void> _queue = Future.value();
 
   @override
   Future<BluetoothState> check() async {
@@ -149,32 +167,88 @@ class BluetoothThermalTransport implements PrinterTransport {
   ];
 
   @override
-  Future<void> send(String mac, List<int> bytes) async {
-    final connected = await PrintBluetoothThermal.connectionStatus;
-    if (!connected || _connectedTo != mac) {
-      if (connected) await PrintBluetoothThermal.disconnect;
-      _connectedTo = null;
-      // Cheap printers often refuse the first RFCOMM connect straight after
-      // waking up or after another phone let go of them; the second one
-      // goes through.
-      if (!await PrintBluetoothThermal.connect(macPrinterAddress: mac)) {
-        await Future<void>.delayed(const Duration(milliseconds: 600));
-        if (!await PrintBluetoothThermal.connect(macPrinterAddress: mac)) {
-          throw const PrintFailed();
-        }
+  Future<void> send(String mac, List<int> bytes) => _serial(() async {
+    _release?.cancel();
+    _release = null;
+    try {
+      // A connection still open from a print a moment ago is reused; if the
+      // printer dropped it meanwhile the first write fails at once, before
+      // anything is printed, and one fresh connection is worth a try.
+      if (_connectedTo == mac && await _write(bytes)) {
+        return _scheduleRelease(bytes.length);
       }
-      _connectedTo = mac;
+      await _disconnect();
+      await _connect(mac);
+      if (!await _write(bytes)) throw const PrintFailed();
+      _scheduleRelease(bytes.length);
+    } catch (_) {
+      await _disconnect();
+      rethrow;
     }
-    // One write, as a plain List<int>. A Uint8List crosses the channel as a
-    // byte[], which the plugin's `as? List<Int>` turns into null and answers
-    // false — nothing ever reached the printer. And every writeBytes call is
-    // prefixed with a '\n' by the plugin, so splitting the job here would
-    // drop that byte into the middle of a raster band; the plugin already
-    // writes in 16 KB pieces and flushes each one.
-    if (!await PrintBluetoothThermal.writeBytes(List<int>.of(bytes))) {
-      _connectedTo = null;
-      throw const PrintFailed();
+  });
+
+  /// Keeps knocking while the printer is serving another phone. A refused
+  /// RFCOMM connect is also what a cheap printer answers straight after
+  /// waking up, so even a free printer sometimes needs the second try.
+  Future<void> _connect(String mac) async {
+    final deadline = DateTime.now().add(_busyWait);
+    var pause = const Duration(milliseconds: 500);
+    while (true) {
+      if (await PrintBluetoothThermal.connect(macPrinterAddress: mac)) {
+        _connectedTo = mac;
+        return;
+      }
+      if (DateTime.now().add(pause).isAfter(deadline)) {
+        throw const PrintFailed();
+      }
+      developer.log('printer busy or asleep, retrying', name: 'printing');
+      await Future<void>.delayed(pause);
+      if (pause < const Duration(seconds: 2)) pause *= 2;
     }
+  }
+
+  /// One write, as a plain `List<int>`. A Uint8List crosses the channel as a
+  /// byte[], which the plugin's `as? List<Int>` turns into null and answers
+  /// false — nothing ever reached the printer. And every writeBytes call is
+  /// prefixed with a '\n' by the plugin, so splitting the job here would drop
+  /// that byte into the middle of a raster band; the plugin already writes in
+  /// 16 KB pieces and flushes each one.
+  Future<bool> _write(List<int> bytes) async {
+    if (await PrintBluetoothThermal.writeBytes(List<int>.of(bytes))) {
+      return true;
+    }
+    _connectedTo = null;
+    return false;
+  }
+
+  /// The write returns once Android has the bytes, not once the printer does:
+  /// the tail of the job is still in the Bluetooth stack's buffer, and
+  /// closing the socket now would cut the receipt short. So the connection
+  /// is held a little longer, more for a long receipt, then given up for the
+  /// next phone.
+  void _scheduleRelease(int length) {
+    final ms = (1500 + length ~/ 40).clamp(1500, 6000);
+    _release = Timer(
+      Duration(milliseconds: ms),
+      () => _serial(_disconnect),
+    );
+  }
+
+  Future<void> _disconnect() async {
+    _release?.cancel();
+    _release = null;
+    _connectedTo = null;
+    try {
+      await PrintBluetoothThermal.disconnect;
+    } catch (e) {
+      developer.log('could not let go of the printer: $e', name: 'printing');
+    }
+  }
+
+  Future<void> _serial(Future<void> Function() job) {
+    final run = _queue.then((_) => job());
+    _queue = run.catchError((_) {});
+    return run;
   }
 }
 

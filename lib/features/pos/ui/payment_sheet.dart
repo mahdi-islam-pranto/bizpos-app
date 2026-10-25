@@ -10,6 +10,8 @@ import '../../../core/widgets/app_sheet.dart';
 import '../../../core/widgets/async_view.dart';
 import '../../../core/widgets/fields.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../customers/data/customers_repository.dart';
+import '../../sales/data/sales_repository.dart';
 import '../data/pos_models.dart';
 import '../data/pos_repository.dart';
 import '../state/cart.dart';
@@ -303,9 +305,7 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
       final result = await ref.read(posRepositoryProvider).checkout(body);
       if (!mounted) return;
 
-      ref.read(cartProvider.notifier).clear();
-      // The drawer figure and the held list both move with a sale.
-      ref.invalidate(posLookupsProvider);
+      refreshAfterSale(ref);
 
       Navigator.of(context).pop();
       await CheckoutDoneSheet.show(context, result: result);
@@ -317,6 +317,18 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
       if (mounted) setState(() => _busy = false);
     }
   }
+}
+
+/// Everything a finished sale moves. The invoice list and the customer lists
+/// are kept alive between visits, so without this the new invoice and the
+/// customer's new due stay invisible until the app restarts.
+void refreshAfterSale(WidgetRef ref) {
+  ref.read(cartProvider.notifier).clear();
+  // The drawer figure and the held list both move with a sale.
+  ref.invalidate(posLookupsProvider);
+  ref.invalidate(salesListProvider);
+  ref.invalidate(customersProvider);
+  ref.invalidate(customerLedgerProvider);
 }
 
 /// One payment being entered. Holds its own controller so typing does not

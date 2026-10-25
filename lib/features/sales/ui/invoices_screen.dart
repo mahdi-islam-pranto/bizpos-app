@@ -78,7 +78,18 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
     final query = ref.watch(salesQueryProvider);
 
     return Scaffold(
-      appBar: ShellAppBar(title: Text(l10n.invoices)),
+      appBar: ShellAppBar(
+        title: Text(l10n.invoices),
+        actions: [
+          IconButton(
+            tooltip: l10n.refresh,
+            icon: const Icon(Icons.refresh),
+            onPressed: sales.isLoading
+                ? null
+                : () => ref.read(salesListProvider.notifier).refresh(),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
@@ -132,6 +143,7 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                     onRefresh: () =>
                         ref.read(salesListProvider.notifier).refresh(),
                     child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       children: [
                         SizedBox(
                           height: MediaQuery.sizeOf(context).height * 0.5,
@@ -156,6 +168,10 @@ class _InvoicesScreenState extends ConsumerState<InvoicesScreen> {
                             ref.read(salesListProvider.notifier).refresh(),
                         child: ListView.separated(
                           controller: _scroll,
+                          // With its own controller the list is not "primary",
+                          // so a short one would not scroll and the pull to
+                          // refresh would never fire.
+                          physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.only(bottom: Insets.s24),
                           itemCount: page.items.length + (page.hasMore ? 1 : 0),
                           separatorBuilder: (_, _) => Divider(

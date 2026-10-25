@@ -380,6 +380,7 @@ class SellableItem {
     this.vatPercent = 0,
     this.stock,
     this.purchasePrice,
+    this.mrp,
     this.minimumStock,
     this.trackBatch = false,
   });
@@ -402,6 +403,10 @@ class SellableItem {
   /// Null without `inventory.product.view_cost`. A cashier never sees it.
   final num? purchasePrice;
 
+  /// The price printed on the pack. Null when the product has none, or when
+  /// the server does not send it with the search.
+  final num? mrp;
+
   final num? minimumStock;
   final bool trackBatch;
 
@@ -419,6 +424,7 @@ class SellableItem {
     vatPercent: _num(json['vatPercent']),
     stock: _numOrNull(json['stock']),
     purchasePrice: _numOrNull(json['purchasePrice']),
+    mrp: _numOrNull(json['mrp']),
     minimumStock: _numOrNull(json['minimumStock']),
     trackBatch: _bool(json['trackBatch']),
   );
