@@ -54,7 +54,11 @@ void main() {
     'mrpSaving': 1166,
     'saleDate': '2026-10-07T11:40:00+06:00',
     'seller': 'Abdur Rahman',
-    'store': {'name': 'Shamim Pharmacy', 'phone': '01711000009', 'currency': 'BDT'},
+    'store': {
+      'name': 'Shamim Pharmacy',
+      'phone': '01711000009',
+      'currency': 'BDT',
+    },
     'branch': {'name': 'Shamim Pharmacy'},
     'items': [
       {
@@ -67,7 +71,13 @@ void main() {
         'mrpDiscount': 246,
         'mrpDiscountPercent': 17.57,
       },
-      {'id': 2, 'name': 'A To Z GOL (Amee) (30 Pcs)', 'qty': 4, 'unitPrice': 70, 'total': 280},
+      {
+        'id': 2,
+        'name': 'A To Z GOL (Amee) (30 Pcs)',
+        'qty': 4,
+        'unitPrice': 70,
+        'total': 280,
+      },
     ],
     'payments': [
       {'method': 'cash', 'amount': 1434},
@@ -77,6 +87,7 @@ void main() {
   Future<void> pump(
     WidgetTester tester,
     FakePrinter printer, {
+    SaleDetail? detail,
     Map<String, Object> prefs = const {
       'printer.name': 'Counter printer',
       'printer.mac': 'AA:BB',
@@ -93,7 +104,10 @@ void main() {
         overrides: [
           fakeSession(activeSession(Roles.cashier, roleName: 'cashier')),
           saleDetailProvider(7).overrideWith(
-            (ref) async => SaleDetailResult(sale: sale, meta: const Meta.empty()),
+            (ref) async => SaleDetailResult(
+              sale: detail ?? sale,
+              meta: const Meta.empty(),
+            ),
           ),
           printerTransportProvider.overrideWithValue(printer),
         ],
@@ -146,9 +160,64 @@ void main() {
     expect(find.text('1154.00'), findsOneWidget);
     expect(find.textContaining('MRP'), findsNothing);
     expect(find.text('TOTAL'), findsOneWidget);
+    // Left off the slip on purpose: no subtotal, no MRP saving.
+    expect(find.text('Subtotal'), findsNothing);
     expect(find.text('YOU SAVED'), findsNothing);
+    expect(find.text('৳1,166'), findsNothing);
     expect(find.text('CASH'), findsOneWidget);
+    // Paid in full, no customer: no khata lines.
+    expect(find.text('DUE ON THIS BILL'), findsNothing);
+    expect(find.text('TOTAL DUE'), findsNothing);
     expect(find.text('Thank you, please come again'), findsOneWidget);
+  });
+
+  testWidgets('a bill on the khata names the customer and the dues', (
+    tester,
+  ) async {
+    final credit = SaleDetail.fromJson({
+      'id': 7,
+      'invoiceNo': 'INV-2026-001593',
+      'subtotal': 288.5,
+      'discount': 0,
+      'vat': 0,
+      'total': 288.5,
+      'paid': 0,
+      'due': 288.5,
+      'previousDue': 726,
+      'status': 'completed',
+      'paymentStatus': 'due',
+      'mrpSaving': 61.5,
+      'customer': {'name': 'Arif Uddin', 'phone': '01811000022'},
+      'store': {'name': 'Shamim Pharmacy', 'currency': 'BDT'},
+      'branch': {'name': 'Mirpur Branch'},
+      'items': [
+        {
+          'id': 1,
+          'name': 'A Fenac SR 100',
+          'qty': 1,
+          'unitPrice': 288.5,
+          'total': 288.5,
+        },
+      ],
+      'payments': <Object>[],
+    });
+    await pump(tester, FakePrinter(), detail: credit);
+
+    expect(find.text('Arif Uddin'), findsOneWidget);
+    // The customer comes before the invoice number.
+    expect(
+      tester.getTopLeft(find.text('Arif Uddin')).dy,
+      lessThan(tester.getTopLeft(find.text('INV-2026-001593')).dy),
+    );
+    // Neither the branch nor the customer's phone goes on the slip.
+    expect(find.text('Mirpur Branch'), findsNothing);
+    expect(find.text('01811000022'), findsNothing);
+    expect(find.text('YOU SAVED'), findsNothing);
+    expect(find.text('DUE ON THIS BILL'), findsOneWidget);
+    expect(find.text('PREVIOUS DUE'), findsOneWidget);
+    expect(find.text('TOTAL DUE'), findsOneWidget);
+    expect(find.textContaining('1,014.50'), findsOneWidget);
+    expect(find.text('Paid'), findsNothing);
   });
 
   testWidgets('prints at the 58 mm head width on the chosen printer', (

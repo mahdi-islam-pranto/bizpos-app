@@ -144,6 +144,7 @@ class CheckoutDoneSheet extends ConsumerWidget {
                           navigator.context,
                           saleId: result.saleId,
                           afterSale: true,
+                          outstanding: result.outstanding,
                         );
                       },
                       icon: const Icon(Icons.print_outlined),

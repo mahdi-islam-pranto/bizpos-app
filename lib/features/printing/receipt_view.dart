@@ -18,6 +18,7 @@ class ReceiptView extends StatelessWidget {
     required this.money,
     required this.locale,
     required this.paper,
+    this.outstanding,
     super.key,
   });
 
@@ -25,6 +26,12 @@ class ReceiptView extends StatelessWidget {
   final Money money;
   final String locale;
   final ReceiptPaper paper;
+
+  /// What the customer owes in all once this bill landed — checkout's own
+  /// `outstanding`, known only straight after the sale. A reprint has no such
+  /// figure and adds this bill's due to the previous one instead, which is
+  /// the same thing unless old debt was collected with the bill.
+  final num? outstanding;
 
   static const _ink = Colors.black;
 
@@ -56,16 +63,18 @@ class ReceiptView extends StatelessWidget {
     final lineOff = sale.lineDiscount ?? 0;
     final billOff = sale.orderDiscount ?? 0;
     final split = lineOff > 0 && billOff > 0;
+    final previousDue = sale.previousDue ?? 0;
+    final totalDue = outstanding ?? previousDue + sale.due;
+    final strong = style(scale: 1.08, bold: true);
 
-    Widget pair(String left, String right, {TextStyle? s, TextStyle? r}) =>
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: Text(left, style: s ?? style())),
-            const SizedBox(width: 8),
-            Text(right, style: r ?? s ?? style(), textAlign: TextAlign.end),
-          ],
-        );
+    Widget pair(String left, String right, {TextStyle? s, TextStyle? r}) => Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: Text(left, style: s ?? style())),
+        const SizedBox(width: 8),
+        Text(right, style: r ?? s ?? style(), textAlign: TextAlign.end),
+      ],
+    );
 
     return Container(
       color: Colors.white,
@@ -81,15 +90,12 @@ class ReceiptView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: style(scale: 1.35, bold: true),
             ),
-            if ((sale.branch.name).isNotEmpty &&
-                sale.branch.name != sale.store.name)
+            if ((address ?? '').isNotEmpty)
               Text(
-                sale.branch.name,
+                address!,
                 textAlign: TextAlign.center,
                 style: style(scale: 0.9),
               ),
-            if ((address ?? '').isNotEmpty)
-              Text(address!, textAlign: TextAlign.center, style: style(scale: 0.9)),
             if ((phone ?? '').isNotEmpty)
               Text(phone!, textAlign: TextAlign.center),
             if (sale.status.isCancelled) ...[
@@ -101,6 +107,12 @@ class ReceiptView extends StatelessWidget {
               ),
             ],
             const _Rule(),
+            if (sale.hasCustomer)
+              pair(
+                l10n.customer,
+                sale.customerName!,
+                r: style(scale: 1.15, bold: true),
+              ),
             pair(l10n.invoice, sale.invoiceNo, r: style(bold: true)),
             if (at != null)
               pair(
@@ -109,14 +121,6 @@ class ReceiptView extends StatelessWidget {
               ),
             if ((sale.seller ?? '').isNotEmpty)
               pair(l10n.receiptServedBy, sale.seller!),
-            if (sale.hasCustomer)
-              pair(
-                l10n.customer,
-                [
-                  sale.customerName!,
-                  if ((sale.customerPhone ?? '').isNotEmpty) sale.customerPhone!,
-                ].join('\n'),
-              ),
             const _Rule(),
             pair(l10n.receiptItem, l10n.receiptAmount),
             const _Rule(),
@@ -131,7 +135,6 @@ class ReceiptView extends StatelessWidget {
               ),
             ],
             const _Rule(),
-            pair(l10n.subtotal, money.format(sale.subtotal)),
             if (split) ...[
               pair(l10n.receiptLineDiscounts, '−${money.format(lineOff)}'),
               pair(
@@ -155,12 +158,20 @@ class ReceiptView extends StatelessWidget {
             const _Rule(),
             for (final payment in sale.payments)
               pair(payment.method.toUpperCase(), money.format(payment.amount)),
-            if (sale.payments.isEmpty)
+            if (sale.payments.isEmpty && sale.paid > 0)
               pair(l10n.paidLabel, money.format(sale.paid)),
             if (sale.due > 0)
-              pair(l10n.dueLabel, money.format(sale.due), s: style(bold: true)),
-            if ((sale.previousDue ?? 0) > 0)
-              pair(l10n.previousDueLabel, money.format(sale.previousDue)),
+              pair(l10n.receiptDueOnBill, money.format(sale.due), s: strong),
+            // The khata: what was owed before this bill, and all of it now.
+            if (previousDue > 0) ...[
+              pair(
+                l10n.receiptPreviousDue,
+                money.format(previousDue),
+                s: strong,
+              ),
+              const _Rule(solid: true),
+              pair(l10n.receiptTotalDue, money.format(totalDue), s: strong),
+            ],
             if ((sale.note ?? '').isNotEmpty) ...[
               const _Rule(),
               Text(sale.note!, style: style(scale: 0.9)),
@@ -169,7 +180,11 @@ class ReceiptView extends StatelessWidget {
             const SizedBox(height: 4),
             Text(l10n.receiptThanks, textAlign: TextAlign.center),
             const SizedBox(height: 2),
-            Text('BizPOS', textAlign: TextAlign.center, style: style(scale: 0.85)),
+            Text(
+              'BizPOS',
+              textAlign: TextAlign.center,
+              style: style(scale: 0.85),
+            ),
           ],
         ),
       ),

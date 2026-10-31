@@ -1,5 +1,5 @@
 /// Build-time configuration.
-///
+/// 
 /// Override the API host without touching code:
 /// `flutter run --dart-define=BIZPOS_BASE_URL=https://shop.example.com/api/v1`
 class Env {

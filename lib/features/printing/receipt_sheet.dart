@@ -26,9 +26,17 @@ import 'receipt_view.dart';
 /// the person's own choice (the image button, or "Save as image" in the
 /// picker).
 class ReceiptSheet extends ConsumerStatefulWidget {
-  const ReceiptSheet({required this.saleId, this.afterSale = false, super.key});
+  const ReceiptSheet({
+    required this.saleId,
+    this.afterSale = false,
+    this.outstanding,
+    super.key,
+  });
 
   final int saleId;
+
+  /// Checkout's `outstanding`, for the slip's TOTAL DUE; null on a reprint.
+  final num? outstanding;
 
   /// Straight after checkout: offers "Next sale" beside Print.
   final bool afterSale;
@@ -37,10 +45,15 @@ class ReceiptSheet extends ConsumerStatefulWidget {
     BuildContext context, {
     required int saleId,
     bool afterSale = false,
+    num? outstanding,
   }) => showAppSheet<void>(
     context,
     title: AppL10n.of(context).receiptTitle,
-    builder: (_) => ReceiptSheet(saleId: saleId, afterSale: afterSale),
+    builder: (_) => ReceiptSheet(
+      saleId: saleId,
+      afterSale: afterSale,
+      outstanding: outstanding,
+    ),
   );
 
   @override
@@ -122,10 +135,7 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
       sale.invoiceNo,
     );
     if (!mounted) return;
-    showNote(
-      context,
-      saved ? l10n.receiptSaved : l10n.receiptSaveFailed,
-    );
+    showNote(context, saved ? l10n.receiptSaved : l10n.receiptSaveFailed);
   }
 
   @override
@@ -207,6 +217,7 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
                           money: money,
                           locale: locale,
                           paper: setup.paper,
+                          outstanding: widget.outstanding,
                         ),
                       ),
                     ),
@@ -224,9 +235,7 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
               children: [
                 IconButton.outlined(
                   tooltip: l10n.saveAsImage,
-                  onPressed: _busy
-                      ? null
-                      : () => _run(() => _saveImage(sale)),
+                  onPressed: _busy ? null : () => _run(() => _saveImage(sale)),
                   icon: const Icon(Icons.image_outlined),
                 ),
                 const SizedBox(width: Insets.s12),

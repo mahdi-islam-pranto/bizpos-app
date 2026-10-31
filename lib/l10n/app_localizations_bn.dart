@@ -2922,6 +2922,18 @@ class AppL10nBn extends AppL10n {
   String get receiptTotal => 'সর্বমোট';
 
   @override
+  String get receiptYouSaved => 'আপনার সাশ্রয়';
+
+  @override
+  String get receiptDueOnBill => 'এই বিলে বাকি';
+
+  @override
+  String get receiptPreviousDue => 'আগের বাকি';
+
+  @override
+  String get receiptTotalDue => 'মোট বাকি';
+
+  @override
   String get receiptThanks => 'ধন্যবাদ, আবার আসবেন';
 
   @override

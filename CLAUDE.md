@@ -190,16 +190,20 @@ never from the cart. Easy to break:
   as image"); Bluetooth off or refused, or the printer not answering → a note
   saying why, nothing saved. The PNG goes to the gallery (`gal`) only from the
   image button or the picker.
-- **`writeBytes` takes a plain `List<int>`, in one call.** A `Uint8List`
-  arrives in the plugin's Kotlin as `byte[]`, its `as? List<Int>` is null and
-  the write "fails" without touching the printer. The plugin also prefixes
-  every call with a newline byte, so chunking a raster job corrupts it.
+- **Connect / write / disconnect go through the app's own `bizpos/printer`
+  channel** (`android/.../ThermalPrinter.kt`), not `print_bluetooth_thermal`,
+  which still does the permission prompt and the paired list. The plugin only
+  opens a *secure* RFCOMM socket, and a cheap printer remembers the pairing
+  key of about two phones — every other phone was refused ("Couldn't reach").
+  The channel tries secure, then insecure, then both on channel 1, remembers
+  which worked per printer, closes the whole socket, and writes the job as
+  given (the plugin prefixed a newline byte).
 - **Every print lets go of the printer.** A Bluetooth Classic printer takes
   one connection at a time, so several phones share it by taking turns:
   `BluetoothThermalTransport` connects, writes, holds the link a few seconds
   (the tail of the job is still in Android's Bluetooth buffer — closing at
   once cuts the receipt) and disconnects. A refused connect means another
-  phone is printing; it retries for up to 25 s. Never keep the connection
+  phone is printing; it retries for up to 45 s. Never keep the connection
   open between prints — that locks every other phone out.
 - The printer (name, MAC, paper) is a **device** preference in shared
   preferences (`printerSetupProvider`), not the store's `receiptPaper`, which
@@ -237,7 +241,7 @@ flutter pub get
 flutter gen-l10n                 # after editing lib/l10n/*.arb (also runs during build)
 flutter run --dart-define=BIZPOS_BASE_URL=http://10.0.2.2:8000/api/v1
 flutter analyze                  # lints via flutter_lints (analysis_options.yaml)
-flutter test                     # 268 tests
+flutter test                     # 269 tests
 flutter test test/app/screen_gates_test.dart --plain-name "cashier"   # one test
 flutter build apk --debug
 dart run flutter_launcher_icons   # after changing assets/brand/icon_*.png

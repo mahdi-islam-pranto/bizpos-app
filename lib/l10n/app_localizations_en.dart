@@ -3008,6 +3008,18 @@ class AppL10nEn extends AppL10n {
   String get receiptTotal => 'TOTAL';
 
   @override
+  String get receiptYouSaved => 'YOU SAVED';
+
+  @override
+  String get receiptDueOnBill => 'DUE ON THIS BILL';
+
+  @override
+  String get receiptPreviousDue => 'PREVIOUS DUE';
+
+  @override
+  String get receiptTotalDue => 'TOTAL DUE';
+
+  @override
   String get receiptThanks => 'Thank you, please come again';
 
   @override

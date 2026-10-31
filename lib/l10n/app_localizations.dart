@@ -5227,6 +5227,30 @@ abstract class AppL10n {
   /// **'TOTAL'**
   String get receiptTotal;
 
+  /// No description provided for @receiptYouSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'YOU SAVED'**
+  String get receiptYouSaved;
+
+  /// No description provided for @receiptDueOnBill.
+  ///
+  /// In en, this message translates to:
+  /// **'DUE ON THIS BILL'**
+  String get receiptDueOnBill;
+
+  /// No description provided for @receiptPreviousDue.
+  ///
+  /// In en, this message translates to:
+  /// **'PREVIOUS DUE'**
+  String get receiptPreviousDue;
+
+  /// No description provided for @receiptTotalDue.
+  ///
+  /// In en, this message translates to:
+  /// **'TOTAL DUE'**
+  String get receiptTotalDue;
+
   /// No description provided for @receiptThanks.
   ///
   /// In en, this message translates to:

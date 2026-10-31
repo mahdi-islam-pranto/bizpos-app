@@ -90,12 +90,33 @@ Conventions:
   are `YYYY-MM-DD`.
 - IDs are integers.
 
+### Quantities are whole numbers
+
+Every quantity sent — cart and invoice lines, returns, purchase lines,
+package items, stock adjustments, opening stock — must be a whole number.
+`1.5` is refused with `422` (`must be an integer`). Quantity boxes in the app
+should take digits only.
+
+`GET /pos/lookups` also carries `showShift`: `false` when the shop has turned
+the cash-drawer shift off in Settings — hide the shift button then, unless a
+shift is already open (it still needs closing).
+
 ### Pagination
 
-`GET /sales`, `GET /products`, `GET /catalog` and `GET /admin/catalog` are
-paginated. Pass `?page=2&perPage=25` and read `meta.total`, `meta.page` and
-`meta.perPage`. Other lists return a fixed recent window (for example the latest
-50 purchases or 100 customers) and accept `?q=` to search.
+`GET /sales`, `GET /products`, `GET /catalog`, `GET /admin/catalog`,
+`GET /customers`, `GET /purchases`, `GET /packages` and `GET /admin/users` are
+paginated on the server. Pass `?page=2&perPage=25` and read `meta.total`,
+`meta.page` and `meta.perPage`. `data` is still a plain array — it just holds
+one page now. `GET /admin/overview` pages its `stores` the same way, with the
+figures in `data.storesMeta` rather than `meta`.
+
+The figures shown above a paged list are for everything the search matches,
+not the page: `meta.withDue` and `meta.totalDue` on customers, `meta.live` and
+`meta.expired` on packages. Do not add them up from the rows.
+
+Search results come back best match first: names that start with what was
+typed, then names with a word that starts with it, then the rest — each group
+A to Z.
 
 The catalogue runs to thousands of rows for a pharmacy, so paging it is not
 optional — `meta.pages` says how many there are.
@@ -372,6 +393,14 @@ person's role in the meantime.
 > take a single permission away from one person. The role then still says
 > `cashier`, but the list is shorter. The server enforces the list, not the name.
 
+> **Every delete is the store owner's alone.** `/me` carries `isStoreOwner`;
+> show no delete button anywhere unless it is `true`. No permission opens a
+> delete — not `*.delete` in `permissions`, not a manager's role, and not the
+> platform's super admin. Every `DELETE` on store data (products, invoices,
+> packages, customers, customer ledger lines, purchases and their photos,
+> expenses, expense types, team members, roles, notes) answers anyone else with
+> `403 {"error": {"code": "owner_only"}}`.
+
 `store` and `branch` are `null` when the user belongs to no active store.
 `impersonating` is `true` while a super admin is inside someone's store. Show a
 "Support mode" badge.
@@ -451,8 +480,8 @@ Keeper · **AC** Accountant · **AU** Auditor
 |---|:-:|:-:|:-:|:-:|:-:|:-:|
 | **POS** | | | | | | |
 | `pos.sale.create` — open POS and sell | ✅ | ✅ | ✅ | | | |
-| `pos.sale.change_price` — edit unit price in cart | ✅ | ✅ | | | | |
-| `pos.sale.give_discount` — line and order discount | ✅ | ✅ | | | | |
+| `pos.sale.change_price` — edit unit price in cart (never below cost) | ✅ | ✅ | ✅ | | | |
+| `pos.sale.give_discount` — line and order discount | ✅ | ✅ | ✅ | | | |
 | `pos.sale.hold` — hold and resume carts | ✅ | ✅ | ✅ | | | |
 | `pos.shift.manage` — open and close cash drawer | ✅ | ✅ | ✅ | | | |
 | `pos.sale.redeem_points` — redeem loyalty points | ✅ | ✅ | ✅ | | | |
@@ -463,26 +492,26 @@ Keeper · **AC** Accountant · **AU** Auditor
 | `catalog.product.suggest` — suggest a new product | ✅ | ✅ | | ✅ | | |
 | `catalog.suggestion.review` — approve own store's suggestions | ✅ | ✅ | | | | |
 | **Products and stock** | | | | | | |
-| `inventory.product.view` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `inventory.product.view` | ✅ | ✅ | | ✅ | ✅ | ✅ |
 | `inventory.product.update` — change prices | ✅ | ✅ | | ✅ | | |
 | `inventory.product.view_cost` — see purchase cost | ✅ | ✅ | | ✅ | ✅ | ✅ |
 | `inventory.stock.view` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | `inventory.adjust.create` — stock adjustment or damage | ✅ | ✅ | | ✅ | | |
-| `inventory.package.view` | ✅ | ✅ | ✅ | ✅ | | ✅ |
+| `inventory.package.view` | ✅ | ✅ | | ✅ | | ✅ |
 | `inventory.package.manage` | ✅ | ✅ | | ✅ | | |
 | **Sales** | | | | | | |
 | `sales.invoice.view` — own invoices | ✅ | ✅ | ✅ | | | ✅ |
-| `sales.invoice.view_all` — everyone's invoices | ✅ | ✅ | | | ✅ | ✅ |
-| `sales.return.create` — accept a return | ✅ | ✅ | | | | |
+| `sales.invoice.view_all` — everyone's invoices | ✅ | ✅ | ✅ | | ✅ | ✅ |
+| `sales.return.create` — accept a return | ✅ | ✅ | ✅ | | | |
 | `sales.payment.collect` — collect a due | ✅ | ✅ | ✅ | | ✅ | |
 | **Customers** | | | | | | |
 | `customers.customer.view` | ✅ | ✅ | ✅ | | ✅ | ✅ |
 | `customers.customer.create` | ✅ | ✅ | ✅ | | | |
-| `customers.customer.update` | ✅ | ✅ | | | | |
-| `customers.credit.manage` — set credit limit | ✅ | ✅ | | | | |
-| `customers.ledger.view` | ✅ | ✅ | | | ✅ | ✅ |
+| `customers.customer.update` | ✅ | ✅ | ✅ | | | |
+| `customers.credit.manage` — set credit limit | ✅ | ✅ | ✅ | | | |
+| `customers.ledger.view` | ✅ | ✅ | ✅ | | ✅ | ✅ |
 | `customers.points.view` | ✅ | ✅ | ✅ | | ✅ | ✅ |
-| `customers.points.adjust` | ✅ | ✅ | | | | |
+| `customers.points.adjust` | ✅ | ✅ | ✅ | | | |
 | **Purchase** | | | | | | |
 | `purchase.bill.view` | ✅ | ✅ | | ✅ | ✅ | ✅ |
 | `purchase.bill.create` | ✅ | ✅ | | ✅ | | |
@@ -517,7 +546,6 @@ The same endpoint may return less to a weaker role. Handle `null` or `0`:
 
 | Where | Field | Hidden unless |
 |---|---|---|
-| `GET /pos/search` | `purchasePrice` is `null` | `inventory.product.view_cost` |
 | `GET /products` | `purchasePrice`, `wholesalePrice` are `0` (`meta.showCost` says so) | `inventory.product.view_cost` |
 | `GET /products/{id}/history` | `prices` is empty | `inventory.product.view_cost` |
 | `GET /customers/search` | `loyaltyPoints` is `null` | `customers.points.view` |
@@ -541,8 +569,8 @@ to show buttons.
 | **POS / Sell** | `pos.sale.create` | `pos.sale.hold`, `pos.shift.manage`, `pos.sale.change_price`, `pos.sale.give_discount`, `pos.sale.redeem_points`, `customers.customer.create` | ✅ | ✅ | ✅ | | | |
 | **Invoices** | `sales.invoice.view` or `sales.invoice.view_all` | `sales.return.create`, `sales.payment.collect` | ✅ | ✅ | ✅ own | | ✅ | ✅ |
 | **Customers** | `customers.customer.view` | `customers.customer.create`/`update`, `customers.ledger.view`, `customers.points.view`/`adjust` | ✅ | ✅ | ✅ | | ✅ | ✅ |
-| **Products and stock** | `inventory.product.view` | `inventory.product.create`/`update`/`delete`, `inventory.adjust.create`, `inventory.stock.view` | ✅ | ✅ | ✅ view | ✅ | ✅ view | ✅ view |
-| **Packages** | `inventory.package.view` | `inventory.package.manage` | ✅ | ✅ | ✅ view | ✅ | | ✅ view |
+| **Products and stock** | `inventory.product.view` | `inventory.product.create`/`update`/`delete`, `inventory.adjust.create`, `inventory.stock.view` | ✅ | ✅ | | ✅ | ✅ view | ✅ view |
+| **Packages** | `inventory.package.view` | `inventory.package.manage` | ✅ | ✅ | | ✅ | | ✅ view |
 | **Catalogue** | `catalog.product.search` | `catalog.product.import`, `catalog.product.suggest` | ✅ | ✅ | ✅ view | ✅ | | ✅ view |
 | **Suggestion approvals** | `catalog.suggestion.review` | — | ✅ | ✅ | | | | |
 | **Purchase** | `purchase.bill.view` | `purchase.bill.create`, `purchase.supplier.manage` | ✅ | ✅ | | ✅ | ✅ view | ✅ view |
@@ -749,13 +777,35 @@ payment screen is involved.
        { "storeProductId": 42, "qty": 100, "unitCost": 78.5, "batchNo": "B2291", "expiryDate": "2027-06-30" }
      ],
      "discountPercent": 5,
-     "paidAmount": 5000,
-     "accountId": 1,
      "note": "Invoice #7781"
    }
    ```
-   Stock rises, the rest is owed to the supplier, and `paidAmount` leaves
-   `accountId`.
+   A line may go up with `qty` 0 (or left out) when the goods are not
+   counted yet: it stays on the bill, puts nothing in stock, and the bill
+   carries `qtyPending: true` (in `GET /purchases` and `GET /purchases/{id}`)
+   until a `PATCH` fills the quantities in. A bill with `qtyPending` cannot be
+   paid — `POST /purchases/{id}/pay` answers `422 purchase`.
+
+   Stock rises and the whole bill is owed to the supplier. Saving a bill —
+   new or corrected — never pays it; `paidAmount`, `accountId`, `useAdvance`
+   and `advanceAmount` are no longer read here. Pay it with step 3a.
+
+3a. **Paying the bill**: `POST /purchases/{id}/pay` (`purchase.payment.create`):
+   ```json
+   { "amount": 5000, "accountId": 1, "advanceAmount": 2000 }
+   ```
+   Either part may be left out or 0. `advanceAmount` sets that much of the
+   supplier's advance against the bill (capped at what the supplier holds and
+   at what is owed; `GET /purchases/{id}` gives `supplierAdvance`), then
+   `amount` leaves `accountId` as cash, capped at what is still owed. Reply:
+   `{id, refNo, total, paid, due, …, paidCash, paidFromAdvance}`; nothing owed
+   or nothing to pay is `422 purchase`. `payments[]` on the bill marks the
+   advance part with `fromAdvance: true`.
+
+   Correcting a paid bill (`PATCH /purchases/{id}`) keeps its payments; its
+   new total cannot be less than what has been paid, and its supplier cannot
+   change. Deleting it gives the cash back to the account and the advance back
+   to the supplier.
 
    **A party the shop has not saved yet** goes up as `supplierName` instead of
    `supplierId`, and is saved with the bill — so the next bill from the same
@@ -931,7 +981,7 @@ trimmed and `range.capped` says so. Needs `report.sales.view`.
 | Section | What it answers |
 |---|---|
 | `headline` | `revenue, invoices, averageSale, discountGiven, dueRaised, returned, expenses, grossProfit, netProfit` — profit only with `report.profit.view` |
-| `capital` | Where the money is standing **right now**, not between dates: `stock` at cost, `receivable`, `inAccounts`, `invested`, `payable`, `net`, and each account's balance |
+| `capital` | Where the money is standing **right now**, not between dates: `stock` at cost (`stockAtPrice`, `stockProducts`, `stockUnits`), `receivable` (`customersOwing`), `advances` paid to suppliers (`advanceSuppliers`), `inAccounts` split into `cash` (the drawer: cash accounts) and `otherAccounts`, `payable` (`suppliersOwed`), `invested` (everything the shop owns) and `net` — the **business capital**: stock + receivable + advances + accounts − payable. Each account by name in `accounts[]`. `turnover.today`, `turnover.week` (last 7 days, today included) and `turnover.month` are fixed windows, whatever `range` is: `{from, days, sales (net of returns), invoices, perDay, collected, dueRaised, returned, purchased, expenses, profit, cogs}` (`profit`/`cogs` null without `report.profit.view`). `turnover.stockDays`: how many days the stock lasts at the last 7 days' pace, or null |
 | `daily` | One row per day: `sales`, `invoices`, `expenses` — the trend line |
 | `payments` | How the bills written in this window were settled, by method |
 | `collections` | Money that **arrived** in this window, whatever it settled: `total`, `onSales`, `onDues`, `onPreviousDue`, `byMethod`. Not the same question as `payments` |
@@ -1316,6 +1366,8 @@ checks. `—` means any signed-in user.
 | POST | `/auth/switch-branch` | — | `branchId` | `storeId`, `branchId` |
 | GET | `/me` | — | | see [section 2](#get-me--who-am-i-where-am-i-what-may-i-do) |
 | PATCH | `/me/preferences` | — | `locale?`, `theme?` | `locale`, `theme` |
+| PATCH | `/me/password` | — | `currentPassword`, `password` (6–100), `passwordConfirmation` | `ok`; `422 current_password` if the current one is wrong. Other phones and browsers are signed out; the token making the call stays valid |
+| PATCH | `/me/email` | — | `email`, `currentPassword` | `ok`, `email`; `422 current_password`; 422 if the address is taken |
 | GET | `/public/permissions` | none | | `modules`, `roles` |
 | GET | `/palette?q=` | — | `q` (2+ characters) | global search across products, invoices and customers, filtered by permission |
 
@@ -1382,7 +1434,7 @@ first, because a scanner should never make a cashier choose.
 | Field | Rule |
 |---|---|
 | `lines[]` | Required, 1 or more. Each has **either** `storeProductId` **or** `packageId`, plus `qty > 0` |
-| `lines[].unitPrice` | Used only with `pos.sale.change_price`, otherwise the store price is charged |
+| `lines[].unitPrice` | Used only with `pos.sale.change_price`, otherwise the store price is charged. Owners, managers **and cashiers** have it by default — see *Changing the price in the cart* below |
 | `lines[].discount`, `orderDiscount`, `orderDiscountPercent` | Used only with `pos.sale.give_discount` |
 | `orderDiscountPercent` | 0–100, and **this is what the till sends**. A discount on the bill is a rate: "ten percent off" survives the basket changing under it, a flat figure does not. The server works the taka out off the goods total **after** the line discounts, so what the cashier was shown and what is stored cannot drift. Kept on the invoice as `discountPercent` |
 | `orderDiscount` | A flat figure, for an import or a bill settled by hand. When both are sent the rate wins, and a sale made this way records no `discountPercent` |
@@ -1391,6 +1443,36 @@ first, because a scanner should never make a cashier choose.
 | `customerId` | Required when anything is left due, or points are redeemed or earned. Walk-in customers cannot buy on credit |
 | `redeemPoints` | Needs `pos.sale.redeem_points` and a named customer. The server caps it at what is allowed (minimum points, maximum % of bill) |
 | `collectPrevious` | `true` when the counter is asking for the customer's old debt along with today's goods. Anything tendered past this bill's own total then settles the older debts, oldest first; without it, the same over-tender is change |
+
+#### Changing the price in the cart
+
+What the app's cart needs so a cashier can change a line's price, the way the
+web till does:
+
+1. **Show the price as an editable box only when `/me` lists
+   `pos.sale.change_price`.** Owners, managers and cashiers have it by default;
+   an owner can still take it away from one person, so read the list, not
+   `role.name`. Without it, show the price as plain text.
+2. **Start the box at the line's `salePrice`** from `/pos/search`, and send what
+   the cashier typed as `lines[].unitPrice` at checkout. A line the cashier did
+   not touch can leave `unitPrice` out — the store price is charged.
+3. **Show the cost and the MRP on each cart line, for everyone.** `/pos/search`
+   sends `purchasePrice` and `mrp` to whoever may use the till, with no further
+   permission — the web till prints "Cost ৳… · MRP ৳…" under every line.
+4. **Never below cost — the server enforces it.** Mark a line red when its
+   price is under `purchasePrice`, but the server is the one that refuses: a
+   line priced under what it cost comes back as
+   `422 {"error": {"code": "sale", "message": "… cannot be sold below what it cost."}}`.
+   Show it beside the cart, keep the cart as it is, and let the cashier raise
+   the price and try again.
+5. **Never above the MRP — the server enforces this too.** When `mrp` is set
+   (above 0), a line's `unitPrice` may not be higher than it: cap the price
+   box at `mrp`, and mark a line red whose shelf price is already over it. The
+   server answers
+   `422 {"error": {"code": "sale", "message": "Napa 500mg cannot be sold above its MRP (12.00) — the price is 14.00."}}`.
+   It covers a price typed in and a shelf price set over the MRP alike; the
+   cure for the second is to fix the product's sale price.
+6. A package line has its own fixed price; its `unitPrice` is ignored.
 
 **How much came with it is the only question.** There is no payment "mode" to
 choose: the amount tendered already says what kind of sale this is.
@@ -1415,12 +1497,31 @@ reply carries `outstanding`: everything they owe now that this bill and any
 payment have both landed. That second figure is what the next bill will print as
 its previous due.
 
+**The slip must end with the total owed.** For a named customer, print the money
+block in this order. Lines marked *if* are skipped when the condition fails:
+
+```
+TOTAL                    17,900      ← total
+<METHOD>  (one per payment)          ← payments[]; nothing when nothing was paid
+DUE ON THIS BILL         17,900      ← due            (if due > 0)
+-------------------------------
+PREVIOUS DUE             46,200      ← previousDue    (if due > 0 or previousCollected > 0)
+PREVIOUS DUE PAID       − 0          ← previousCollected (if > 0)
+===============================
+TOTAL DUE                64,100      ← outstanding    (bold; if previousDue > 0 or due > 0)
+```
+
+`TOTAL DUE` is the figure the customer asks about, so never leave it off when
+there is a previous due. Print the server's `outstanding`, not a sum worked out
+on the device. The web till prints exactly this layout.
+
 The server works out prices, VAT and totals. **Never trust the app's own
 total**: show the `total` from the response. `201`:
 
 ```json
 { "data": { "saleId": 5521, "invoiceNo": "INV-005521", "total": 139.5, "paid": 139.5, "due": 0,
-            "paymentStatus": "paid", "pointsEarned": 1, "pointsRedeemed": 50 } }
+            "paymentStatus": "paid", "previousDue": 46200, "previousCollected": 0,
+            "outstanding": 46200, "pointsEarned": 1, "pointsRedeemed": 50 } }
 ```
 
 `paymentStatus` is `paid`, `partial` or `unpaid`. Refusals are `422` with code
@@ -1433,7 +1534,9 @@ exceeded, "Points need a named customer").
 line's price, after its own discount, is under the product's `purchasePrice`
 ("Napa 500mg cannot be sold below what it cost"), or when the bill discount
 takes the whole basket under the cost of its goods ("That discount takes the
-bill below what the goods cost"). All three ways of getting there are
+bill below what the goods cost"). Nor above the MRP: a line priced over the
+product's `mrp` (when it has one) is refused with `sale` as well ("… cannot be
+sold above its MRP"). All three ways of getting under cost are
 covered — a price typed over the shelf price, a line discount and a bill
 discount — so the app should disable its own pay button rather than let a
 cashier take money and then be refused.
@@ -1513,8 +1616,34 @@ The full invoice for detail and receipt screens: `subtotal`, `discount`, `vat`,
 `total`, `paid`, `due`, `status`, `paymentStatus`, `note`, `customer {name,
 phone}`, `seller`, `branch {name, address, phone}`, `store {name, phone,
 address, currency}`, `items[] {id, name, unit, qty, unitPrice, mrp, mrpDiscount,
-mrpDiscountPercent, discount, discountPercent, vat, total}` and `payments[] {method, amount, account,
-reference}`. Use `items[].id` as `saleItemId` for returns.
+mrpDiscountPercent, discount, discountPercent, vat, total, returned}` and `payments[] {method, amount, account,
+reference}`. Use `items[].id` as `saleItemId` for returns; `items[].returned` is
+how much of that line has already come back, so offer only `qty − returned`.
+
+**The money block at the foot of a slip**, in this order, so it adds up on paper:
+
+| Field | What it is |
+|---|---|
+| `payments[]` | What was handed over for this bill |
+| `returns[].cashBack` | Cash refunded on returns — print as "Refunded −" |
+| `due` | Still owed on this bill |
+| `previousDue` | What the customer owed before this bill |
+| `previousCollected` | What of that old debt was collected along with this bill |
+| `outstanding` | `previousDue − previousCollected + due` — worked out from the bill's own day, so a reprint months later still adds up. Print this as "Total due". Print `previousDue` on its own line only when `due > 0` or `previousCollected > 0` — otherwise it is the same figure |
+| `store.format` | `{currency, symbol, symbolPosition, timezone, dateFormat, taxLabel, fiscalYearStart}` — how this shop writes money, dates and time. **The full print design and every rule for the slip is in [invoice.md](invoice.md)** |
+| `balanceNow` | The customer's balance today, moved since by later bills and payments. Not for the slip |
+
+**After a return**, the original figures above stay as they were (the books are
+kept on them), and three more fields say how the invoice stands now:
+
+| Field | What it is |
+|---|---|
+| `returns[]` | Each return: `{id, returnNo, date, reason, by, total, cashBack, offDue, items[] {name, unit, qty, unitPrice, amount}}` — everything a return slip prints. `cashBack` came out of the drawer; `offDue` was taken off what the customer still owed |
+| `returnedTotal` | All returns added up |
+| `net` | `null` until something comes back. Then the invoice **as it stands**: `{items[], subtotal, lineDiscount, orderDiscount, discount, vat, total, mrpSaving}` — each line at what is left of it, a line returned in full left out, and `total` = original `total` − `returnedTotal`. Show and reprint this instead of the original lines and totals |
+
+`POST /sales/{id}/returns` answers `{id, returnNo, total}`; fetch the invoice
+again and print the slip from its entry in `returns[]`.
 
 **Discounts come back split**, because a customer reading a slip wants to know
 which saving came off what:
@@ -1545,6 +1674,16 @@ An invoice from before this split carries `discount` only.
 default `cash`), `accountId?` → `ok`. Too much gives `422 over_payment`.
 A void invoice is refused: there is nothing left to collect on it.
 
+#### `POST /sales/{id}/payment-to-due` — `pos.sale.void`
+
+`amount > 0` (up to `reversiblePaid` on the invoice), `reason` (3–200,
+**required**) → `{id, paid, due, paymentStatus}`. For a payment recorded by
+mistake — the customer never paid. The money comes back out of the account it
+went into (newest payment first), off the invoice's `paid` and onto its `due`
+and the customer's ledger (`payment_reversed`, with the reason). Points spent
+are not touched. Needs a named customer: a walk-in invoice gives
+`422 reverse`. The invoice's meta says `mayReversePayment`.
+
 #### `POST /sales/{id}/void` — `pos.sale.void`
 
 `reason` (3–255, **required**) → `{id, invoiceNo, status: "void", restored}`.
@@ -1562,6 +1701,41 @@ their stock came back when they were returned. Cancelling twice is `422`.
 `GET /sales/{id}` carries `meta.mayVoid`, which is true only for a completed
 invoice when the caller holds the permission.
 
+#### `GET /sales/{id}/edit` · `POST /sales/{id}/edit` — store owner or super admin
+
+Correcting an invoice: its lines, prices, discounts, customer or payment.
+Anyone else gets `403 forbidden`. `GET /sales/{id}` carries `meta.mayEdit`, and
+`meta.editBlocked` (a reason, or null) for an owner looking at an invoice that
+cannot be edited.
+
+`GET` returns the invoice as a till cart: `{id, invoiceNo, saleDate, lines[],
+sold, customer, orderDiscountPercent, note, paid, method, accountId,
+cashReceived, pointsRedeemed}`. Each line has the shape the POS builds
+(`productId, name, unit, qty, unitPrice, basePrice, mrp, cost, discount,
+vatPercent, stock`), and its `stock` already counts what this invoice took off
+the shelf. `sold` is `{productId: qty}`: add it to the `stock` of search results
+while editing, because that stock goes back before the new version is written.
+`customer.due` is 0, since an edit never collects the old khata.
+
+`POST` takes the checkout body without `collectPrevious`, and product lines only
+(`customerId?, lines[] {storeProductId, qty, unitPrice?, discount?}, payments[],
+orderDiscountPercent?, note?, cashReceived?, redeemPoints?`), and returns
+`{saleId, invoiceNo, total, paid, due, paymentStatus}`. A payment sent without
+`accountId` goes into the account this invoice's money of that method went into
+before.
+
+The server takes the old invoice off the books (stock, money, ledger, points)
+and writes it again through the normal sale calculation in one transaction. It
+keeps the same **id**, invoice number, date, seller, shift, and the previous due
+as it stood that day. Stock, accounts, customer due, profit and points therefore
+come out as if the invoice had been rung up correctly the first time. If the new
+version fails (not enough stock, credit limit), nothing changes. `422 sale`
+when the invoice is void, has returns (undo those first), or sold a package,
+and — as at the till — when a line is priced below its cost or above its MRP.
+
+To offer **Edit** on an invoice, read `meta.mayEdit` from `GET /sales/{id}`;
+`meta.editBlocked` says why it cannot be edited when it cannot.
+
 ### Customers
 
 | Method | Path | Perm | Body / query | Returns |
@@ -1574,6 +1748,9 @@ invoice when the caller holds the permission.
 | GET | `/customers/{id}/ledger` | `customers.ledger.view` | | last 100: `id, refType, debit, credit, balance, note, date` |
 | GET | `/customers/{id}/points` | `customers.points.view` | | `balance, worth, config, ledger[]` |
 | POST | `/customers/{id}/points` | `customers.points.adjust` | `points` (signed, not 0), `note` | `{balance}`; `422 negative` |
+| POST | `/customers/{id}/collect` | `sales.payment.collect` (+ `pos.sale.give_discount` for a discount) | `amount`, `discount?`, `discountReason` (required, 3+ chars, with a discount), `accountId?`, `method?` | `{collected, discounted, outstanding}`. Settles everything the customer owes, oldest first — the previous due, then invoice by invoice — and writes a `due_discount` ledger line naming the reason. `422` when the two together pass what is owed |
+| POST | `/customers/{id}/add-due` | `customers.credit.manage` | `amount > 0`, `remark` (required, 3–200 chars) | `201 {id, added, outstanding}`. More owed that no invoice says. Joins the customer's previous due — counted in what they owe and settled first by a collection — and writes a `due_added` ledger line carrying the remark |
+| DELETE | `/customers/{id}/ledger/{entryId}` | store owner or super admin | | `{deleted, outstanding}`. Takes a ledger line back off **and undoes its effect**: `due_added`, `opening` and `opening_correction` move the previous due back; `opening_payment` puts the previous due back and takes the money out of its account; `payment` moves the amount off the invoice's paid onto its due and reverses the payment row and account money; `due_discount` puts the debt back (and the invoice's profit). The ledger's running balance is redone. Only rows with `deletable: true` in `GET /customers/{id}/ledger`. `422` when a due added has since been collected — delete that collection first |
 
 **`openingBalance` is what the customer already owed** before this shop's
 invoices started here — the figure carried over from the old notebook. A shop
@@ -1702,7 +1879,7 @@ button on the form as well, so nobody has to press it to find out.
 | Method | Path | Perm | Body / query | Returns |
 |---|---|---|---|---|
 | GET | `/packages?q=&sellableOnly=1` | `inventory.package.view` | | list of package objects; `meta.mayManage` |
-| GET | `/packages/sellable?q=` | `inventory.package.view` | | packages on sale now that can be built from this branch's stock |
+| GET | `/packages/sellable?q=` | `pos.sale.create` or `inventory.package.view` | | packages on sale now that can be built from this branch's stock |
 | GET | `/packages/products?q=` | `inventory.package.manage` | | picker: `id, name, unit, salePrice, stock` |
 | POST | `/packages` | `inventory.package.manage` | see below | `201` package |
 | PATCH | `/packages/{id}` | `inventory.package.manage` | same as above (items are replaced) | package |
@@ -1765,8 +1942,13 @@ Suggestion `status`: `pending` → `endorsed` (on sale in this store) →
 |---|---|---|---|---|
 | GET | `/purchases?q=` | `purchase.bill.view` | `q` on ref no or supplier | latest 50: `id, refNo, purchaseDate, subtotal, discount, discountPercent, total, paid, due, paymentStatus, status, supplier, branch, itemCount, note, photos[]`; `meta.suppliers[], summary, maxPhotos, mayCreate, mayPay, mayManageSuppliers, mayEditBill` |
 | GET | `/purchases/products?q=` | `purchase.bill.create` | | `id, name, purchasePrice, trackBatch, unit` |
-| GET | `/suppliers/search?q=` | `purchase.bill.view` | `q` on name, company or phone | 15: `id, name, company, phone` |
-| POST | `/purchases` | `purchase.bill.create` | see [5.4](#54-goods-in--purchase-stock-keeper-manager-owner) | `201 {id, refNo, subtotal, discount, total, due, supplierId}` |
+| GET | `/suppliers/search?q=` | `purchase.bill.view` | `q` on name, company or phone | 15: `id, name, company, phone, advanceBalance` |
+| GET | `/suppliers?q=` | `purchase.bill.view` | `q` on name, company, phone | `[{id, name, company, phone, address, bills, billed, paid, due, advance}]` — `due` is what the shop still owes them on their bills, `advance` what it has paid them ahead; most owed first. `meta.totalDue, totalAdvance, mayManageSuppliers, mayPay` |
+| GET | `/suppliers/{id}/log` | `purchase.bill.view` | | `{id, name, company, phone, address, billed, paid, due, advance, owing[] {id, refNo, date, total, due}, log[] {key, date, type, amount, purchaseId, purchaseRef, account, note}}` — `type`: `payment` (cash on a bill), `adjusted` (advance set against a bill), `advance` (paid ahead); newest first |
+| POST | `/suppliers/{id}/advance` | `purchase.payment.create` | `amount > 0`, `accountId?`, `note?` | `201 {id, name, advanceBalance}`. Money paid before the goods come. It is used only when a bill is paid: `advanceAmount` on `POST /purchases/{id}/pay`; `advanceUsed` on the bill says how much it took. Deleting the bill hands the advance back |
+| GET | `/suppliers/advances?supplierId=` | `purchase.bill.view` | `supplierId?` narrows the log to one supplier | `{suppliers[] {id, name, company, phone, balance, advanced, used}, log[] {id, date, supplierId, supplier, type: paid\|used, amount, purchaseId, purchaseRef, note}, held}`. Every supplier who holds an advance or ever had one, with what is left. The log has every advance paid and every purchase that used one, newest first, up to 300 |
+| POST | `/purchases` | `purchase.bill.create` | see [5.4](#54-goods-in--purchase-stock-keeper-manager-owner) | `201 {id, refNo, subtotal, discount, total, paid, due, supplierId}` |
+| POST | `/purchases/{id}/pay` | `purchase.payment.create` | `amount?`, `accountId?`, `advanceAmount?` | `{id, refNo, total, paid, due, supplierId, paidCash, paidFromAdvance}`; see 5.4 step 3a |
 | POST | `/purchases/{id}/photos` | `purchase.bill.create` | **multipart**, `photos[]` × 1–5 | `201 [{id, url, name}]`; `meta.accepted, offered, remaining`; `422 photo_limit` |
 | DELETE | `/purchases/{id}/photos/{photoId}` | `purchase.bill.update` | | `{deleted}` |
 | POST | `/suppliers` | `purchase.supplier.manage` | `name`, `company?`, `phone?`, `address?` | `201 {id}` |
@@ -1782,6 +1964,10 @@ same fact as zero percent — `discount` is the taka either way.
 | GET | `/accounts` | `accounts.account.view` | | `accounts[], expenses[80], transactions[40], categories[], quick[], employees[], monthExpense, todayExpense, monthSalary`; `meta.mayManage, mayExpense, mayDeleteExpense, mayManageCategories, mayTransfer` |
 | POST | `/accounts` | `accounts.account.manage` | `name`, `type` (`cash`, `bank`, `mfs`), `openingBalance?` | `201 {id}` |
 | POST | `/accounts/transfer` | `accounts.transfer.create` | `fromAccountId`, `toAccountId` (different), `amount`, `note?` | `ok` |
+| GET | `/accounts/overview` | `accounts.account.view` | | `capital {stock, stockAtPrice, stockProducts, stockUnits, receivable, customersOwing, payable, suppliersOwed, advances, advanceSuppliers, inAccounts, cash, otherAccounts, invested, net, accounts[]}`, `turnover {today, week, month, stockDays}`, `customers[]`, `suppliers[]`, `advances[]` (each `{id, name, phone, amount}`, most first, 20), `expenses {month, year}` (each `{total, types[{name, icon, amount, count}]}`), `history[{date, stock, receivable, advances, accounts, payable, net}]` — one row a day, the last year, oldest first. `meta.mayStock, mayProfit` |
+| GET | `/accounts/closings` | `accounts.account.view` | | this branch's closed drawers, newest first: `[{id, kind ('shift' \| 'entry'), date, openedAt, by, opening, expected, counted, difference, note}]`; `meta.mayAdd, mayDelete, lastCounted` |
+| POST | `/accounts/closings` | `accounts.account.manage` | `date` (not after today), `amount` (counted), `opening?` (left out: the last closing counted before that day), `note?` | `201 {id, opening, expected, counted, difference}` — a closing for that day with no shift; `expected` is the opening plus the day's cash taken. Balances do not move. One per branch per day: `422 closing_exists` |
+| DELETE | `/accounts/closings/{id}` | store owner | | `{deleted}` — only a closing entered by date |
 | POST | `/expenses` | `accounts.expense.create` | `categoryId?` or `categoryName?`, `amount?`, `accountId?`, `note?`, `date?`, `employeeName?`, `salaryMonth?` (`YYYY-MM`) | `201 {ok, id, amount, isSalary}`; `422 amount_required`, `422 employee_required` |
 | DELETE | `/expenses/{id}` | `accounts.expense.delete` | | `deleted` |
 | POST | `/expense-categories` | `accounts.category.manage` | `name`, `icon?` (emoji), `defaultAmount?`, `isQuick?`, `isSalary?`, `isActive?`, `sortOrder?` | `201 {id}`; `422 duplicate` |
@@ -1800,6 +1986,7 @@ role with only `expense.create` needs its own simple form.
 | GET | `/reports/sales` | `report.sales.view` | `days` (default 30) | `daily[] {date, total, count}`, `topProducts[15] {id, name, qty, revenue, profit}`, `byUser[] {name, total, count}`, `byMethod[] {method, total}`, `showProfit` |
 | GET | `/reports/profit` | `report.profit.view` | `days` (default 30) | `revenue, cost, returnTotal, grossProfit, expenses, netProfit, margin` (%) |
 | GET | `/reports/stock` | `report.stock.view` | | `stockValue, totalUnits, low[], expiring[], dead[20]` (no sale in 90 days) |
+| GET | `/reports/low-stock?q=` | `report.stock.view` | | The reorder list for this branch, emptiest first: `{threshold, count, outOfStock, items[] {id, name, barcode, brand, unit, quantity, minimum, price, cost}}`. "Low" is fewer than `threshold` (Settings → "Low stock below", 5 when the shop has not set one). `cost` is `null` without `inventory.product.view_cost` |
 | GET | `/reports/dues` | `report.due.view` | | up to 100: `id, name, phone, due, creditLimit, ageDays` |
 
 Sales, stock, and profit's `revenue` and `cost` are for the current branch.
@@ -1821,11 +2008,13 @@ and gives it back. A mobile app with its own navigation can ignore both.
 | Method | Path | Perm | Body / query | Returns |
 |---|---|---|---|---|
 | GET | `/settings` | `settings.store.view` | | `store, branches[], members[], roles[], settings{}, activity[], permissionModules, loyalty`; `meta.mayUpdateStore, mayManageBranch, mayManageUser, mayManageRole, maySeeActivity` |
-| PATCH | `/settings/store` | `settings.store.update` | `name` required; `phone?, email?, address?, city?, vatMode?` (`inclusive`, `exclusive`), `receiptPaper?` (`58mm`, `80mm`, `A4`), `invoicePrefix?`, `allowCreditSale?`, `loyalty?{loyalty_enabled, loyalty_earn_per, loyalty_earn_points, loyalty_value_per, loyalty_min_redeem, loyalty_max_redeem_pct, loyalty_round}` | `ok` |
+| PATCH | `/settings/store` | `settings.store.update` | `name` required; `phone?, email?, address?, city?, vatMode?` (`inclusive`, `exclusive`), `receiptPaper?` (`58mm`, `76mm`, `80mm`, `A3`, `A4`, `A5`, `A6`, `Letter`, `Legal`, `Half-Letter`), `receiptFontSize?` (`100`, `110`, `125`, `150` — percent of the normal receipt type size), `invoicePrefix?`, `allowCreditSale?`, `loyalty?{loyalty_enabled, loyalty_earn_per, loyalty_earn_points, loyalty_value_per, loyalty_min_redeem, loyalty_max_redeem_pct, loyalty_round}` | `ok` |
 | POST | `/settings/branches` | `settings.branch.manage` | `name`, `code`, `phone?`, `address?` | `201 {id}`; `422 plan_limit` |
 | PATCH | `/settings/branches/{id}` | `settings.branch.manage` | same as above | `{id}` |
 | POST | `/settings/members` | `settings.user.manage` | `name`, `email`, `password` (min 6), `roleId`, `branchId?` | `201 {userId, reusedExistingAccount}`; `422 plan_limit / duplicate / bad_role` |
 | PATCH | `/settings/members/{storeUserId}/status` | `settings.user.manage` | `active` | `ok`; `422 self` |
+| PATCH | `/settings/members/{userId}/password` | `settings.user.manage` | `password` (6–100), `passwordConfirmation` | `ok`; `422 self` (use `/me/password`); `404 not_found`; `403 forbidden_user` when the account is the owner, a super admin, or also on another store — only the platform can reset those. Ends that account's sign-ins |
+| PATCH | `/settings/members/{userId}/email` | `settings.user.manage` | `email` | `ok`, `email`; same refusals as the password row above; 422 if the address is taken |
 | PATCH | `/settings/members/{userId}/role` | `settings.role.manage` | `roleId` | `ok`; `422 self`, `403 forbidden_role` |
 | GET | `/settings/roles/{id}` | `settings.role.manage` | | `id, name, label, isLocked, permissions[]` |
 | GET | `/settings/activity` | `settings.activity.view` | `q?, subject?, event?, userId?, days?` (1–365, default 30) | up to 200: `id, event, subjectType, subjectId, subjectLabel, changes[] {field, from, to}, createdAt, user, ip`; `meta.subjects, events, days` |
@@ -1846,6 +2035,9 @@ All need the matching `admin.*` permission, which only Super Admin holds.
 | POST | `/admin/stores/{id}/extend` | `admin.store.update` | `days` (1–3650) or `unlimited`, `activate?` (default true) | `{id, status, trialEndsAt, trialDaysLeft, locked}`; `422 nothing_to_do` |
 | POST | `/admin/stores/{id}/impersonate` | `admin.store.impersonate` | | `storeId, branchId`. This device is now in that store |
 | POST | `/admin/suggestions/{id}/review` | `admin.suggestion.review` | `approve`, `note?`, and optional corrected fields | `201 {created: true, globalProductId}` or `{created: false}` |
+| GET | `/admin/users?q=` | `admin.store.update` | `q?` matches name, email or phone | up to 100 × `{id, name, email, phone, status, isSuperAdmin, isMe, lastLoginAt, stores[]}` |
+| PATCH | `/admin/users/{id}/password` | `admin.store.update` | `password` (6–100), `passwordConfirmation`; `currentPassword` required when `{id}` is yourself | `{id, name}`; `422 current_password` if the current one is wrong. Ends every other sign-in on that account: its mobile tokens and its other browser sessions |
+| PATCH | `/admin/users/{id}/email` | `admin.store.update` | `email` | `{id, name, email}`; `422 self` (use `/me/email`); 422 if the address is taken |
 
 #### The shared product catalogue
 

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:developer' as developer;
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gal/gal.dart';
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
@@ -136,10 +136,20 @@ abstract class PrinterTransport {
 ///
 /// Jobs from this phone run one after another, and a second print inside the
 /// linger window reuses the open connection rather than reconnecting.
+///
+/// The connection itself is the app's own `bizpos/printer` channel
+/// (`ThermalPrinter.kt`), not the plugin's: the plugin only opens a secure
+/// socket, which a printer refuses once it has forgotten this phone's pairing
+/// key — and cheap printers remember about two. The channel falls back to an
+/// insecure socket, so any number of phones can take turns. The plugin still
+/// does the permission prompt and the paired list.
 class BluetoothThermalTransport implements PrinterTransport {
-  /// How long to keep knocking while another phone has the printer. Its job
-  /// plus its linger is a few seconds; this covers a couple of those.
-  static const _busyWait = Duration(seconds: 25);
+  static const _channel = MethodChannel('bizpos/printer');
+
+  /// How long to keep knocking while another phone has the printer. Each
+  /// phone's job plus its linger is a few seconds; with several phones at one
+  /// counter this phone may be a few turns back in the line.
+  static const _busyWait = Duration(seconds: 45);
 
   String? _connectedTo;
   Timer? _release;
@@ -194,7 +204,7 @@ class BluetoothThermalTransport implements PrinterTransport {
     final deadline = DateTime.now().add(_busyWait);
     var pause = const Duration(milliseconds: 500);
     while (true) {
-      if (await PrintBluetoothThermal.connect(macPrinterAddress: mac)) {
+      if (await _channel.invokeMethod<bool>('connect', {'mac': mac}) ?? false) {
         _connectedTo = mac;
         return;
       }
@@ -207,16 +217,13 @@ class BluetoothThermalTransport implements PrinterTransport {
     }
   }
 
-  /// One write, as a plain `List<int>`. A Uint8List crosses the channel as a
-  /// byte[], which the plugin's `as? List<Int>` turns into null and answers
-  /// false — nothing ever reached the printer. And every writeBytes call is
-  /// prefixed with a '\n' by the plugin, so splitting the job here would drop
-  /// that byte into the middle of a raster band; the plugin already writes in
-  /// 16 KB pieces and flushes each one.
+  /// The whole job in one call, as a byte[]; the native side writes it in
+  /// pieces and flushes each one.
   Future<bool> _write(List<int> bytes) async {
-    if (await PrintBluetoothThermal.writeBytes(List<int>.of(bytes))) {
-      return true;
-    }
+    final sent = await _channel.invokeMethod<bool>('write', {
+      'bytes': Uint8List.fromList(bytes),
+    });
+    if (sent ?? false) return true;
     _connectedTo = null;
     return false;
   }
@@ -228,10 +235,7 @@ class BluetoothThermalTransport implements PrinterTransport {
   /// next phone.
   void _scheduleRelease(int length) {
     final ms = (1500 + length ~/ 40).clamp(1500, 6000);
-    _release = Timer(
-      Duration(milliseconds: ms),
-      () => _serial(_disconnect),
-    );
+    _release = Timer(Duration(milliseconds: ms), () => _serial(_disconnect));
   }
 
   Future<void> _disconnect() async {
@@ -239,7 +243,7 @@ class BluetoothThermalTransport implements PrinterTransport {
     _release = null;
     _connectedTo = null;
     try {
-      await PrintBluetoothThermal.disconnect;
+      await _channel.invokeMethod<bool>('disconnect');
     } catch (e) {
       developer.log('could not let go of the printer: $e', name: 'printing');
     }
