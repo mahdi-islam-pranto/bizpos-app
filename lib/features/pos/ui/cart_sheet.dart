@@ -14,8 +14,8 @@ import '../../../core/widgets/fields.dart';
 import '../../../core/widgets/states.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/pos_models.dart';
-import '../data/pos_repository.dart';
 import '../state/cart.dart';
+import '../state/invoice_edit.dart';
 import 'checkout_done_sheet.dart';
 import 'customer_picker_sheet.dart';
 import 'payment_sheet.dart';
@@ -107,9 +107,9 @@ class CartSheet extends ConsumerWidget {
                       value: money.format(cart.estimatedTotal.toDouble()),
                       strong: true,
                     ),
-                    if (cart.belowCost) ...[
+                    if (cart.blocked) ...[
                       const SizedBox(height: Insets.s12),
-                      BelowCostNotice(cart: cart),
+                      SaleBlockedNotice(cart: cart),
                     ],
                     const SizedBox(height: Insets.s4),
                     // Said plainly, because the number above is the app's own
@@ -177,6 +177,7 @@ class _ChargeBarState extends ConsumerState<_ChargeBar> {
     final l10n = AppL10n.of(context);
     final money = ref.read(moneyProvider);
     final cart = ref.read(cartProvider);
+    final edited = ref.read(invoiceEditProvider) != null;
 
     final ok = await confirmSheet(
       context,
@@ -185,7 +186,7 @@ class _ChargeBarState extends ConsumerState<_ChargeBar> {
         money.format(cart.estimatedTotal.toDouble()),
         cart.customer!.name,
       ),
-      confirmLabel: l10n.createInvoice,
+      confirmLabel: edited ? l10n.saveChanges : l10n.createInvoice,
       cancelLabel: l10n.cancel,
     );
     if (!ok || !mounted || _busy) return;
@@ -201,11 +202,11 @@ class _ChargeBarState extends ConsumerState<_ChargeBar> {
         );
 
     try {
-      final result = await ref.read(posRepositoryProvider).checkout(body);
+      final result = await submitSale(ref, body);
       if (!mounted) return;
       refreshAfterSale(ref);
       Navigator.of(context).pop();
-      await CheckoutDoneSheet.show(context, result: result);
+      await CheckoutDoneSheet.show(context, result: result, edited: edited);
     } catch (e) {
       // Nothing was sold; the cart is as it was.
       if (mounted) showApiError(context, e);
@@ -224,14 +225,16 @@ class _ChargeBarState extends ConsumerState<_ChargeBar> {
 
     // The server refuses a sale below cost. Taking the money first and being
     // refused after is the one order a counter cannot afford.
-    final onCharge = cart.belowCost || _busy
+    final onCharge = cart.blocked || _busy
         ? null
         : () async {
             Navigator.of(context).pop();
             await PaymentSheet.show(context, lookups: widget.lookups);
           };
+    final editing = ref.watch(invoiceEditProvider) != null;
     final chargeLabel =
-        '${l10n.charge}  ${money.format(cart.estimatedTotal.toDouble())}';
+        '${editing ? l10n.saveChanges : l10n.charge}  '
+        '${money.format(cart.estimatedTotal.toDouble())}';
 
     if (!cart.hasNamedCustomer) {
       return SheetAction(
@@ -254,9 +257,8 @@ class _ChargeBarState extends ConsumerState<_ChargeBar> {
                 padding: const EdgeInsets.only(bottom: Insets.s8),
                 child: Text(
                   l10n.creditOff,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: palette.muted),
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: palette.muted),
                 ),
               ),
             Row(
@@ -265,7 +267,7 @@ class _ChargeBarState extends ConsumerState<_ChargeBar> {
                   child: SizedBox(
                     height: 52,
                     child: OutlinedButton.icon(
-                      onPressed: cart.belowCost || !allowCredit || _busy
+                      onPressed: cart.blocked || !allowCredit || _busy
                           ? null
                           : _directInvoice,
                       icon: _busy
@@ -467,6 +469,14 @@ class _CartRow extends StatelessWidget {
                     (line.item.stock ?? 0).toStringAsFixed(0),
                   ),
                   style: text.labelSmall?.copyWith(color: palette.warning),
+                ),
+              ),
+            if (line.aboveMrp)
+              Padding(
+                padding: const EdgeInsets.only(top: Insets.s4),
+                child: Text(
+                  l10n.lineAboveMrpShort(money.format(line.item.mrp)),
+                  style: text.labelSmall?.copyWith(color: palette.danger),
                 ),
               ),
             if (line.belowCost)
@@ -687,6 +697,12 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
         ? typedPrice ?? line.item.salePrice
         : line.effectivePrice;
     final priceBelowCost = cost != null && typedPrice != null && price < cost;
+    // The price box stops at the MRP; a shelf price already over it shows the
+    // same error, since the line cannot be sold until it comes down.
+    final priceAboveMrp =
+        widget.mayChangePrice &&
+        line.item.hasMrp &&
+        Exact.of(price) > Exact.of(line.item.mrp!);
     final maxOff = line.maxLineDiscount(price: price);
     final discount = widget.mayDiscount ? AmountField.read(_discount) : null;
     final discountTooHigh =
@@ -714,7 +730,9 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
                     label: l10n.unitPrice,
                     prefix: money.sign,
                     helperText: money.format(line.item.salePrice),
-                    errorText: priceBelowCost
+                    errorText: priceAboveMrp
+                        ? l10n.unitPriceAboveMrp(money.format(line.item.mrp))
+                        : priceBelowCost
                         ? l10n.unitPriceBelowCost(money.format(cost))
                         : null,
                     onChanged: (_) => setState(() {}),
@@ -728,9 +746,7 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
                     prefix: money.sign,
                     helperText: maxOff == null
                         ? null
-                        : l10n.maxLineDiscount(
-                            money.format(maxOff.toDouble()),
-                          ),
+                        : l10n.maxLineDiscount(money.format(maxOff.toDouble())),
                     errorText: discountTooHigh
                         ? l10n.lineDiscountTooHigh(
                             money.format(maxOff.toDouble()),
@@ -763,7 +779,9 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
             label: l10n.apply,
             icon: Icons.check,
             // The server refuses a line under its cost; better said here.
-            onPressed: priceBelowCost || discountTooHigh ? null : _apply,
+            onPressed: priceBelowCost || priceAboveMrp || discountTooHigh
+                ? null
+                : _apply,
           ),
         ],
       ),
@@ -1023,7 +1041,8 @@ class _QtyPickerSheetState extends State<QtyPickerSheet> {
                           ? _PresetButton(
                               qty: presets[i],
                               selected: presets[i] == widget.current,
-                              overStock: stock != null &&
+                              overStock:
+                                  stock != null &&
                                   presets[i] > stock &&
                                   presets[i] != widget.current,
                               onTap: () => _pick(presets[i]),
@@ -1121,10 +1140,12 @@ String _rate(num value) => value == value.roundToDouble()
     ? value.toStringAsFixed(0)
     : value.toString();
 
-/// Why the pay button is off. The messages name no figures: a cashier may sell
-/// without being allowed to see what anything cost.
-class BelowCostNotice extends StatelessWidget {
-  const BelowCostNotice({required this.cart, super.key});
+/// Why the pay button is off: a line over its MRP, a line under its cost, or
+/// a bill discount under the cost of the goods. The cost messages name no
+/// figures: a cashier may sell without being allowed to see what anything
+/// cost.
+class SaleBlockedNotice extends StatelessWidget {
+  const SaleBlockedNotice({required this.cart, super.key});
 
   final Cart cart;
 
@@ -1140,7 +1161,11 @@ class BelowCostNotice extends StatelessWidget {
         const SizedBox(width: Insets.s8),
         Expanded(
           child: Text(
-            cart.hasBelowCostLine ? l10n.lineBelowCost : l10n.discountBelowCost,
+            cart.hasAboveMrpLine
+                ? l10n.lineAboveMrp
+                : cart.hasBelowCostLine
+                ? l10n.lineBelowCost
+                : l10n.discountBelowCost,
             style: Theme.of(context).textTheme.bodySmall
                 ?.copyWith(color: palette.danger),
           ),

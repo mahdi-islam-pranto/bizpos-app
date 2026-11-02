@@ -5,6 +5,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/network/api_paths.dart';
 import '../../../core/network/paged.dart';
 import '../../../core/session/session_controller.dart';
+import '../../pos/data/pos_models.dart';
 import 'sale_models.dart';
 
 class SalesRepository {
@@ -91,6 +92,35 @@ class SalesRepository {
       parse: parseObject(VoidResult.fromJson),
       body: {'reason': reason},
       cancelToken: _cancel,
+    );
+    return response.data;
+  }
+
+  /// The invoice as a till cart, for correcting it.
+  Future<SaleEditDraft> editDraft(int id) async {
+    final response = await _client.get(
+      ApiPaths.saleEdit(id),
+      parse: parseObject(SaleEditDraft.fromJson),
+      cancelToken: _cancel,
+    );
+    return response.data;
+  }
+
+  /// Writes the invoice again: the checkout body without `collectPrevious`,
+  /// product lines only. The server takes the old version off the books and
+  /// rings the new one up in one transaction, keeping the id, number, date and
+  /// seller; a failure leaves the invoice exactly as it was.
+  ///
+  /// **Never retried**, like a checkout, and for the same reason it does not
+  /// use the scope cancel token: an edit in flight must finish and be reported.
+  Future<CheckoutResult> saveEdit(int id, Map<String, dynamic> body) async {
+    final response = await _client.post(
+      ApiPaths.saleEdit(id),
+      parse: parseObject(CheckoutResult.fromJson),
+      body: {
+        for (final entry in body.entries)
+          if (entry.key != 'collectPrevious') entry.key: entry.value,
+      },
     );
     return response.data;
   }

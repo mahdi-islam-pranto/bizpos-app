@@ -3079,5 +3079,90 @@ class AppL10nEn extends AppL10n {
   String get createInvoice => 'Create invoice';
 
   @override
+  String get editInvoice => 'Edit invoice';
+
+  @override
+  String editingInvoice(String invoiceNo) {
+    return 'Editing $invoiceNo';
+  }
+
+  @override
+  String get editingInvoiceBody =>
+      'Change items, prices, customer or payment, then save.';
+
+  @override
+  String get cancelEdit => 'Cancel edit';
+
+  @override
+  String get discardEditTitle => 'Discard the changes?';
+
+  @override
+  String discardEditBody(String invoiceNo) {
+    return '$invoiceNo stays exactly as it was.';
+  }
+
+  @override
+  String editAnotherInvoiceBody(String invoiceNo) {
+    return 'You are still editing $invoiceNo. Leave it as it was and edit this one instead?';
+  }
+
+  @override
+  String get keepEditing => 'Keep editing';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get invoiceUpdated => 'Invoice updated';
+
+  @override
+  String get backToInvoice => 'Back to the invoice';
+
+  @override
+  String get tillCartParked =>
+      'The sale that was on the till is set aside and comes back when you finish.';
+
+  @override
+  String get editNotAllowed => 'This invoice cannot be edited.';
+
+  @override
+  String mrpOff(String percent) {
+    return '$percent% off';
+  }
+
+  @override
+  String get aboveMrpTag => 'Above MRP';
+
+  @override
+  String get aboveMrpTitle => 'Above the MRP';
+
+  @override
+  String cannotSellAboveMrp(String name, String price, String mrp) {
+    return '$name is priced at $price, more than its MRP of $mrp. It cannot be sold until its price is fixed.';
+  }
+
+  @override
+  String lowerToMrp(String name, String price, String mrp) {
+    return '$name is priced at $price, more than its MRP of $mrp. Tap it in the cart and lower the price to $mrp or less to sell it.';
+  }
+
+  @override
+  String lineAboveMrpShort(String mrp) {
+    return 'Above the MRP of $mrp — lower the price.';
+  }
+
+  @override
+  String get lineAboveMrp =>
+      'A line is priced above its MRP, and the sale would be refused. Lower its price to the MRP or less, or remove it.';
+
+  @override
+  String unitPriceAboveMrp(String mrp) {
+    return 'Cannot be more than the MRP of $mrp';
+  }
+
+  @override
+  String get ok => 'OK';
+
+  @override
   String get refresh => 'Refresh';
 }

@@ -5353,6 +5353,138 @@ abstract class AppL10n {
   /// **'Create invoice'**
   String get createInvoice;
 
+  /// No description provided for @editInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit invoice'**
+  String get editInvoice;
+
+  /// No description provided for @editingInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Editing {invoiceNo}'**
+  String editingInvoice(String invoiceNo);
+
+  /// No description provided for @editingInvoiceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Change items, prices, customer or payment, then save.'**
+  String get editingInvoiceBody;
+
+  /// No description provided for @cancelEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel edit'**
+  String get cancelEdit;
+
+  /// No description provided for @discardEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard the changes?'**
+  String get discardEditTitle;
+
+  /// No description provided for @discardEditBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{invoiceNo} stays exactly as it was.'**
+  String discardEditBody(String invoiceNo);
+
+  /// No description provided for @editAnotherInvoiceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You are still editing {invoiceNo}. Leave it as it was and edit this one instead?'**
+  String editAnotherInvoiceBody(String invoiceNo);
+
+  /// No description provided for @keepEditing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get keepEditing;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @invoiceUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice updated'**
+  String get invoiceUpdated;
+
+  /// No description provided for @backToInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the invoice'**
+  String get backToInvoice;
+
+  /// No description provided for @tillCartParked.
+  ///
+  /// In en, this message translates to:
+  /// **'The sale that was on the till is set aside and comes back when you finish.'**
+  String get tillCartParked;
+
+  /// No description provided for @editNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'This invoice cannot be edited.'**
+  String get editNotAllowed;
+
+  /// No description provided for @mrpOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% off'**
+  String mrpOff(String percent);
+
+  /// No description provided for @aboveMrpTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Above MRP'**
+  String get aboveMrpTag;
+
+  /// No description provided for @aboveMrpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Above the MRP'**
+  String get aboveMrpTitle;
+
+  /// No description provided for @cannotSellAboveMrp.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is priced at {price}, more than its MRP of {mrp}. It cannot be sold until its price is fixed.'**
+  String cannotSellAboveMrp(String name, String price, String mrp);
+
+  /// No description provided for @lowerToMrp.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is priced at {price}, more than its MRP of {mrp}. Tap it in the cart and lower the price to {mrp} or less to sell it.'**
+  String lowerToMrp(String name, String price, String mrp);
+
+  /// No description provided for @lineAboveMrpShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Above the MRP of {mrp} — lower the price.'**
+  String lineAboveMrpShort(String mrp);
+
+  /// No description provided for @lineAboveMrp.
+  ///
+  /// In en, this message translates to:
+  /// **'A line is priced above its MRP, and the sale would be refused. Lower its price to the MRP or less, or remove it.'**
+  String get lineAboveMrp;
+
+  /// No description provided for @unitPriceAboveMrp.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot be more than the MRP of {mrp}'**
+  String unitPriceAboveMrp(String mrp);
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
   /// No description provided for @refresh.
   ///
   /// In en, this message translates to:

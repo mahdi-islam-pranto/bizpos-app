@@ -23,7 +23,12 @@ What the NEW doc changed over UPDATED, and where the app stands on each:
   is `422 sale`. `Cart.belowCost` disables the pay button when the costs are
   known (never for a cashier without `view_cost`, never line-by-line for a
   package). The same rule is a `422` on every price form, so `PricingDraft`
-  disables Save. Built.
+  disables Save. Built. **Nor above the MRP** — a line whose price (typed or
+  shelf) is over the product's `mrp` is `422 sale` too; `Cart.blocked`
+  (below cost *or* `hasAboveMrpLine`) is what disables the pay buttons, the
+  price box refuses a figure over the MRP, and adding a shelf price over it
+  raises an alert (and is refused outright without `pos.sale.change_price`).
+  The till's product list shows `mrpDiscountPercent` ("17% off") per row.
 - **The khata**: `GET /customers/search` `due` includes an `openingBalance`;
   checkout takes `collectPrevious: true` to settle old debt with today's bill
   (the server splits the tender — send what was typed), `payments: []` with a
@@ -410,6 +415,17 @@ Every successful checkout goes through `refreshAfterSale` (`payment_sheet.dart`)
 a sale that skips it leaves the new invoice off the Invoices tab. With a named
 customer the cart offers **Direct invoice** beside Charge — `payments: []`,
 the whole bill on the khata, disabled when the store's `allowCredit` is off.
+
+**Editing an invoice happens on the till** (`invoiceEditProvider`,
+`pos/state/invoice_edit.dart`). Edit on the invoice shows only for an
+explicit `meta.mayEdit` (no permission exists — the server allows store owner
+or super admin) and Sell access; `meta.editBlocked` is shown as the reason.
+`GET /sales/{id}/edit` becomes the cart, the till's own cart is parked and
+handed back when the edit is saved or cancelled, search results add the
+invoice's `sold` units to their stock, and holds and packages are off.
+`submitSale` sends `POST /sales/{id}/edit` instead of checkout (never
+retried, no scope cancel token, `collectPrevious` stripped), and
+`refreshAfterSale` ends the edit and drops the cached invoice.
 
 Held carts round-trip JSON the server never reads, so `Cart.fromHoldJson` is
 deliberately forgiving — a hold from an older build brings back the lines it

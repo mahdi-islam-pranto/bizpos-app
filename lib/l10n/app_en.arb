@@ -1822,5 +1822,95 @@
     }
   },
   "createInvoice": "Create invoice",
+  "editInvoice": "Edit invoice",
+  "editingInvoice": "Editing {invoiceNo}",
+  "@editingInvoice": {
+    "placeholders": {
+      "invoiceNo": {
+        "type": "String"
+      }
+    }
+  },
+  "editingInvoiceBody": "Change items, prices, customer or payment, then save.",
+  "cancelEdit": "Cancel edit",
+  "discardEditTitle": "Discard the changes?",
+  "discardEditBody": "{invoiceNo} stays exactly as it was.",
+  "@discardEditBody": {
+    "placeholders": {
+      "invoiceNo": {
+        "type": "String"
+      }
+    }
+  },
+  "editAnotherInvoiceBody": "You are still editing {invoiceNo}. Leave it as it was and edit this one instead?",
+  "@editAnotherInvoiceBody": {
+    "placeholders": {
+      "invoiceNo": {
+        "type": "String"
+      }
+    }
+  },
+  "keepEditing": "Keep editing",
+  "saveChanges": "Save changes",
+  "invoiceUpdated": "Invoice updated",
+  "backToInvoice": "Back to the invoice",
+  "tillCartParked": "The sale that was on the till is set aside and comes back when you finish.",
+  "editNotAllowed": "This invoice cannot be edited.",
+  "mrpOff": "{percent}% off",
+  "@mrpOff": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "aboveMrpTag": "Above MRP",
+  "aboveMrpTitle": "Above the MRP",
+  "cannotSellAboveMrp": "{name} is priced at {price}, more than its MRP of {mrp}. It cannot be sold until its price is fixed.",
+  "@cannotSellAboveMrp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "mrp": {
+        "type": "String"
+      }
+    }
+  },
+  "lowerToMrp": "{name} is priced at {price}, more than its MRP of {mrp}. Tap it in the cart and lower the price to {mrp} or less to sell it.",
+  "@lowerToMrp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "mrp": {
+        "type": "String"
+      }
+    }
+  },
+  "lineAboveMrpShort": "Above the MRP of {mrp} — lower the price.",
+  "@lineAboveMrpShort": {
+    "placeholders": {
+      "mrp": {
+        "type": "String"
+      }
+    }
+  },
+  "lineAboveMrp": "A line is priced above its MRP, and the sale would be refused. Lower its price to the MRP or less, or remove it.",
+  "unitPriceAboveMrp": "Cannot be more than the MRP of {mrp}",
+  "@unitPriceAboveMrp": {
+    "placeholders": {
+      "mrp": {
+        "type": "String"
+      }
+    }
+  },
+  "ok": "OK",
   "refresh": "Refresh"
 }

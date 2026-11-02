@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/router/shell_nav.dart';
 import '../../../core/format/dates.dart';
@@ -9,9 +10,13 @@ import '../../../core/permissions/permissions.dart';
 import '../../../core/session/session_controller.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/theme/tokens.dart';
+import '../../../core/widgets/app_sheet.dart';
 import '../../../core/widgets/async_view.dart';
 import '../../../core/widgets/states.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../pos/data/pos_models.dart';
+import '../../pos/state/cart.dart';
+import '../../pos/state/invoice_edit.dart';
 import '../../printing/receipt_sheet.dart';
 import '../data/sale_models.dart';
 import '../data/sales_repository.dart';
@@ -24,6 +29,10 @@ import 'sale_status_chips.dart';
 /// one that carries real information beyond the permission — the server sets it
 /// true only for a **completed** invoice, so a returned or already-cancelled
 /// one hides the button even from an owner.
+///
+/// Edit has no permission of its own: the server says `meta.mayEdit` (store
+/// owner or super admin), and `meta.editBlocked` explains a refusal to an
+/// owner. The edit itself happens on the till, so it also needs Sell.
 class InvoiceDetailScreen extends ConsumerWidget {
   const InvoiceDetailScreen({required this.saleId, super.key});
 
@@ -33,11 +42,17 @@ class InvoiceDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppL10n.of(context);
     final detail = ref.watch(saleDetailProvider(saleId));
+    final result = detail.value;
+    final offerEdit =
+        result != null &&
+        (result.mayEdit || result.editBlocked != null) &&
+        ref.watch(permissionsProvider).has(P.posSaleCreate);
 
     return Scaffold(
       appBar: ShellAppBar(
         title: Text(l10n.invoice),
         actions: [
+          if (offerEdit) _EditButton(result: result),
           PermissionGate(
             perm: P.posSalePrint,
             child: IconButton(
@@ -296,6 +311,87 @@ class _Detail extends ConsumerWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// Opens the invoice on the till for correcting.
+///
+/// Whatever the till was holding is parked and comes back when the edit is
+/// saved or abandoned. An invoice the server will not let be edited shows its
+/// reason instead.
+class _EditButton extends ConsumerStatefulWidget {
+  const _EditButton({required this.result});
+
+  final SaleDetailResult result;
+
+  @override
+  ConsumerState<_EditButton> createState() => _EditButtonState();
+}
+
+class _EditButtonState extends ConsumerState<_EditButton> {
+  bool _busy = false;
+
+  Future<void> _edit() async {
+    if (_busy) return;
+    final l10n = AppL10n.of(context);
+    final result = widget.result;
+    final saleId = result.sale.id;
+
+    if (!result.mayEdit) {
+      showNote(context, result.editBlocked ?? l10n.editNotAllowed);
+      return;
+    }
+
+    final current = ref.read(invoiceEditProvider);
+    if (current?.saleId == saleId) {
+      context.go('/sell');
+      return;
+    }
+    if (current != null) {
+      final ok = await confirmSheet(
+        context,
+        title: l10n.discardEditTitle,
+        message: l10n.editAnotherInvoiceBody(current.invoiceNo),
+        confirmLabel: l10n.discard,
+        cancelLabel: l10n.keepEditing,
+        destructive: true,
+      );
+      if (!ok || !mounted) return;
+    }
+
+    setState(() => _busy = true);
+    final SaleEditDraft draft;
+    try {
+      draft = await ref.read(salesRepositoryProvider).editDraft(saleId);
+    } catch (e) {
+      if (mounted) showApiError(context, e);
+      return;
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+    if (!mounted) return;
+
+    final parksCart = current == null && ref.read(cartProvider).isNotEmpty;
+    ref.read(invoiceEditProvider.notifier).start(draft);
+    if (parksCart) showNote(context, l10n.tillCartParked);
+    context.go('/sell');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+
+    return IconButton(
+      tooltip: l10n.editInvoice,
+      onPressed: _busy ? null : _edit,
+      icon: _busy
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.edit_outlined),
     );
   }
 }

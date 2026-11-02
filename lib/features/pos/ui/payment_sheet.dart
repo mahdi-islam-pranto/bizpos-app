@@ -15,7 +15,8 @@ import '../../sales/data/sales_repository.dart';
 import '../data/pos_models.dart';
 import '../data/pos_repository.dart';
 import '../state/cart.dart';
-import 'cart_sheet.dart' show BelowCostNotice;
+import '../state/invoice_edit.dart';
+import 'cart_sheet.dart' show SaleBlockedNotice;
 import 'checkout_done_sheet.dart';
 import 'customer_picker_sheet.dart';
 
@@ -71,14 +72,22 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
     // One payment, for the whole bill, in the default account: the ordinary
     // sale. Splitting is a deliberate extra tap, not the default shape.
     final cart = ref.read(cartProvider);
-    final account = widget.lookups.defaultAccount;
+    final total = cart.estimatedTotal.toDouble();
+    // An invoice being corrected starts from how it was paid: the same
+    // account and method, and the same share of the bill.
+    final editing = ref.read(invoiceEditProvider);
+    final account =
+        widget.lookups.accounts
+            .where((a) => a.id == editing?.accountId)
+            .firstOrNull ??
+        widget.lookups.defaultAccount;
     _drafts.add(
       _PaymentDraft(
         account: account,
-        method: account == null
-            ? PayMethod.cash
-            : PayMethod.forAccount(account),
-        amount: cart.estimatedTotal.toDouble(),
+        method:
+            editing?.method ??
+            (account == null ? PayMethod.cash : PayMethod.forAccount(account)),
+        amount: editing?.openingPayment(total) ?? total,
       ),
     );
   }
@@ -101,12 +110,17 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
     final cart = ref.watch(cartProvider);
     final permissions = ref.watch(permissionsProvider);
     final loyalty = widget.lookups.loyalty;
+    final editing = ref.watch(invoiceEditProvider) != null;
 
     final total = cart.estimatedTotal.toDouble();
     final pointsOff = loyalty.worthOf(cart.redeemPoints);
     final payable = (total - pointsOff).clamp(0, double.infinity);
 
-    final previousDue = cart.hasNamedCustomer ? (cart.customer!.due ?? 0) : 0;
+    // An edit never collects the old khata, so it has no previous due to ask
+    // for.
+    final previousDue = cart.hasNamedCustomer && !editing
+        ? (cart.customer!.due ?? 0)
+        : 0;
     final collecting = _collectPrevious && previousDue > 0;
     final target = payable + (collecting ? previousDue : 0);
     final remaining = target - _paid;
@@ -238,7 +252,7 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
           ),
         ),
         Divider(color: palette.hairline, height: 1),
-        if (cart.belowCost)
+        if (cart.blocked)
           Padding(
             padding: const EdgeInsets.fromLTRB(
               Insets.gutter,
@@ -246,13 +260,15 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
               Insets.gutter,
               0,
             ),
-            child: BelowCostNotice(cart: cart),
+            child: SaleBlockedNotice(cart: cart),
           ),
         SheetAction(
-          label: '${l10n.completeSale}  ${money.format(target)}',
+          label:
+              '${editing ? l10n.saveChanges : l10n.completeSale}  '
+              '${money.format(target)}',
           icon: Icons.check_circle_outline,
           busy: _busy,
-          onPressed: creditBlocked || cart.belowCost ? null : _checkout,
+          onPressed: creditBlocked || cart.blocked ? null : _checkout,
         ),
       ],
     );
@@ -279,6 +295,7 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
     setState(() => _busy = true);
 
     final cart = ref.read(cartProvider);
+    final edited = ref.read(invoiceEditProvider) != null;
     final permissions = ref.read(permissionsProvider);
     final mayChangePrice = permissions.has(P.posSaleChangePrice);
     final mayDiscount = permissions.has(P.posSaleGiveDiscount);
@@ -302,13 +319,13 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
     );
 
     try {
-      final result = await ref.read(posRepositoryProvider).checkout(body);
+      final result = await submitSale(ref, body);
       if (!mounted) return;
 
       refreshAfterSale(ref);
 
       Navigator.of(context).pop();
-      await CheckoutDoneSheet.show(context, result: result);
+      await CheckoutDoneSheet.show(context, result: result, edited: edited);
     } catch (e) {
       // The sale did not happen. The cart is untouched, so the cashier can fix
       // whatever the server objected to and try again.
@@ -319,11 +336,29 @@ class _PaymentSheetState extends ConsumerState<PaymentSheet> {
   }
 }
 
+/// The sale — or, with an invoice open for editing, that invoice written
+/// again. Either way one shot: neither call is ever retried.
+Future<CheckoutResult> submitSale(WidgetRef ref, Map<String, dynamic> body) {
+  final editing = ref.read(invoiceEditProvider);
+  return editing == null
+      ? ref.read(posRepositoryProvider).checkout(body)
+      : ref.read(salesRepositoryProvider).saveEdit(editing.saleId, body);
+}
+
 /// Everything a finished sale moves. The invoice list and the customer lists
 /// are kept alive between visits, so without this the new invoice and the
 /// customer's new due stay invisible until the app restarts.
+///
+/// A saved edit hands the till back the cart it held before, and drops the
+/// cached invoice so it opens with its new figures.
 void refreshAfterSale(WidgetRef ref) {
-  ref.read(cartProvider.notifier).clear();
+  final editing = ref.read(invoiceEditProvider);
+  if (editing == null) {
+    ref.read(cartProvider.notifier).clear();
+  } else {
+    ref.read(invoiceEditProvider.notifier).end();
+    ref.invalidate(saleDetailProvider(editing.saleId));
+  }
   // The drawer figure and the held list both move with a sale.
   ref.invalidate(posLookupsProvider);
   ref.invalidate(salesListProvider);

@@ -377,6 +377,17 @@ class SaleDetailResult {
   bool? get mayVoid => meta.flag('mayVoid');
   bool? get mayReturn => meta.flag('mayReturn');
   bool? get mayCollect => meta.flag('mayCollect');
+
+  /// Editing has no permission of its own — the server decides (store owner
+  /// or super admin) — so only an explicit `true` offers it.
+  bool get mayEdit => meta.flag('mayEdit') ?? false;
+
+  /// Why an owner cannot edit this one (void, has returns, sold a package), or
+  /// null.
+  String? get editBlocked {
+    final reason = meta.raw['editBlocked'];
+    return reason is String && reason.trim().isNotEmpty ? reason : null;
+  }
 }
 
 /// What `POST /sales/{id}/void` answers with. [restored] is how many units went

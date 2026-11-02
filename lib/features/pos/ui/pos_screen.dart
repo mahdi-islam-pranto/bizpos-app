@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/router/shell_nav.dart';
 import '../../../core/format/money.dart';
@@ -9,6 +10,7 @@ import '../../../core/permissions/permission_gate.dart';
 import '../../../core/permissions/permissions.dart';
 import '../../../core/theme/palette.dart';
 import '../../../core/theme/tokens.dart';
+import '../../../core/widgets/app_sheet.dart';
 import '../../../core/widgets/async_view.dart';
 import '../../../core/widgets/fields.dart';
 import '../../../core/widgets/states.dart';
@@ -17,6 +19,7 @@ import '../../products/ui/product_form_sheet.dart';
 import '../data/pos_models.dart';
 import '../data/pos_repository.dart';
 import '../state/cart.dart';
+import '../state/invoice_edit.dart';
 import 'cart_sheet.dart';
 import 'holds_sheet.dart';
 import 'payment_sheet.dart';
@@ -29,6 +32,11 @@ import 'shift_sheets.dart';
 /// scanned, results filling the middle, and a cart bar pinned to the bottom
 /// that grows into the charge button. Nothing important lives behind a menu,
 /// because a queue does not wait for a menu.
+///
+/// It is also where an invoice is corrected ([invoiceEditProvider]): the same
+/// till, with a banner naming the invoice, the invoice's own units counted as
+/// back on the shelf, and no holds or packages — an edit takes product lines
+/// only.
 class PosScreen extends ConsumerStatefulWidget {
   const PosScreen({super.key});
 
@@ -109,8 +117,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
         ? found.first
         : null;
     if (exact == null) return;
+    final editing = ref.read(invoiceEditProvider);
 
-    _addToCart(exact);
+    _addToCart(editing?.withSold(exact) ?? exact);
     // Cleared so the next scan starts from nothing rather than from the last
     // code still sitting in the box.
     _search.clear();
@@ -153,10 +162,36 @@ class _PosScreenState extends ConsumerState<PosScreen> {
   }
 
   void _addToCart(SellableItem item) {
+    final l10n = AppL10n.of(context);
+    final money = ref.read(moneyProvider);
+    // Priced over the MRP on the shelf: the server will not sell it at that
+    // price. Someone who may change prices can still take it and bring the
+    // line down; anyone else is told why it will not go in.
+    final aboveMrp = item.priceAboveMrp;
+    if (aboveMrp && !ref.read(permissionsProvider).has(P.posSaleChangePrice)) {
+      _alertAboveMrp(
+        l10n.cannotSellAboveMrp(
+          item.name,
+          money.format(item.salePrice),
+          money.format(item.mrp),
+        ),
+      );
+      return;
+    }
     // Out of stock, or every last one already in the cart. Said out loud,
     // because a scan that silently does nothing reads as a broken scanner.
     if (!ref.read(cartProvider.notifier).add(item)) {
-      showNote(context, AppL10n.of(context).noStockLeft(item.name));
+      showNote(context, l10n.noStockLeft(item.name));
+      return;
+    }
+    if (aboveMrp) {
+      _alertAboveMrp(
+        l10n.lowerToMrp(
+          item.name,
+          money.format(item.salePrice),
+          money.format(item.mrp),
+        ),
+      );
       return;
     }
     _justAddedTimer?.cancel();
@@ -166,28 +201,51 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     });
   }
 
+  /// A dialog rather than a note: a price over the MRP is a refusal, and it
+  /// must not slip by under the cashier's thumb.
+  void _alertAboveMrp(String message) => showDialog<void>(
+    context: context,
+    builder: (context) => AlertDialog(
+      icon: Icon(Icons.price_change_outlined, color: context.palette.danger),
+      title: Text(AppL10n.of(context).aboveMrpTitle),
+      content: Text(message),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(AppL10n.of(context).ok),
+        ),
+      ],
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final lookups = ref.watch(posLookupsProvider);
     final cart = ref.watch(cartProvider);
-    final results = ref.watch(posSearchProvider(_query));
+    final editing = ref.watch(invoiceEditProvider);
+    // An edit takes product lines only, so the till stays on products.
+    final query = editing != null && _query.packages
+        ? _query.withPackages(false)
+        : _query;
+    final results = ref.watch(posSearchProvider(query));
 
     return Scaffold(
       appBar: ShellAppBar(
-        title: Text(l10n.posTitle),
+        title: Text(editing == null ? l10n.posTitle : l10n.editInvoice),
         actions: [
           lookups.maybeWhen(
             data: (data) => _ShiftButton(lookups: data),
             orElse: () => const SizedBox.shrink(),
           ),
-          PermissionGate(
-            perm: P.posSaleHold,
-            child: lookups.maybeWhen(
-              data: (data) => _HoldsButton(held: data.held),
-              orElse: () => const SizedBox.shrink(),
+          if (editing == null)
+            PermissionGate(
+              perm: P.posSaleHold,
+              child: lookups.maybeWhen(
+                data: (data) => _HoldsButton(held: data.held),
+                orElse: () => const SizedBox.shrink(),
+              ),
             ),
-          ),
         ],
       ),
       body: AsyncView<PosLookups>(
@@ -195,7 +253,10 @@ class _PosScreenState extends ConsumerState<PosScreen> {
         onRetry: () => ref.invalidate(posLookupsProvider),
         builder: (context, data) => Column(
           children: [
-            if (!data.hasOpenShift) _DrawerClosedBanner(lookups: data),
+            if (editing != null)
+              _EditingBanner(edit: editing)
+            else if (!data.hasOpenShift)
+              _DrawerClosedBanner(lookups: data),
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 Insets.gutter,
@@ -219,44 +280,52 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                 ),
               ),
             ),
-            PermissionGate(
-              perm: P.inventoryPackageView,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Insets.gutter),
-                child: Row(
-                  children: [
-                    ChoiceChip(
-                      label: Text(l10n.posTabProducts),
-                      selected: !_query.packages,
-                      onSelected: (_) => _setQuery(_query.withPackages(false)),
-                    ),
-                    const SizedBox(width: Insets.s8),
-                    ChoiceChip(
-                      label: Text(l10n.posTabPackages),
-                      selected: _query.packages,
-                      onSelected: (_) => _setQuery(_query.withPackages(true)),
-                    ),
-                  ],
+            if (editing == null)
+              PermissionGate(
+                perm: P.inventoryPackageView,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Insets.gutter,
+                  ),
+                  child: Row(
+                    children: [
+                      ChoiceChip(
+                        label: Text(l10n.posTabProducts),
+                        selected: !_query.packages,
+                        onSelected: (_) =>
+                            _setQuery(_query.withPackages(false)),
+                      ),
+                      const SizedBox(width: Insets.s8),
+                      ChoiceChip(
+                        label: Text(l10n.posTabPackages),
+                        selected: _query.packages,
+                        onSelected: (_) => _setQuery(_query.withPackages(true)),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
             Expanded(
               child: AsyncView<List<SellableItem>>(
-                value: results,
-                onRetry: () => ref.invalidate(posSearchProvider(_query)),
+                value: editing == null
+                    ? results
+                    : results.whenData(
+                        (items) => [for (final i in items) editing.withSold(i)],
+                      ),
+                onRetry: () => ref.invalidate(posSearchProvider(query)),
                 builder: (context, items) => items.isEmpty
                     ? MessageState(
-                        title: _query.text.isEmpty
+                        title: query.text.isEmpty
                             ? l10n.posStartTitle
                             : l10n.posNoResults,
-                        body: _query.text.isEmpty
+                        body: query.text.isEmpty
                             ? l10n.posStartBody
                             : l10n.posNoResultsBody,
                         icon: Icons.qr_code_scanner,
                         // Nothing on the shelf by that name: write it down
                         // here, with the customer still waiting, rather than
                         // send the cashier to another screen.
-                        action: _query.text.isEmpty || _query.packages
+                        action: query.text.isEmpty || query.packages
                             ? null
                             : PermissionGate(
                                 perm: P.inventoryProductCreate,
@@ -324,6 +393,13 @@ class _ProductRow extends ConsumerWidget {
       ),
     };
 
+    final off = item.mrpDiscountPercent;
+    final offLabel = item.priceAboveMrp
+        ? l10n.aboveMrpTag
+        : off == null
+        ? null
+        : l10n.mrpOff(_percent(off));
+
     return ListTile(
       onTap: onTap,
       // Nothing on the shelf, nothing to sell: greyed out and untappable.
@@ -347,8 +423,21 @@ class _ProductRow extends ConsumerWidget {
         children: [
           if (stockLabel != null)
             Text(stockLabel, style: text.bodySmall?.copyWith(color: stockTone)),
-          if (item.brand != null) ...[
+          // How far under the printed price it sells — or, in red, that it is
+          // priced over it and will not sell as it stands.
+          if (offLabel != null) ...[
             if (stockLabel != null) Text(' · ', style: text.bodySmall),
+            Text(
+              offLabel,
+              style: text.labelSmall?.copyWith(
+                color: item.priceAboveMrp ? palette.danger : palette.positive,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+          if (item.brand != null) ...[
+            if (stockLabel != null || offLabel != null)
+              Text(' · ', style: text.bodySmall),
             Flexible(
               child: Text(
                 item.brand!,
@@ -384,6 +473,14 @@ class _ProductRow extends ConsumerWidget {
   }
 }
 
+/// 17.57 reads as "17.6", 20 as "20".
+String _percent(num value) {
+  final tenths = (value * 10).round() / 10;
+  return tenths == tenths.roundToDouble()
+      ? tenths.toStringAsFixed(0)
+      : tenths.toStringAsFixed(1);
+}
+
 /// The cart bar: a running count on the left, the charge button on the right.
 ///
 /// Tapping the count opens the cart to change things; tapping charge goes
@@ -403,6 +500,7 @@ class _CartBar extends ConsumerWidget {
     final palette = context.palette;
     final money = ref.watch(moneyProvider);
     final cart = ref.watch(cartProvider);
+    final editing = ref.watch(invoiceEditProvider) != null;
 
     if (cart.isEmpty) return const SizedBox.shrink();
 
@@ -473,25 +571,93 @@ class _CartBar extends ConsumerWidget {
                   ),
                 ),
               ),
-              PermissionGate(
-                perm: P.posSaleHold,
-                child: IconButton(
-                  tooltip: l10n.holdCart,
-                  icon: const Icon(Icons.pause_circle_outline),
-                  onPressed: () => HoldCartSheet.show(context),
+              // Holding an invoice half-edited has no meaning: it is either
+              // saved or left as it was.
+              if (!editing)
+                PermissionGate(
+                  perm: P.posSaleHold,
+                  child: IconButton(
+                    tooltip: l10n.holdCart,
+                    icon: const Icon(Icons.pause_circle_outline),
+                    onPressed: () => HoldCartSheet.show(context),
+                  ),
                 ),
-              ),
               const SizedBox(width: Insets.s8),
               SizedBox(
                 height: 52,
                 child: FilledButton.icon(
                   onPressed: () => PaymentSheet.show(context, lookups: lookups),
-                  icon: const Icon(Icons.point_of_sale),
-                  label: Text(l10n.charge),
+                  icon: Icon(
+                    editing ? Icons.save_outlined : Icons.point_of_sale,
+                  ),
+                  label: Text(editing ? l10n.saveChanges : l10n.charge),
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Which invoice the till is correcting, and the way out without saving.
+class _EditingBanner extends ConsumerWidget {
+  const _EditingBanner({required this.edit});
+
+  final InvoiceEdit edit;
+
+  Future<void> _cancel(BuildContext context, WidgetRef ref) async {
+    final l10n = AppL10n.of(context);
+    final ok = await confirmSheet(
+      context,
+      title: l10n.discardEditTitle,
+      message: l10n.discardEditBody(edit.invoiceNo),
+      confirmLabel: l10n.discard,
+      cancelLabel: l10n.keepEditing,
+      destructive: true,
+    );
+    if (!ok || !context.mounted) return;
+    ref.read(invoiceEditProvider.notifier).end();
+    context.go('/invoices/${edit.saleId}');
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    final palette = context.palette;
+    final text = Theme.of(context).textTheme;
+
+    return Material(
+      color: palette.accentSoft,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          Insets.gutter,
+          Insets.s8,
+          Insets.s8,
+          Insets.s8,
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.edit_note, size: 20, color: palette.accent),
+            const SizedBox(width: Insets.s8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.editingInvoice(edit.invoiceNo),
+                    style: text.titleSmall?.copyWith(color: palette.accent),
+                  ),
+                  Text(l10n.editingInvoiceBody, style: text.bodySmall),
+                ],
+              ),
+            ),
+            TextButton(
+              onPressed: () => _cancel(context, ref),
+              child: Text(l10n.cancelEdit),
+            ),
+          ],
         ),
       ),
     );

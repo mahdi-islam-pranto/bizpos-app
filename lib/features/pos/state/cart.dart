@@ -61,6 +61,12 @@ class CartLine {
     return netUnitPrice < Exact.of(cost);
   }
 
+  /// Nothing sells above the price printed on the pack: the server refuses a
+  /// line whose unit price — typed in, or the shelf price itself — is over
+  /// the product's MRP. A product without an MRP, or a package, is not judged.
+  bool get aboveMrp =>
+      item.hasMrp && Exact.of(effectivePrice) > Exact.of(item.mrp!);
+
   /// This line's known cost, or null when the cost is hidden.
   Decimal? get knownCost {
     final cost = item.purchasePrice;
@@ -246,6 +252,12 @@ class Cart {
   }
 
   bool get belowCost => hasBelowCostLine || discountBelowCost;
+
+  bool get hasAboveMrpLine => lines.any((line) => line.aboveMrp);
+
+  /// The server would refuse this sale as it stands — under cost or over an
+  /// MRP — so every pay button is off until it is fixed.
+  bool get blocked => belowCost || hasAboveMrpLine;
 
   /// The highest bill rate that keeps the basket at or above the cost of its
   /// goods, floored to two places so the paisa rounding of

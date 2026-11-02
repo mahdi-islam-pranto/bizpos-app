@@ -19,19 +19,37 @@ import '../data/pos_models.dart';
 /// capped server-side, so it is routinely smaller than what was asked for. A
 /// cashier reading the requested figure and the customer reading the receipt
 /// would be looking at two different sales.
+///
+/// After an invoice is edited it says so, and leads back to that invoice
+/// rather than on to the next sale.
 class CheckoutDoneSheet extends ConsumerWidget {
-  const CheckoutDoneSheet({required this.result, super.key});
+  const CheckoutDoneSheet({
+    required this.result,
+    this.edited = false,
+    super.key,
+  });
 
   final CheckoutResult result;
+
+  /// The invoice was written again rather than sold just now.
+  final bool edited;
 
   static Future<void> show(
     BuildContext context, {
     required CheckoutResult result,
+    bool edited = false,
   }) => showAppSheet<void>(
     context,
-    title: AppL10n.of(context).saleComplete,
-    builder: (_) => CheckoutDoneSheet(result: result),
+    title: edited
+        ? AppL10n.of(context).invoiceUpdated
+        : AppL10n.of(context).saleComplete,
+    builder: (_) => CheckoutDoneSheet(result: result, edited: edited),
   );
+
+  void _openInvoice(BuildContext context) {
+    Navigator.of(context).pop();
+    context.go('/invoices/${result.saleId}');
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -122,20 +140,18 @@ class CheckoutDoneSheet extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: Insets.gutter),
             child: Row(
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      context.go('/invoices/${result.saleId}');
-                    },
-                    icon: const Icon(Icons.receipt_long_outlined),
-                    label: Text(l10n.viewReceipt),
+                if (!edited)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _openInvoice(context),
+                      icon: const Icon(Icons.receipt_long_outlined),
+                      label: Text(l10n.viewReceipt),
+                    ),
                   ),
-                ),
                 // The printed slip comes from `GET /sales/{id}`, the same
                 // figures as the invoice, so it opens on the sale just made.
                 if (ref.can(P.posSalePrint)) ...[
-                  const SizedBox(width: Insets.s12),
+                  if (!edited) const SizedBox(width: Insets.s12),
                   Expanded(
                     child: FilledButton.tonalIcon(
                       onPressed: () {
@@ -156,9 +172,11 @@ class CheckoutDoneSheet extends ConsumerWidget {
             ),
           ),
           SheetAction(
-            label: l10n.newSale,
-            icon: Icons.arrow_forward,
-            onPressed: () => Navigator.of(context).pop(),
+            label: edited ? l10n.backToInvoice : l10n.newSale,
+            icon: edited ? Icons.receipt_long_outlined : Icons.arrow_forward,
+            onPressed: edited
+                ? () => _openInvoice(context)
+                : () => Navigator.of(context).pop(),
           ),
         ],
       ),

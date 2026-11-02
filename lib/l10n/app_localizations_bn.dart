@@ -2993,5 +2993,90 @@ class AppL10nBn extends AppL10n {
   String get createInvoice => 'ইনভয়েস তৈরি করুন';
 
   @override
+  String get editInvoice => 'ইনভয়েস সংশোধন';
+
+  @override
+  String editingInvoice(String invoiceNo) {
+    return '$invoiceNo সংশোধন করা হচ্ছে';
+  }
+
+  @override
+  String get editingInvoiceBody =>
+      'পণ্য, দাম, ক্রেতা বা পেমেন্ট বদলে সংরক্ষণ করুন।';
+
+  @override
+  String get cancelEdit => 'সংশোধন বাতিল';
+
+  @override
+  String get discardEditTitle => 'পরিবর্তনগুলো বাদ দেবেন?';
+
+  @override
+  String discardEditBody(String invoiceNo) {
+    return '$invoiceNo আগের মতোই থাকবে।';
+  }
+
+  @override
+  String editAnotherInvoiceBody(String invoiceNo) {
+    return 'আপনি এখনো $invoiceNo সংশোধন করছেন। সেটি আগের মতো রেখে এটি সংশোধন করবেন?';
+  }
+
+  @override
+  String get keepEditing => 'সংশোধন চালিয়ে যান';
+
+  @override
+  String get saveChanges => 'পরিবর্তন সংরক্ষণ';
+
+  @override
+  String get invoiceUpdated => 'ইনভয়েস হালনাগাদ হয়েছে';
+
+  @override
+  String get backToInvoice => 'ইনভয়েসে ফিরে যান';
+
+  @override
+  String get tillCartParked =>
+      'চলমান বিক্রয়টি সরিয়ে রাখা হয়েছে, কাজ শেষ হলে ফিরে আসবে।';
+
+  @override
+  String get editNotAllowed => 'এই ইনভয়েসটি সংশোধন করা যাবে না।';
+
+  @override
+  String mrpOff(String percent) {
+    return '$percent% ছাড়';
+  }
+
+  @override
+  String get aboveMrpTag => 'এমআরপির বেশি';
+
+  @override
+  String get aboveMrpTitle => 'এমআরপির চেয়ে বেশি দাম';
+
+  @override
+  String cannotSellAboveMrp(String name, String price, String mrp) {
+    return '$name-এর দাম $price, যা এমআরপি $mrp-এর চেয়ে বেশি। দাম ঠিক না করা পর্যন্ত এটি বিক্রি করা যাবে না।';
+  }
+
+  @override
+  String lowerToMrp(String name, String price, String mrp) {
+    return '$name-এর দাম $price, যা এমআরপি $mrp-এর চেয়ে বেশি। বিক্রি করতে কার্টে এটিতে চাপ দিয়ে দাম $mrp বা তার কম করুন।';
+  }
+
+  @override
+  String lineAboveMrpShort(String mrp) {
+    return 'এমআরপি $mrp-এর চেয়ে বেশি — দাম কমান।';
+  }
+
+  @override
+  String get lineAboveMrp =>
+      'একটি পণ্যের দাম এমআরপির চেয়ে বেশি, তাই বিক্রি বাতিল হবে। দাম এমআরপি বা তার কম করুন, অথবা পণ্যটি সরিয়ে দিন।';
+
+  @override
+  String unitPriceAboveMrp(String mrp) {
+    return 'এমআরপি $mrp-এর চেয়ে বেশি হতে পারবে না';
+  }
+
+  @override
+  String get ok => 'ঠিক আছে';
+
+  @override
   String get refresh => 'রিফ্রেশ';
 }

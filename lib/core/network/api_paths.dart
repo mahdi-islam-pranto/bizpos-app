@@ -54,6 +54,10 @@ class ApiPaths {
   /// `meta.mayVoid`.
   static String saleVoid(int id) => '/sales/$id/void';
 
+  /// `GET` hands the invoice back as a till cart, `POST` writes it again.
+  /// Store owner or super admin; `GET /sales/{id}` says so in `meta.mayEdit`.
+  static String saleEdit(int id) => '/sales/$id/edit';
+
   // Customers
   static const customers = '/customers';
   static const customerSearch = '/customers/search';

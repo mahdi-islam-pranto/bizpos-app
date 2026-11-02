@@ -413,6 +413,39 @@ class SellableItem {
   bool get isLow =>
       stock != null && minimumStock != null && stock! <= minimumStock!;
 
+  /// Whether there is a printed price to measure against. A package has none.
+  bool get hasMrp => !isPackage && mrp != null && mrp! > 0;
+
+  /// How far under the printed price this sells, as a rate off the MRP — 500
+  /// sold at 300 is 40%. Null without an MRP, or when it sells at or above it.
+  num? get mrpDiscountPercent {
+    if (!hasMrp || salePrice >= mrp!) return null;
+    return (mrp! - salePrice) * 100 / mrp!;
+  }
+
+  /// The shelf price itself is over the MRP. The server refuses to sell it at
+  /// that price; the cure is fixing the product's price, or lowering it on the
+  /// line for someone allowed to.
+  bool get priceAboveMrp => hasMrp && salePrice > mrp!;
+
+  /// The same item with another stock figure — an invoice being edited counts
+  /// what it sold as back on the shelf.
+  SellableItem withStock(num? stock) => SellableItem(
+    id: id,
+    name: name,
+    salePrice: salePrice,
+    isPackage: isPackage,
+    barcode: barcode,
+    unit: unit,
+    brand: brand,
+    vatPercent: vatPercent,
+    stock: stock,
+    purchasePrice: purchasePrice,
+    mrp: mrp,
+    minimumStock: minimumStock,
+    trackBatch: trackBatch,
+  );
+
   factory SellableItem.fromProduct(Map<String, dynamic> json) => SellableItem(
     id: _int(json['id']),
     name: _str(json['name']),
@@ -496,6 +529,123 @@ class CheckoutResult {
     previousDue: _numOrNull(json['previousDue']),
     outstanding: _numOrNull(json['outstanding']),
   );
+}
+
+/// One line of an invoice opened for editing, in the shape the till builds.
+class SaleEditLine {
+  const SaleEditLine({
+    required this.productId,
+    required this.name,
+    required this.qty,
+    required this.unitPrice,
+    required this.basePrice,
+    this.unit,
+    this.mrp,
+    this.cost,
+    this.discount,
+    this.vatPercent = 0,
+    this.stock,
+  });
+
+  /// The store product id — what `/pos/search` calls `id` and the edit body
+  /// sends as `storeProductId`.
+  final int productId;
+  final String name;
+  final String? unit;
+  final num qty;
+
+  /// What the invoice charged a unit.
+  final num unitPrice;
+
+  /// The product's own price today.
+  final num basePrice;
+  final num? mrp;
+
+  /// Null without `inventory.product.view_cost`.
+  final num? cost;
+  final num? discount;
+  final num vatPercent;
+
+  /// Already counts what this invoice took off the shelf.
+  final num? stock;
+
+  factory SaleEditLine.fromJson(Map<String, dynamic> json) => SaleEditLine(
+    productId: _int(json['productId'] ?? json['storeProductId']),
+    name: _str(json['name']),
+    unit: _strOrNull(json['unit']),
+    qty: _num(json['qty']),
+    unitPrice: _num(json['unitPrice']),
+    basePrice: _num(json['basePrice'] ?? json['unitPrice']),
+    mrp: _numOrNull(json['mrp']),
+    cost: _numOrNull(json['cost']),
+    discount: _numOrNull(json['discount']),
+    vatPercent: _num(json['vatPercent']),
+    stock: _numOrNull(json['stock']),
+  );
+}
+
+/// `GET /sales/{id}/edit` — an invoice handed back as a till cart.
+///
+/// [sold] is `{productId: qty}`: while editing, search results add it to their
+/// stock, because those units go back on the shelf before the new version is
+/// written. The customer's `due` is 0 — an edit never collects the old khata.
+class SaleEditDraft {
+  const SaleEditDraft({
+    required this.id,
+    required this.invoiceNo,
+    required this.lines,
+    required this.sold,
+    required this.paid,
+    this.saleDate,
+    this.customer,
+    this.orderDiscountPercent,
+    this.note,
+    this.method,
+    this.accountId,
+    this.pointsRedeemed,
+  });
+
+  final int id;
+  final String invoiceNo;
+  final DateTime? saleDate;
+  final List<SaleEditLine> lines;
+  final Map<int, num> sold;
+  final PosCustomer? customer;
+  final num? orderDiscountPercent;
+  final String? note;
+
+  /// How the invoice was paid, so the payment starts where it was.
+  final num paid;
+  final PayMethod? method;
+  final int? accountId;
+  final num? pointsRedeemed;
+
+  factory SaleEditDraft.fromJson(Map<String, dynamic> json) {
+    final rawSold = json['sold'];
+    final rawCustomer = json['customer'];
+    final method = _strOrNull(json['method']);
+    return SaleEditDraft(
+      id: _int(json['id']),
+      invoiceNo: _str(json['invoiceNo']),
+      saleDate: AppDates.parse(json['saleDate']),
+      lines: _listOf(json['lines'], SaleEditLine.fromJson),
+      sold: {
+        if (rawSold is Map)
+          for (final entry in rawSold.entries)
+            if (int.tryParse(entry.key.toString()) != null)
+              int.parse(entry.key.toString()): _num(entry.value),
+      },
+      customer: rawCustomer is Map<String, dynamic>
+          ? PosCustomer.fromJson(rawCustomer)
+          : null,
+      orderDiscountPercent: _numOrNull(json['orderDiscountPercent']),
+      note: _strOrNull(json['note']),
+      paid: _num(json['paid']),
+      method: method == null ? null : PayMethod.fromWire(method),
+      accountId: _intOrNull(json['accountId']),
+      pointsRedeemed: _numOrNull(json['pointsRedeemed']),
+    );
+  }
 }
 
 /// The result of `POST /customers/quick`, which answers `200` with
