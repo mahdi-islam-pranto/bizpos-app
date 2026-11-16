@@ -105,6 +105,8 @@ void main() {
       await pump(tester, const ProductsScreen(), permissions: Roles.owner);
 
       expect(find.text('Deleted'), findsOneWidget);
+      await tester.ensureVisible(find.text('Deleted'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Deleted'));
       await tester.pumpAndSettle();
 
@@ -118,10 +120,38 @@ void main() {
       await pump(tester, const ProductsScreen());
       backend.hit.clear();
 
-      await tester.tap(find.textContaining('running low'));
+      await tester.ensureVisible(find.text('Low stock (50)'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Low stock (50)'));
       await tester.pumpAndSettle();
 
       expect(backend.lastQuery['lowOnly'], 1);
+    });
+
+    testWidgets('both bands show their count from the stats', (tester) async {
+      await pump(tester, const ProductsScreen());
+
+      // 1607 products, 50 of them low.
+      expect(find.text('Low stock (50)'), findsOneWidget);
+      expect(find.text('High stock (1557)'), findsOneWidget);
+    });
+
+    testWidgets('the high filter keeps reading pages until it finds some',
+        (tester) async {
+      await pump(tester, const ProductsScreen());
+
+      await tester.ensureVisible(find.text('High stock (1557)'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('High stock (1557)'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      // There is no high filter on the API: nothing goes over the wire...
+      expect(backend.lastQuery.containsKey('lowOnly'), isFalse);
+      // ...and page one's only product (5 on a minimum of 10) is low, so the
+      // list goes on to page two rather than standing empty.
+      expect(find.text('3 F 500(20 Pcs) 500 mg'), findsNothing);
+      expect(find.text('Second Page Syrup 100ml'), findsOneWidget);
     });
   });
 

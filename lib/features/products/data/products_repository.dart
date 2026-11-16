@@ -7,31 +7,58 @@ import '../../../core/network/paged.dart';
 import '../../../core/session/session_controller.dart';
 import 'product_models.dart';
 
+/// Which stock band the list is narrowed to.
+///
+/// [low] is at or under the product's minimum (the server's `lowOnly=1`);
+/// [high] is everything comfortably above it. The API has no high filter, so
+/// that one is applied here, over the pages as they arrive.
+enum StockLevel {
+  all,
+  low,
+  high;
+
+  /// Whether [product] belongs in this band. Null stock (a role without
+  /// `inventory.stock.view`) belongs only to [all].
+  bool admits(Product product) => switch (this) {
+    StockLevel.all => true,
+    StockLevel.low => product.isLow,
+    StockLevel.high =>
+      product.stock != null && product.stock! > 0 && !product.isLow,
+  };
+}
+
 /// Which slice of the shelves the list is showing.
 ///
 /// A value type so Riverpod can key on it: two identical filters are the same
 /// request, and changing one of them is a new one.
 class ProductFilter {
-  const ProductFilter({this.text, this.lowOnly = false, this.trashed = false});
+  const ProductFilter({
+    this.text,
+    this.level = StockLevel.all,
+    this.trashed = false,
+  });
 
   final String? text;
-  final bool lowOnly;
+  final StockLevel level;
+
+  bool get lowOnly => level == StockLevel.low;
 
   /// `trashed=1` lists the soft-deleted products **instead of** the live ones.
   /// It is a different list, not a filter on this one, which is why the screen
   /// changes its actions when it is on.
   final bool trashed;
 
-  bool get isPlain => (text ?? '').isEmpty && !lowOnly && !trashed;
+  bool get isPlain =>
+      (text ?? '').isEmpty && level == StockLevel.all && !trashed;
 
   ProductFilter copyWith({
     String? text,
-    bool? lowOnly,
+    StockLevel? level,
     bool? trashed,
     bool clearText = false,
   }) => ProductFilter(
     text: clearText ? null : (text ?? this.text),
-    lowOnly: lowOnly ?? this.lowOnly,
+    level: level ?? this.level,
     trashed: trashed ?? this.trashed,
   );
 
@@ -39,15 +66,15 @@ class ProductFilter {
   bool operator ==(Object other) =>
       other is ProductFilter &&
       other.text == text &&
-      other.lowOnly == lowOnly &&
+      other.level == level &&
       other.trashed == trashed;
 
   @override
-  int get hashCode => Object.hash(text, lowOnly, trashed);
+  int get hashCode => Object.hash(text, level, trashed);
 
   @override
   String toString() =>
-      'ProductFilter(${text ?? ''}, low: $lowOnly, trashed: $trashed)';
+      'ProductFilter(${text ?? ''}, ${level.name}, trashed: $trashed)';
 }
 
 class ProductsRepository {
@@ -277,12 +304,18 @@ class ProductFilterController extends Notifier<ProductFilter> {
     clearText: (text ?? '').isEmpty,
   );
 
-  void setLowOnly(bool value) => state = state.copyWith(lowOnly: value);
+  /// Tapping the selected band again goes back to every product.
+  void toggleLevel(StockLevel value) => state = state.copyWith(
+    level: state.level == value ? StockLevel.all : value,
+    trashed: false,
+  );
 
-  /// The trashed list has no low filter to speak of — everything in it is off
+  /// The trashed list has no stock band to speak of — everything in it is off
   /// the shelf already — so turning it on turns that off.
-  void setTrashed(bool value) =>
-      state = state.copyWith(trashed: value, lowOnly: value ? false : null);
+  void setTrashed(bool value) => state = state.copyWith(
+    trashed: value,
+    level: value ? StockLevel.all : null,
+  );
 }
 
 final productFilterProvider =
@@ -306,7 +339,44 @@ class ProductsListController extends AsyncNotifier<Paged<Product>> {
     ref.watch(sessionScopeProvider);
     final filter = ref.watch(productFilterProvider);
     _loadingMore = false;
-    return ref.watch(productsRepositoryProvider).list(filter: filter);
+    return _fetch(ref.watch(productsRepositoryProvider), filter, null);
+  }
+
+  /// A page of the list — or, with a stock band on, as many server pages as
+  /// it takes to fill one.
+  ///
+  /// Both bands narrow a page *after* it is cut (`lowOnly` "filters the
+  /// current page only", and high is done here), so a single page can come
+  /// back with two rows or none while hundreds more match further on. A list
+  /// that short never scrolls, and so never asks for the rest.
+  Future<Paged<Product>> _fetch(
+    ProductsRepository repo,
+    ProductFilter filter,
+    Paged<Product>? after,
+  ) async {
+    const maxPagesPerFill = 12;
+    var next = await repo.list(
+      filter: filter,
+      page: after == null ? 1 : after.nextPage,
+    );
+    if (filter.level == StockLevel.all) return next;
+
+    final found = next.items.where(filter.level.admits).toList();
+    var fetched = 1;
+    while (found.length < next.perPage &&
+        next.hasMore &&
+        fetched < maxPagesPerFill) {
+      next = await repo.list(filter: filter, page: next.nextPage);
+      found.addAll(next.items.where(filter.level.admits));
+      fetched++;
+    }
+    return Paged(
+      items: found,
+      total: next.total,
+      page: next.page,
+      perPage: next.perPage,
+      meta: next.meta,
+    );
   }
 
   Future<void> loadMore() async {
@@ -320,9 +390,11 @@ class ProductsListController extends AsyncNotifier<Paged<Product>> {
 
     final filter = ref.read(productFilterProvider);
     try {
-      final next = await ref
-          .read(productsRepositoryProvider)
-          .list(filter: filter, page: current.nextPage);
+      final next = await _fetch(
+        ref.read(productsRepositoryProvider),
+        filter,
+        current,
+      );
 
       state = AsyncValue.data(
         Paged(

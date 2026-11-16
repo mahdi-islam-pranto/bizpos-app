@@ -923,6 +923,19 @@ class AppL10nEn extends AppL10n {
   String get productsLowOnly => 'Low stock';
 
   @override
+  String get productsHighOnly => 'High stock';
+
+  @override
+  String productsHighCount(int count) {
+    return 'High stock ($count)';
+  }
+
+  @override
+  String productsLowCount(int count) {
+    return 'Low stock ($count)';
+  }
+
+  @override
   String get productsTrashed => 'Deleted';
 
   @override

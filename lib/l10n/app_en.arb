@@ -518,6 +518,23 @@
   "productsTitle": "Products",
   "productsSearchHint": "Name, barcode or SKU",
   "productsLowOnly": "Low stock",
+  "productsHighOnly": "High stock",
+  "productsHighCount": "High stock ({count})",
+  "@productsHighCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "productsLowCount": "Low stock ({count})",
+  "@productsLowCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "productsTrashed": "Deleted",
   "productsLive": "On the shelf",
   "productsNone": "No products yet",

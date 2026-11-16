@@ -920,6 +920,19 @@ class AppL10nBn extends AppL10n {
   String get productsLowOnly => 'কম স্টক';
 
   @override
+  String get productsHighOnly => 'বেশি স্টক';
+
+  @override
+  String productsHighCount(int count) {
+    return 'বেশি স্টক ($count)';
+  }
+
+  @override
+  String productsLowCount(int count) {
+    return 'কম স্টক ($count)';
+  }
+
+  @override
   String get productsTrashed => 'মুছে ফেলা';
 
   @override

@@ -107,7 +107,11 @@ catalogue's prices and MRP, suggest with a live `/catalog/check` verdict and the
 `409` → `confirmedNew` resend, and the review queue); and
 `lib/features/purchases/` (bill list, goods-in at `/purchase/new` with supplier
 search or a new `supplierName`, batch/expiry lines, bill `discountPercent`,
-paid-from account, and bill photos). Phases 3 and 4 add money, team and
+paid-from account, and bill photos). The product list has **Low / High stock** chips
+(`StockLevel`): low is the server's `lowOnly=1`, high has no endpoint and is
+filtered client-side (`stock > 0 && !isLow`); both keep reading pages until
+one is full, and the counts are `lowCount` and `total − lowCount` off
+`/products/stats`. Phases 3 and 4 add money, team and
 platform; printing comes last.
 
 Phase 2 details that are easy to break:
@@ -191,6 +195,10 @@ never from the cart. Easy to break:
   `ReceiptPaper.pixelRatio` (384 dots for 58 mm, 576 for 80 mm) and
   `escposRaster` turns it into `GS v 0` bands. `ReceiptView` reads no theme —
   a dark phone must still print black on white.
+- **The slip is set in the platform sans, not monospace** — Android's
+  monospace has one weight, so its bold barely printed. Body is `w500`, bold
+  `w900`, base 14 (58 mm) / 16 (80 mm). The heading is the shop name and
+  phone only (store phone first): no branch, no address.
 - **The gallery is manual only.** No printer chosen → the picker (with "Save
   as image"); Bluetooth off or refused, or the printer not answering → a note
   saying why, nothing saved. The PNG goes to the gallery (`gal`) only from the
@@ -246,7 +254,7 @@ flutter pub get
 flutter gen-l10n                 # after editing lib/l10n/*.arb (also runs during build)
 flutter run --dart-define=BIZPOS_BASE_URL=http://10.0.2.2:8000/api/v1
 flutter analyze                  # lints via flutter_lints (analysis_options.yaml)
-flutter test                     # 269 tests
+flutter test                     # 291 tests
 flutter test test/app/screen_gates_test.dart --plain-name "cashier"   # one test
 flutter build apk --debug
 dart run flutter_launcher_icons   # after changing assets/brand/icon_*.png

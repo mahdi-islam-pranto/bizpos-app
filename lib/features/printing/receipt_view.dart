@@ -6,7 +6,13 @@ import '../../l10n/app_localizations.dart';
 import '../sales/data/sale_models.dart';
 import 'printer_service.dart';
 
-/// The printed slip, as a widget: black on white, one column, monospaced.
+/// The printed slip, as a widget: black on white, one column.
+///
+/// Set in the platform sans (Roboto on Android) rather than monospace: the
+/// columns are laid out by rows, not by spaces, and Android's monospace face
+/// has a single weight, so its "bold" was a smear the thermal head barely
+/// told apart from the body. Body text is medium weight and bold is black
+/// weight, so both survive the one-bit threshold.
 ///
 /// It is laid out at [paper]'s logical width and captured at the printer's dot
 /// width, so what the preview shows is, pixel for pixel, what the paper gets.
@@ -39,15 +45,14 @@ class ReceiptView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final tag = locale == 'bn' ? 'bn_BD' : 'en_US';
-    final base = paper == ReceiptPaper.mm58 ? 11.5 : 13.0;
+    final base = paper == ReceiptPaper.mm58 ? 14.0 : 16.0;
 
     TextStyle style({double scale = 1, bool bold = false}) => TextStyle(
-      fontFamily: 'monospace',
-      fontFamilyFallback: const ['Roboto Mono', 'Courier', 'Noto Sans Bengali'],
+      fontFamilyFallback: const ['Roboto', 'Noto Sans Bengali'],
       color: _ink,
       fontSize: base * scale,
-      height: 1.3,
-      fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
+      height: 1.25,
+      fontWeight: bold ? FontWeight.w900 : FontWeight.w500,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
 
@@ -57,15 +62,16 @@ class ReceiptView extends StatelessWidget {
     String fig(num v) => figure.format(v);
     String pct(num v) => '${NumberFormat('#0.##', tag).format(v)}%';
 
-    final phone = sale.branch.phone ?? sale.store.phone;
-    final address = sale.branch.address ?? sale.store.address;
+    // The heading is the shop and its number, nothing more: no branch, no
+    // address.
+    final phone = sale.store.phone ?? sale.branch.phone;
     final at = sale.saleDate?.toLocal();
     final lineOff = sale.lineDiscount ?? 0;
     final billOff = sale.orderDiscount ?? 0;
     final split = lineOff > 0 && billOff > 0;
     final previousDue = sale.previousDue ?? 0;
     final totalDue = outstanding ?? previousDue + sale.due;
-    final strong = style(scale: 1.08, bold: true);
+    final strong = style(scale: 1.05, bold: true);
 
     Widget pair(String left, String right, {TextStyle? s, TextStyle? r}) => Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,16 +94,14 @@ class ReceiptView extends StatelessWidget {
             Text(
               sale.store.name,
               textAlign: TextAlign.center,
-              style: style(scale: 1.35, bold: true),
+              style: style(scale: 1.4, bold: true),
             ),
-            if ((address ?? '').isNotEmpty)
-              Text(
-                address!,
-                textAlign: TextAlign.center,
-                style: style(scale: 0.9),
-              ),
             if ((phone ?? '').isNotEmpty)
-              Text(phone!, textAlign: TextAlign.center),
+              Text(
+                phone!,
+                textAlign: TextAlign.center,
+                style: style(bold: true),
+              ),
             if (sale.status.isCancelled) ...[
               const SizedBox(height: 6),
               Text(
@@ -174,16 +178,20 @@ class ReceiptView extends StatelessWidget {
             ],
             if ((sale.note ?? '').isNotEmpty) ...[
               const _Rule(),
-              Text(sale.note!, style: style(scale: 0.9)),
+              Text(sale.note!, style: style(scale: 0.95)),
             ],
             const _Rule(),
             const SizedBox(height: 4),
-            Text(l10n.receiptThanks, textAlign: TextAlign.center),
+            Text(
+              l10n.receiptThanks,
+              textAlign: TextAlign.center,
+              style: style(bold: true),
+            ),
             const SizedBox(height: 2),
             Text(
               'BizPOS',
               textAlign: TextAlign.center,
-              style: style(scale: 0.85),
+              style: style(scale: 0.9),
             ),
           ],
         ),
@@ -215,12 +223,12 @@ class _Item extends StatelessWidget {
     final qty = item.qty == item.qty.roundToDouble()
         ? item.qty.toStringAsFixed(0)
         : item.qty.toString();
-    final small = style(scale: 0.88);
+    final small = style(scale: 0.95);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(item.name),
+        Text(item.name, style: style(bold: true)),
         Row(
           children: [
             Expanded(
@@ -229,7 +237,7 @@ class _Item extends StatelessWidget {
                 '${fig(item.unitPrice)}',
               ),
             ),
-            Text(fig(item.total)),
+            Text(fig(item.total), style: style(bold: true)),
           ],
         ),
         if ((item.discount ?? 0) > 0)
@@ -255,7 +263,7 @@ class _Rule extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: EdgeInsets.symmetric(vertical: light ? 4 : 6),
     child: CustomPaint(
-      size: const Size(double.infinity, 1.4),
+      size: const Size(double.infinity, 2),
       painter: _RulePainter(solid: solid, light: light),
     ),
   );
@@ -271,7 +279,7 @@ class _RulePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.black
-      ..strokeWidth = light ? 0.8 : 1.2;
+      ..strokeWidth = light ? 1.0 : 1.6;
     final y = size.height / 2;
     if (solid) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);

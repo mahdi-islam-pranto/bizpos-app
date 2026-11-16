@@ -60,5 +60,5 @@ List<int> escposRaster(
 bool _isInk(int r, int g, int b, int a) {
   if (a < 128) return false;
   final luminance = (299 * r + 587 * g + 114 * b) ~/ 1000;
-  return luminance < 160;
+  return luminance < 176;
 }

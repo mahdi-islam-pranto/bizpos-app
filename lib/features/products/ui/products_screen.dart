@@ -136,6 +136,10 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                       if (i >= page.items.length) {
                         return _Footer(
                           page: page,
+                          bandTotal: _bandTotal(
+                            filter,
+                            ref.watch(productStatsProvider).value,
+                          ),
                           onMore: () => ref
                               .read(productsListProvider.notifier)
                               .loadMore(),
@@ -154,7 +158,26 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
   }
 }
 
-/// Low stock and the deleted list, plus the two figures from
+/// How many products sit in the filter's stock band, from
+/// `GET /products/stats`, or null when there is no band, a search narrows it
+/// further, or the stats have not come (or may not be read).
+///
+/// High is "everything not low": `total − lowCount`.
+int? _bandTotal(ProductFilter filter, ProductStats? stats) {
+  if (stats == null || (filter.text ?? '').isNotEmpty || filter.trashed) {
+    return null;
+  }
+  return switch (filter.level) {
+    StockLevel.all => null,
+    StockLevel.low => stats.lowCount,
+    StockLevel.high => _highCount(stats),
+  };
+}
+
+int _highCount(ProductStats stats) =>
+    (stats.total - stats.lowCount).clamp(0, stats.total);
+
+/// High and low stock and the deleted list, plus the figures from
 /// `GET /products/stats`.
 ///
 /// The stats are their own provider so a slow or forbidden stats call cannot
@@ -182,15 +205,30 @@ class _Filters extends ConsumerWidget {
             label: Text(
               stats == null
                   ? l10n.productsLowOnly
-                  : l10n.lowStockCount(stats.lowCount),
+                  : l10n.productsLowCount(stats.lowCount),
             ),
             avatar: Icon(
               Icons.trending_down,
               size: 18,
-              color: filter.lowOnly ? null : palette.warning,
+              color: filter.level == StockLevel.low ? null : palette.warning,
             ),
-            selected: filter.lowOnly,
-            onSelected: controller.setLowOnly,
+            selected: filter.level == StockLevel.low,
+            onSelected: (_) => controller.toggleLevel(StockLevel.low),
+          ),
+          const SizedBox(width: Insets.s8),
+          FilterChip(
+            label: Text(
+              stats == null
+                  ? l10n.productsHighOnly
+                  : l10n.productsHighCount(_highCount(stats)),
+            ),
+            avatar: Icon(
+              Icons.trending_up,
+              size: 18,
+              color: filter.level == StockLevel.high ? null : palette.positive,
+            ),
+            selected: filter.level == StockLevel.high,
+            onSelected: (_) => controller.toggleLevel(StockLevel.high),
           ),
           const SizedBox(width: Insets.s8),
           FilterChip(
@@ -271,10 +309,14 @@ class _Empty extends StatelessWidget {
 /// whenever there is more would spin for ever on a first page too short to
 /// scroll, which is exactly the case where somebody needs the button.
 class _Footer extends ConsumerWidget {
-  const _Footer({required this.page, required this.onMore});
+  const _Footer({required this.page, required this.onMore, this.bandTotal});
 
   final Paged<Product> page;
   final VoidCallback onMore;
+
+  /// The size of the stock band being shown, when known. With a band on,
+  /// `page.total` counts every product, not the ones that match.
+  final int? bandTotal;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -290,7 +332,7 @@ class _Footer extends ConsumerWidget {
             Text(
               l10n.showingOf(
                 page.items.length.toString(),
-                page.total.toString(),
+                (bandTotal ?? page.total).toString(),
               ),
               style: Theme.of(context).textTheme.bodySmall
                   ?.copyWith(color: palette.muted),

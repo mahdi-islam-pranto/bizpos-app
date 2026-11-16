@@ -1699,6 +1699,24 @@ abstract class AppL10n {
   /// **'Low stock'**
   String get productsLowOnly;
 
+  /// No description provided for @productsHighOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'High stock'**
+  String get productsHighOnly;
+
+  /// No description provided for @productsHighCount.
+  ///
+  /// In en, this message translates to:
+  /// **'High stock ({count})'**
+  String productsHighCount(int count);
+
+  /// No description provided for @productsLowCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Low stock ({count})'**
+  String productsLowCount(int count);
+
   /// No description provided for @productsTrashed.
   ///
   /// In en, this message translates to:
