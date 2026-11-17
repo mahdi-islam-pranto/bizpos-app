@@ -286,6 +286,59 @@
   "salesCount": "{count, plural, =0{কোনো বিক্রয় নেই} =1{১টি বিক্রয়} other{{count}টি বিক্রয়}}",
   "customerSince": "যোগ করেছেন {name}",
   "viewInvoices": "তাঁর ইনভয়েস",
+  "addDue": "বাকি যোগ",
+  "manageDue": "বাকি আদায় বা যোগ",
+  "totalOwed": "মোট বাকি",
+  "discountReason": "ছাড়ের কারণ",
+  "discountReasonHint": "যেমন নিয়মিত ক্রেতা, রাউন্ড অফ",
+  "discountReasonHelp": "ছাড় দিলে কারণ লিখুন, অন্তত ৩ অক্ষর।",
+  "toAccount": "কোন অ্যাকাউন্টে",
+  "received": "প্রাপ্ত",
+  "stillOwed": "বাকি থাকবে",
+  "amountToAdd": "যোগ করার পরিমাণ",
+  "addDueRemark": "মন্তব্য",
+  "addDueRemarkHint": "কেন বাকি যোগ হচ্ছে?",
+  "addDueRemarkHelp": "অন্তত ৩ অক্ষর; এটি খতিয়ানে লেখা হবে।",
+  "dueCollected": "{amount} আদায় হয়েছে। {outstanding} বাকি রয়ে গেছে।",
+  "@dueCollected": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "outstanding": {
+        "type": "String"
+      }
+    }
+  },
+  "dueCollectedDiscounted": "{amount} আদায় এবং {discount} ছাড় হয়েছে। {outstanding} বাকি রয়ে গেছে।",
+  "@dueCollectedDiscounted": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "discount": {
+        "type": "String"
+      },
+      "outstanding": {
+        "type": "String"
+      }
+    }
+  },
+  "dueAddDone": "{amount} যোগ হয়েছে। {outstanding} মোট বাকি।",
+  "@dueAddDone": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "outstanding": {
+        "type": "String"
+      }
+    }
+  },
+  "dueOverCollection": "টাকা ও ছাড় মিলিয়ে বাকির চেয়ে বেশি হয়ে যাচ্ছে।",
+  "newTotalOwed": "নতুন মোট বাকি",
+  "ledgerDueAdded": "বাকি যোগ",
+  "ledgerDueDiscount": "বাকিতে ছাড়",
   "save": "সংরক্ষণ",
   "add": "যোগ",
   "apply": "প্রয়োগ",

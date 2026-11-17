@@ -1603,6 +1603,130 @@ abstract class AppL10n {
   /// **'Their invoices'**
   String get viewInvoices;
 
+  /// No description provided for @addDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Add due'**
+  String get addDue;
+
+  /// No description provided for @manageDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Collect or add due'**
+  String get manageDue;
+
+  /// No description provided for @totalOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Total owed'**
+  String get totalOwed;
+
+  /// No description provided for @discountReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for discount'**
+  String get discountReason;
+
+  /// No description provided for @discountReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. regular customer, rounded off'**
+  String get discountReasonHint;
+
+  /// No description provided for @discountReasonHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Required with a discount, at least 3 characters.'**
+  String get discountReasonHelp;
+
+  /// No description provided for @toAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get toAccount;
+
+  /// No description provided for @received.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get received;
+
+  /// No description provided for @stillOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Still owed'**
+  String get stillOwed;
+
+  /// No description provided for @amountToAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount to add'**
+  String get amountToAdd;
+
+  /// No description provided for @addDueRemark.
+  ///
+  /// In en, this message translates to:
+  /// **'Remark'**
+  String get addDueRemark;
+
+  /// No description provided for @addDueRemarkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is this being added?'**
+  String get addDueRemarkHint;
+
+  /// No description provided for @addDueRemarkHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 3 characters; it goes on the ledger.'**
+  String get addDueRemarkHelp;
+
+  /// No description provided for @dueCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} collected. {outstanding} still owed.'**
+  String dueCollected(String amount, String outstanding);
+
+  /// No description provided for @dueCollectedDiscounted.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} collected and {discount} discounted. {outstanding} still owed.'**
+  String dueCollectedDiscounted(
+    String amount,
+    String discount,
+    String outstanding,
+  );
+
+  /// No description provided for @dueAddDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} added. {outstanding} still owed.'**
+  String dueAddDone(String amount, String outstanding);
+
+  /// No description provided for @dueOverCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount and discount together are more than is owed.'**
+  String get dueOverCollection;
+
+  /// No description provided for @newTotalOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'New total owed'**
+  String get newTotalOwed;
+
+  /// No description provided for @ledgerDueAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Due added'**
+  String get ledgerDueAdded;
+
+  /// No description provided for @ledgerDueDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Due discount'**
+  String get ledgerDueDiscount;
+
   /// No description provided for @save.
   ///
   /// In en, this message translates to:
@@ -3762,12 +3886,6 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'From'**
   String get fromAccount;
-
-  /// No description provided for @toAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'To'**
-  String get toAccount;
 
   /// No description provided for @sameAccount.
   ///

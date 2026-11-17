@@ -66,6 +66,13 @@ class ApiPaths {
   static String customerLedger(int id) => '/customers/$id/ledger';
   static String customerPoints(int id) => '/customers/$id/points';
 
+  /// Takes money off a customer's whole balance, oldest first.
+  /// `sales.payment.collect`, plus `pos.sale.give_discount` for a discount.
+  static String customerCollect(int id) => '/customers/$id/collect';
+
+  /// More owed that no invoice says. `customers.credit.manage`.
+  static String customerAddDue(int id) => '/customers/$id/add-due';
+
   // Products and stock — section 6, "Products and stock"
   static const products = '/products';
   static String product(int id) => '/products/$id';

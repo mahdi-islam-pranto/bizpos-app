@@ -4,7 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_paths.dart';
 import '../../../core/network/envelope.dart';
+import '../../../core/permissions/permissions.dart';
 import '../../../core/session/session_controller.dart';
+import '../../accounts/data/account_models.dart' show MoneyAccount;
+import '../../accounts/data/accounts_repository.dart';
+import '../../pos/data/pos_models.dart' show PosAccount;
+import '../../pos/data/pos_repository.dart';
 import 'customer_models.dart';
 
 /// The customer list and its `may*` flags.
@@ -119,6 +124,59 @@ class CustomersRepository {
     return response.data;
   }
 
+  /// `POST /customers/{id}/collect` — settles the whole balance, oldest first:
+  /// the previous due, then invoice by invoice.
+  ///
+  /// [amount] and [discount] together may not pass what is owed; the server
+  /// answers `422` if they do, which is why the sheet stops it first. A
+  /// discount needs a [discountReason] of at least three characters and the
+  /// `pos.sale.give_discount` permission.
+  ///
+  /// Sending [accountId] is what puts the money into that account's balance,
+  /// so the sheet sends one whenever the role can read the accounts at all.
+  /// It stays nullable because `accountId?` is optional on the wire.
+  Future<DueCollection> collect(
+    int id, {
+    required num amount,
+    num? discount,
+    String? discountReason,
+    int? accountId,
+    String? method,
+  }) async {
+    final response = await _client.post(
+      ApiPaths.customerCollect(id),
+      parse: parseObject(DueCollection.fromJson),
+      body: {
+        'amount': amount,
+        'discount': ?discount,
+        'discountReason': ?discountReason,
+        'accountId': ?accountId,
+        'method': ?method,
+      },
+      cancelToken: _cancel,
+    );
+    return response.data;
+  }
+
+  /// `POST /customers/{id}/add-due` — debt with no invoice behind it.
+  ///
+  /// The remark is required (3–200 characters) and travels onto the
+  /// `due_added` ledger line, because a balance that grew for no stated reason
+  /// is exactly the sort of thing nobody can defend later.
+  Future<DueAdded> addDue(
+    int id, {
+    required num amount,
+    required String remark,
+  }) async {
+    final response = await _client.post(
+      ApiPaths.customerAddDue(id),
+      parse: parseObject(DueAdded.fromJson),
+      body: {'amount': amount, 'remark': remark},
+      cancelToken: _cancel,
+    );
+    return response.data;
+  }
+
   /// Signed and never zero. Taking the balance below zero is `422 negative`.
   Future<num> adjustPoints(
     int id, {
@@ -185,4 +243,38 @@ final customerPointsProvider = FutureProvider.family<PointsAccount, int>((
 ) {
   ref.watch(sessionScopeProvider);
   return ref.watch(customersRepositoryProvider).points(id);
+});
+
+/// The accounts a collection can land in.
+///
+/// There is no customer endpoint for them, so they come from wherever this role
+/// may read accounts: `GET /accounts` for an accountant, or the till's lookups
+/// for a cashier. A role that holds neither still collects — the sheet then
+/// sends no `accountId`, which is optional on the wire.
+final customerAccountsProvider = FutureProvider.autoDispose<List<PosAccount>>((
+  ref,
+) async {
+  ref.watch(sessionScopeProvider);
+  final permissions = ref.watch(permissionsProvider);
+  try {
+    if (permissions.has(P.accountsAccountView)) {
+      final overview = await ref.watch(accountsRepositoryProvider).overview();
+      return [
+        for (final MoneyAccount account in overview.accounts)
+          PosAccount(
+            id: account.id,
+            name: account.name,
+            type: account.type,
+            isDefault: account.isDefault,
+          ),
+      ];
+    }
+    if (permissions.has(P.posSaleCreate)) {
+      return (await ref.watch(posRepositoryProvider).lookups()).accounts;
+    }
+  } catch (_) {
+    // A collection with no account is still a collection; better an empty
+    // picker than a sheet that will not open.
+  }
+  return const [];
 });

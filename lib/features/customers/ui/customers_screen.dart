@@ -16,6 +16,7 @@ import '../../../core/widgets/states.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/customer_models.dart';
 import '../data/customers_repository.dart';
+import 'customer_due_sheet.dart';
 import 'customer_form_sheet.dart';
 
 /// The customer list.
@@ -149,50 +150,134 @@ class _CustomerRow extends ConsumerWidget {
     final palette = context.palette;
     final text = Theme.of(context).textTheme;
     final money = ref.watch(moneyProvider);
+    final permissions = ref.watch(permissionsProvider);
 
-    return ListTile(
+    // The walk-in customer has no ledger and no credit, so neither action
+    // belongs on its row. A collection also needs something to collect.
+    final mayCollect =
+        !customer.isWalkIn &&
+        customer.due > 0 &&
+        permissions.has(P.salesPaymentCollect);
+    final mayAddDue =
+        !customer.isWalkIn && permissions.has(P.customersCreditManage);
+    final mayGiveDiscount = permissions.has(P.posSaleGiveDiscount);
+
+    Future<void> openDue(CustomerDueTab tab) => CustomerDueSheet.show(
+      context,
+      customer,
+      mayCollect: mayCollect,
+      mayAddDue: mayAddDue,
+      mayGiveDiscount: mayGiveDiscount,
+      initial: tab,
+    );
+
+    return InkWell(
       // The walk-in customer has no ledger worth opening and cannot be edited
       // into anything; it is shown so the list matches the till, nothing more.
       onTap: customer.isWalkIn
           ? null
           : () => context.go('/customers/${customer.id}'),
-      leading: CircleAvatar(
-        backgroundColor: palette.surfaceAlt,
-        child: Icon(
-          customer.isWalkIn ? Icons.person_outline : Icons.person,
-          color: palette.muted,
-          size: 20,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Insets.gutter,
+          vertical: Insets.s12,
         ),
-      ),
-      title: Text(customer.isWalkIn ? l10n.walkInCustomer : customer.name),
-      subtitle: Text(
-        [
-          customer.phone ?? l10n.noPhone,
-          l10n.salesCount(customer.saleCount),
-        ].join(' · '),
-        style: text.bodySmall?.copyWith(color: palette.muted),
-      ),
-      trailing: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (customer.due > 0)
-            StatusChip(
-              label: '${l10n.dueLabel} ${money.format(customer.due)}',
-              tone: palette.warning,
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: palette.surfaceAlt,
+              child: Icon(
+                customer.isWalkIn ? Icons.person_outline : Icons.person,
+                color: palette.muted,
+                size: 20,
+              ),
             ),
-          // Null means "not told" — a role without `customers.points.view`
-          // gets no figure at all, which is different from a balance of zero.
-          if (customer.loyaltyPoints != null &&
-              customer.loyaltyPoints! > 0) ...[
-            const SizedBox(height: Insets.s4),
-            Text(
-              l10n.pointsBalance(customer.loyaltyPoints!.toStringAsFixed(0)),
-              style: text.labelSmall?.copyWith(color: palette.accent),
+            const SizedBox(width: Insets.s16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    customer.isWalkIn ? l10n.walkInCustomer : customer.name,
+                    style: text.titleSmall,
+                  ),
+                  const SizedBox(height: Insets.s4),
+                  Text(
+                    [
+                      customer.phone ?? l10n.noPhone,
+                      l10n.salesCount(customer.saleCount),
+                    ].join(' · '),
+                    style: text.bodySmall?.copyWith(color: palette.muted),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: Insets.s8),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (customer.due > 0)
+                  StatusChip(
+                    label: '${l10n.dueLabel} ${money.format(customer.due)}',
+                    tone: palette.warning,
+                  ),
+                // Null means "not told" — a role without `customers.points.view`
+                // gets no figure at all, which is different from a balance of
+                // zero.
+                if (customer.loyaltyPoints != null &&
+                    customer.loyaltyPoints! > 0) ...[
+                  const SizedBox(height: Insets.s4),
+                  Text(
+                    l10n.pointsBalance(
+                      customer.loyaltyPoints!.toStringAsFixed(0),
+                    ),
+                    style: text.labelSmall?.copyWith(color: palette.accent),
+                  ),
+                ],
+                if (mayCollect || mayAddDue)
+                  PopupMenuButton<_DueAction>(
+                    tooltip: l10n.manageDue,
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.more_horiz, size: 20),
+                    onSelected: (action) => openDue(
+                      action == _DueAction.collect
+                          ? CustomerDueTab.collect
+                          : CustomerDueTab.add,
+                    ),
+                    itemBuilder: (_) => [
+                      if (mayCollect)
+                        PopupMenuItem(
+                          value: _DueAction.collect,
+                          child: Row(
+                            children: [
+                              const Icon(Icons.payments_outlined, size: 20),
+                              const SizedBox(width: Insets.s12),
+                              Text(l10n.collectDue),
+                            ],
+                          ),
+                        ),
+                      if (mayAddDue)
+                        PopupMenuItem(
+                          value: _DueAction.add,
+                          child: Row(
+                            children: [
+                              const Icon(Icons.add_card, size: 20),
+                              const SizedBox(width: Insets.s12),
+                              Text(l10n.addDue),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+              ],
             ),
           ],
-        ],
+        ),
       ),
     );
   }
 }
+
+enum _DueAction { collect, add }
+

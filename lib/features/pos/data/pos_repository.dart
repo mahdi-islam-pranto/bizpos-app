@@ -12,6 +12,15 @@ import 'pos_models.dart';
 class PosRepository {
   PosRepository(this._client, this._cancel);
 
+  /// How many active products the till asks for.
+  ///
+  /// `GET /pos/search` is a window, not a paged endpoint — there is no `page`
+  /// or `offset` to advance, only `limit`. Asking for 30 left the counter
+  /// showing a handful of a shop's shelf and no way to reach the rest, so the
+  /// app asks for the whole shelf and the (lazy) list scrolls it. A search
+  /// narrows this server-side before it comes back.
+  static const int shelfLimit = 2000;
+
   final ApiClient _client;
 
   /// Cancelled when the store or branch changes, so a slow answer for the
@@ -31,7 +40,10 @@ class PosRepository {
   ///
   /// For a scanner, an exact barcode match comes back first, so `data.first` is
   /// the thing that was scanned.
-  Future<List<SellableItem>> search(String query, {int limit = 30}) async {
+  Future<List<SellableItem>> search(
+    String query, {
+    int limit = shelfLimit,
+  }) async {
     final response = await _client.get(
       ApiPaths.posSearch,
       parse: parseListOf(SellableItem.fromProduct),
@@ -246,8 +258,9 @@ final posSearchProvider = FutureProvider.autoDispose
 
       return query.packages
           ? repository.sellablePackages(query.text.isEmpty ? null : query.text)
-          // An empty query still asks the server, which answers with a recent
-          // window — so the till opens showing something rather than a blank.
+          // An empty query still asks the server, which answers with the whole
+          // shelf (up to [PosRepository.shelfLimit]) — so the till opens
+          // showing every product rather than a blank or a short window.
           : repository.search(query.text);
     });
 

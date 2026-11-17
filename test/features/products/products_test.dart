@@ -2,6 +2,7 @@ import 'package:bizpos_app/core/network/api_client.dart';
 import 'package:bizpos_app/core/session/session_controller.dart';
 import 'package:bizpos_app/core/theme/app_theme.dart';
 import 'package:bizpos_app/core/theme/theme_variant.dart';
+import 'package:bizpos_app/features/products/data/products_repository.dart';
 import 'package:bizpos_app/features/products/ui/product_action_sheets.dart';
 import 'package:bizpos_app/features/products/ui/product_detail_screen.dart';
 import 'package:bizpos_app/features/products/ui/product_form_sheet.dart';
@@ -152,6 +153,70 @@ void main() {
       // list goes on to page two rather than standing empty.
       expect(find.text('3 F 500(20 Pcs) 500 mg'), findsNothing);
       expect(find.text('Second Page Syrup 100ml'), findsOneWidget);
+    });
+
+    testWidgets('the high filter puts the fullest shelf at the top',
+        (tester) async {
+      Map<String, dynamic> item(
+        int id,
+        String name,
+        num stock,
+        num minimum,
+      ) => {
+        ...PosBackend.shelfItem,
+        'id': id,
+        'name': name,
+        'stock': stock,
+        'minimumStock': minimum,
+      };
+
+      backend.productPages = [
+        // Alternating high and low, so the band has to be filled across server
+        // pages and then ordered by what is actually on the shelf.
+        [
+          item(11, 'Ten Left 10mg', 10, 2),
+          item(12, 'Low On Page One 10mg', 1, 5),
+        ],
+        [
+          item(21, 'Twenty Left 10mg', 20, 2),
+          item(22, 'Low On Page Two 10mg', 0, 5),
+        ],
+        [
+          item(31, 'Thirty Left 10mg', 30, 2),
+          item(32, 'Low On Page Three 10mg', 0, 5),
+        ],
+      ];
+
+      await pump(tester, const ProductsScreen());
+      await tester.ensureVisible(find.text('High stock (1557)'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('High stock (1557)'));
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(ProductsScreen)),
+      );
+      List<String> order() => [
+        for (final product
+            in container.read(productsListProvider).value!.items)
+          product.name,
+      ];
+
+      // The twenty came from page two and belongs above the ten from page one.
+      expect(order(), ['Twenty Left 10mg', 'Ten Left 10mg']);
+
+      // A later page can hold more stock still; the whole list is re-sorted,
+      // not each page on its own.
+      await tester.ensureVisible(find.text('Load more'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Load more'));
+      await tester.pumpAndSettle();
+
+      expect(order(), [
+        'Thirty Left 10mg',
+        'Twenty Left 10mg',
+        'Ten Left 10mg',
+      ]);
     });
   });
 

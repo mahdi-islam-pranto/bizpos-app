@@ -502,6 +502,59 @@
     }
   },
   "viewInvoices": "Their invoices",
+  "addDue": "Add due",
+  "manageDue": "Collect or add due",
+  "totalOwed": "Total owed",
+  "discountReason": "Reason for discount",
+  "discountReasonHint": "e.g. regular customer, rounded off",
+  "discountReasonHelp": "Required with a discount, at least 3 characters.",
+  "toAccount": "To account",
+  "received": "Received",
+  "stillOwed": "Still owed",
+  "amountToAdd": "Amount to add",
+  "addDueRemark": "Remark",
+  "addDueRemarkHint": "Why is this being added?",
+  "addDueRemarkHelp": "At least 3 characters; it goes on the ledger.",
+  "dueCollected": "{amount} collected. {outstanding} still owed.",
+  "@dueCollected": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "outstanding": {
+        "type": "String"
+      }
+    }
+  },
+  "dueCollectedDiscounted": "{amount} collected and {discount} discounted. {outstanding} still owed.",
+  "@dueCollectedDiscounted": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "discount": {
+        "type": "String"
+      },
+      "outstanding": {
+        "type": "String"
+      }
+    }
+  },
+  "dueAddDone": "{amount} added. {outstanding} still owed.",
+  "@dueAddDone": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "outstanding": {
+        "type": "String"
+      }
+    }
+  },
+  "dueOverCollection": "The amount and discount together are more than is owed.",
+  "newTotalOwed": "New total owed",
+  "ledgerDueAdded": "Due added",
+  "ledgerDueDiscount": "Due discount",
   "save": "Save",
   "add": "Add",
   "apply": "Apply",

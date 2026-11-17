@@ -71,6 +71,9 @@ void main() {
     // start-up `/me` refresh causes, and the counter was left on a spinner it
     // could not retry — no products, no sale.
     expect(backend.hit, contains('GET /api/v1/pos/search'));
+    // The whole shelf, not the API's default window of thirty: the endpoint
+    // has no paging, so a small limit is the only thing hiding the rest.
+    expect(backend.lastQuery['limit'], greaterThan(30));
     expect(find.text(PosBackend.product['name']! as String), findsOneWidget);
   });
 

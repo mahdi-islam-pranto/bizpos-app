@@ -35,6 +35,14 @@ class PosBackend implements HttpClientAdapter {
   Map<String, dynamic>? adjustBody;
   Map<String, dynamic>? pricesBody;
 
+  /// The decoded bodies of the last customer due writes.
+  Map<String, dynamic>? collectBody;
+  Map<String, dynamic>? addDueBody;
+
+  /// When set, `GET /products` serves these pages instead of the recorded
+  /// two-row shelf. Used by tests that need a different order or more rows.
+  List<List<Map<String, dynamic>>>? productPages;
+
   /// One row of `GET /products`, with the awkward salePrice the real backend
   /// serves and the `null` cost a role without `view_cost` would get.
   static const shelfItem = {
@@ -313,6 +321,25 @@ class PosBackend implements HttpClientAdapter {
       };
     } else if (RegExp(r'/sales/\d+$').hasMatch(path)) {
       body = {'data': saleDetail, 'meta': {'mayVoid': false}};
+    } else if (RegExp(r'/customers/\d+/collect$').hasMatch(path)) {
+      collectBody = _bodyOf(options);
+      body = {
+        'data': {
+          'collected': collectBody!['amount'],
+          'discounted': collectBody!['discount'] ?? 0,
+          'outstanding': 0,
+        },
+      };
+    } else if (RegExp(r'/customers/\d+/add-due$').hasMatch(path)) {
+      addDueBody = _bodyOf(options);
+      status = 201;
+      body = {
+        'data': {
+          'id': 90,
+          'added': addDueBody!['amount'],
+          'outstanding': 357.36 + (addDueBody!['amount'] as num),
+        },
+      };
     } else if (path.endsWith('/customers')) {
       body = {
         'data': [
@@ -378,21 +405,35 @@ class PosBackend implements HttpClientAdapter {
       } else {
         final trashed = options.queryParameters['trashed'] != null;
         final page = int.tryParse('${options.queryParameters['page']}') ?? 1;
-        // Two pages of one, so the "load more" path is exercised rather than
-        // asserted away by a total that always fits on the first page.
+        final pages = productPages;
+
+        final List<Map<String, dynamic>> rows;
+        final int total;
+        final int perPage;
+        if (trashed) {
+          rows = [deletedItem];
+          total = 1;
+          perPage = 1;
+        } else if (pages != null) {
+          rows = page >= 1 && page <= pages.length
+              ? pages[page - 1]
+              : const <Map<String, dynamic>>[];
+          total = pages.fold(0, (sum, rows) => sum + rows.length);
+          perPage = rows.isEmpty ? 0 : rows.length;
+        } else {
+          // Two pages of one, so the "load more" path is exercised rather than
+          // asserted away by a total that always fits on the first page.
+          rows = page == 1 ? [shelfItem] : [secondPageItem];
+          total = 2;
+          perPage = 1;
+        }
+
         body = {
-          'data': [
-            for (final item in trashed
-                ? [deletedItem]
-                : page == 1
-                    ? [shelfItem]
-                    : [secondPageItem])
-              _costed(item),
-          ],
+          'data': [for (final item in rows) _costed(item)],
           'meta': {
-            'total': trashed ? 1 : 2,
+            'total': total,
             'page': page,
-            'perPage': 1,
+            'perPage': perPage,
             'showCost': !hideCost,
             'trashedCount': 1,
           },

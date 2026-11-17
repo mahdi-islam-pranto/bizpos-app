@@ -872,6 +872,77 @@ class AppL10nBn extends AppL10n {
   String get viewInvoices => 'তাঁর ইনভয়েস';
 
   @override
+  String get addDue => 'বাকি যোগ';
+
+  @override
+  String get manageDue => 'বাকি আদায় বা যোগ';
+
+  @override
+  String get totalOwed => 'মোট বাকি';
+
+  @override
+  String get discountReason => 'ছাড়ের কারণ';
+
+  @override
+  String get discountReasonHint => 'যেমন নিয়মিত ক্রেতা, রাউন্ড অফ';
+
+  @override
+  String get discountReasonHelp => 'ছাড় দিলে কারণ লিখুন, অন্তত ৩ অক্ষর।';
+
+  @override
+  String get toAccount => 'তে';
+
+  @override
+  String get received => 'প্রাপ্ত';
+
+  @override
+  String get stillOwed => 'বাকি থাকবে';
+
+  @override
+  String get amountToAdd => 'যোগ করার পরিমাণ';
+
+  @override
+  String get addDueRemark => 'মন্তব্য';
+
+  @override
+  String get addDueRemarkHint => 'কেন বাকি যোগ হচ্ছে?';
+
+  @override
+  String get addDueRemarkHelp => 'অন্তত ৩ অক্ষর; এটি খতিয়ানে লেখা হবে।';
+
+  @override
+  String dueCollected(String amount, String outstanding) {
+    return '$amount আদায় হয়েছে। $outstanding বাকি রয়ে গেছে।';
+  }
+
+  @override
+  String dueCollectedDiscounted(
+    String amount,
+    String discount,
+    String outstanding,
+  ) {
+    return '$amount আদায় এবং $discount ছাড় হয়েছে। $outstanding বাকি রয়ে গেছে।';
+  }
+
+  @override
+  String dueAddDone(String amount, String outstanding) {
+    return '$amount যোগ হয়েছে। $outstanding মোট বাকি।';
+  }
+
+  @override
+  String get dueOverCollection =>
+      'টাকা ও ছাড় মিলিয়ে বাকির চেয়ে বেশি হয়ে যাচ্ছে।';
+
+  @override
+  String get newTotalOwed => 'নতুন মোট বাকি';
+
+  @override
+  String get ledgerDueAdded => 'বাকি যোগ';
+
+  @override
+  String get ledgerDueDiscount => 'বাকিতে ছাড়';
+
+  @override
   String get save => 'সংরক্ষণ';
 
   @override
@@ -2083,9 +2154,6 @@ class AppL10nBn extends AppL10n {
 
   @override
   String get fromAccount => 'থেকে';
-
-  @override
-  String get toAccount => 'তে';
 
   @override
   String get sameAccount => 'দুটি ভিন্ন অ্যাকাউন্ট বাছুন।';

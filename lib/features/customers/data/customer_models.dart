@@ -140,6 +140,49 @@ class LedgerEntry {
   );
 }
 
+/// What `POST /customers/{id}/collect` did.
+///
+/// The three figures are the server's own: [collected] is money that reached an
+/// account, [discounted] is what was written off instead, and [outstanding] is
+/// what is left on the whole balance afterwards — not on any one invoice.
+class DueCollection {
+  const DueCollection({
+    required this.collected,
+    required this.discounted,
+    required this.outstanding,
+  });
+
+  final num collected;
+  final num discounted;
+  final num outstanding;
+
+  factory DueCollection.fromJson(Map<String, dynamic> json) => DueCollection(
+    collected: _num(json['collected']),
+    discounted: _num(json['discounted']),
+    outstanding: _num(json['outstanding']),
+  );
+}
+
+/// What `POST /customers/{id}/add-due` wrote down.
+class DueAdded {
+  const DueAdded({
+    required this.id,
+    required this.added,
+    required this.outstanding,
+  });
+
+  /// The ledger line's own id, from `201 {id, added, outstanding}`.
+  final int id;
+  final num added;
+  final num outstanding;
+
+  factory DueAdded.fromJson(Map<String, dynamic> json) => DueAdded(
+    id: _int(json['id']),
+    added: _num(json['added']),
+    outstanding: _num(json['outstanding']),
+  );
+}
+
 /// `GET /customers/{id}/points`.
 class PointsAccount {
   const PointsAccount({

@@ -16,6 +16,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../sales/data/sales_repository.dart';
 import '../data/customer_models.dart';
 import '../data/customers_repository.dart';
+import 'customer_due_sheet.dart';
 import 'customer_form_sheet.dart';
 
 /// One customer: who they are, what they owe, and their points.
@@ -83,6 +84,24 @@ class _Detail extends ConsumerWidget {
     final maySeeLedger = permissions.allows(
       P.customersLedgerView,
       alsoRequire: page.maySeeLedger,
+    );
+    final mayCollect =
+        !customer.isWalkIn && permissions.has(P.salesPaymentCollect);
+    final mayAddDue =
+        !customer.isWalkIn && permissions.has(P.customersCreditManage);
+    final mayGiveDiscount = permissions.has(P.posSaleGiveDiscount);
+
+    // With nothing owed there is nothing to collect, and an empty action row
+    // would still take its gap.
+    final showCollect = mayCollect && customer.due > 0;
+
+    Future<void> openDue(CustomerDueTab tab) => CustomerDueSheet.show(
+      context,
+      customer,
+      mayCollect: showCollect,
+      mayAddDue: mayAddDue,
+      mayGiveDiscount: mayGiveDiscount,
+      initial: tab,
     );
 
     return ListView(
@@ -156,6 +175,32 @@ class _Detail extends ConsumerWidget {
             ],
           ),
         ),
+
+        if (showCollect || mayAddDue) ...[
+          const SizedBox(height: Insets.s12),
+          Row(
+            children: [
+              if (showCollect)
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () => openDue(CustomerDueTab.collect),
+                    icon: const Icon(Icons.payments_outlined),
+                    label: Text(l10n.collectDue),
+                  ),
+                ),
+              if (showCollect && mayAddDue)
+                const SizedBox(width: Insets.s12),
+              if (mayAddDue)
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => openDue(CustomerDueTab.add),
+                    icon: const Icon(Icons.add_card),
+                    label: Text(l10n.addDue),
+                  ),
+                ),
+            ],
+          ),
+        ],
 
         const SizedBox(height: Insets.s8),
         AppCard(
@@ -366,5 +411,7 @@ String ledgerLabel(AppL10n l10n, String refType) => switch (refType) {
   'void' => l10n.ledgerVoid,
   'opening' => l10n.openingBalance,
   'opening_correction' => l10n.ledgerOpeningCorrection,
+  'due_added' => l10n.ledgerDueAdded,
+  'due_discount' => l10n.ledgerDueDiscount,
   _ => refType.replaceAll('_', ' ').toUpperCase(),
 };

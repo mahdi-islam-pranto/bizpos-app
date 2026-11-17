@@ -874,6 +874,79 @@ class AppL10nEn extends AppL10n {
   String get viewInvoices => 'Their invoices';
 
   @override
+  String get addDue => 'Add due';
+
+  @override
+  String get manageDue => 'Collect or add due';
+
+  @override
+  String get totalOwed => 'Total owed';
+
+  @override
+  String get discountReason => 'Reason for discount';
+
+  @override
+  String get discountReasonHint => 'e.g. regular customer, rounded off';
+
+  @override
+  String get discountReasonHelp =>
+      'Required with a discount, at least 3 characters.';
+
+  @override
+  String get toAccount => 'To';
+
+  @override
+  String get received => 'Received';
+
+  @override
+  String get stillOwed => 'Still owed';
+
+  @override
+  String get amountToAdd => 'Amount to add';
+
+  @override
+  String get addDueRemark => 'Remark';
+
+  @override
+  String get addDueRemarkHint => 'Why is this being added?';
+
+  @override
+  String get addDueRemarkHelp =>
+      'At least 3 characters; it goes on the ledger.';
+
+  @override
+  String dueCollected(String amount, String outstanding) {
+    return '$amount collected. $outstanding still owed.';
+  }
+
+  @override
+  String dueCollectedDiscounted(
+    String amount,
+    String discount,
+    String outstanding,
+  ) {
+    return '$amount collected and $discount discounted. $outstanding still owed.';
+  }
+
+  @override
+  String dueAddDone(String amount, String outstanding) {
+    return '$amount added. $outstanding still owed.';
+  }
+
+  @override
+  String get dueOverCollection =>
+      'The amount and discount together are more than is owed.';
+
+  @override
+  String get newTotalOwed => 'New total owed';
+
+  @override
+  String get ledgerDueAdded => 'Due added';
+
+  @override
+  String get ledgerDueDiscount => 'Due discount';
+
+  @override
   String get save => 'Save';
 
   @override
@@ -2131,9 +2204,6 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get fromAccount => 'From';
-
-  @override
-  String get toAccount => 'To';
 
   @override
   String get sameAccount => 'Pick two different accounts.';

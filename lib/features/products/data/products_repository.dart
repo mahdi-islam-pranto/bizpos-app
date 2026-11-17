@@ -371,7 +371,7 @@ class ProductsListController extends AsyncNotifier<Paged<Product>> {
       fetched++;
     }
     return Paged(
-      items: found,
+      items: _ordered(found, filter.level),
       total: next.total,
       page: next.page,
       perPage: next.perPage,
@@ -398,7 +398,11 @@ class ProductsListController extends AsyncNotifier<Paged<Product>> {
 
       state = AsyncValue.data(
         Paged(
-          items: [...current.items, ...next.items],
+          // Re-sorting the whole accumulated list matters for the high band:
+          // the next server page can hold more stock than the first, and the
+          // heaviest shelf should stay at the top rather than only be heaviest
+          // within its own page.
+          items: _ordered([...current.items, ...next.items], filter.level),
           total: next.total,
           page: next.page,
           perPage: next.perPage,
@@ -420,6 +424,23 @@ final productsListProvider =
     AsyncNotifierProvider<ProductsListController, Paged<Product>>(
       ProductsListController.new,
     );
+
+/// The order the list is shown in.
+///
+/// Only the high band is reordered: it means "the fullest shelves first", so
+/// the product with the most stock is the one at the top. The server order is
+/// kept as the tie-breaker, because two products with the same count are the
+/// same answer and should not shuffle between rebuilds.
+List<Product> _ordered(List<Product> items, StockLevel level) {
+  if (level != StockLevel.high) return items;
+
+  final indexed = items.indexed.toList()
+    ..sort((a, b) {
+      final byStock = (b.$2.stock ?? 0).compareTo(a.$2.stock ?? 0);
+      return byStock != 0 ? byStock : a.$1.compareTo(b.$1);
+    });
+  return [for (final entry in indexed) entry.$2];
+}
 
 final productStatsProvider = FutureProvider<ProductStats>((ref) {
   ref.watch(sessionScopeProvider);
