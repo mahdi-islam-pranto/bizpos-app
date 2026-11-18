@@ -43,6 +43,19 @@ class PosBackend implements HttpClientAdapter {
   /// two-row shelf. Used by tests that need a different order or more rows.
   List<List<Map<String, dynamic>>>? productPages;
 
+  /// How many products `GET /pos/search` has to offer.
+  ///
+  /// The endpoint is a window, not a paged one: it answers with the first
+  /// `limit` rows of this shelf, so a test can set more rows than one page and
+  /// watch the till ask for a longer window.
+  int shelfSize = 1;
+
+  /// Every `limit` `/pos/search` was asked for, in the order it was asked.
+  ///
+  /// The till's paging is only visible here: the rows it gets back for a
+  /// longer window contain the earlier ones, so counting them proves nothing.
+  final List<int> searchLimits = [];
+
   /// One row of `GET /products`, with the awkward salePrice the real backend
   /// serves and the `null` cost a role without `view_cost` would get.
   static const shelfItem = {
@@ -257,7 +270,10 @@ class PosBackend implements HttpClientAdapter {
     if (path.endsWith('/pos/lookups')) {
       body = {'data': _lookups()};
     } else if (path.endsWith('/pos/search')) {
-      body = {'data': [product]};
+      final limit =
+          int.tryParse('${options.queryParameters['limit']}') ?? shelfSize;
+      searchLimits.add(limit);
+      body = {'data': [for (final row in _shelf().take(limit)) _costed(row)]};
     } else if (path.endsWith('/packages/sellable')) {
       body = {
         'data': [
@@ -461,6 +477,34 @@ class PosBackend implements HttpClientAdapter {
     if (data is Map<String, dynamic>) return data;
     if (data is String) return jsonDecode(data) as Map<String, dynamic>;
     return const {};
+  }
+
+  /// The products the till can search through, [shelfSize] of them.
+  ///
+  /// The first two are the recorded rows other tests look for by name; the
+  /// rest exist so a second page has something in it.
+  List<Map<String, dynamic>> _shelf() {
+    final rows = <Map<String, dynamic>>[];
+    if (shelfSize > 0) rows.add(product);
+    if (shelfSize > 1) rows.add(secondPageItem);
+    for (var i = rows.length; i < shelfSize; i++) {
+      rows.add({
+        'id': 100 + i,
+        'name': 'Shelf Row ${i + 1} 10mg',
+        'barcode': null,
+        'unit': 'pc',
+        'brand': null,
+        'salePrice': 20,
+        'mrp': 25,
+        'purchasePrice': 10,
+        'wholesalePrice': 18,
+        'vatPercent': 0,
+        'minimumStock': 4,
+        'trackBatch': false,
+        'stock': 10,
+      });
+    }
+    return rows;
   }
 
   /// Strips the costs the way the API does for a weaker role.

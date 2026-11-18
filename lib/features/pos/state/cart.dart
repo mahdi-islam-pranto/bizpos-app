@@ -84,6 +84,30 @@ class CartLine {
     return room < Decimal.zero ? Decimal.zero : room;
   }
 
+  /// How far under the shop's own selling value this line is, as a percentage.
+  ///
+  /// Measured against `salePrice × qty`, not against whatever is being typed:
+  /// the figure reads 0% until the cashier actually gives something away, and
+  /// moves as either the unit price or the line discount changes. Null when
+  /// the selling price is zero, where there is no value to take a share of.
+  ///
+  /// Both arguments are optional so the sheet can ask about a line it has not
+  /// applied yet; when omitted the line's own figures are used.
+  Decimal? discountPercent({num? price, num? discount}) {
+    final shelfValue = Exact.of(item.salePrice) * Exact.of(qty);
+    if (shelfValue <= Decimal.zero) return null;
+    final take =
+        Exact.of(price ?? effectivePrice) * Exact.of(qty) -
+        Exact.of(discount ?? lineDiscount ?? 0);
+    final off = shelfValue - take;
+    // Above the shelf price is a rise, not a discount; showing a negative
+    // percentage here would read as money given away.
+    if (off <= Decimal.zero) return Decimal.zero;
+    return (off * Decimal.fromInt(100) / shelfValue).toDecimal(
+      scaleOnInfinitePrecision: 2,
+    );
+  }
+
   /// Lines are identified by what they are, not by position: scanning the same
   /// barcode twice adds one to the line that already exists.
   String get key => '${item.isPackage ? 'pkg' : 'sp'}:${item.id}';

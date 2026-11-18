@@ -1086,6 +1086,9 @@ class AppL10nBn extends AppL10n {
   String get costLabel => 'ক্রয়মূল্য';
 
   @override
+  String get discountPercent => 'ছাড় %';
+
+  @override
   String get saleLabel => 'বিক্রয়মূল্য';
 
   @override

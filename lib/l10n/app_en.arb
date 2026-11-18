@@ -644,6 +644,7 @@
     }
   },
   "costLabel": "Cost",
+  "discountPercent": "Discount %",
   "saleLabel": "Sale",
   "wholesaleLabel": "Wholesale",
   "mrpLabel": "MRP",

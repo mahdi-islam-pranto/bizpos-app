@@ -1949,6 +1949,12 @@ abstract class AppL10n {
   /// **'Cost'**
   String get costLabel;
 
+  /// No description provided for @discountPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount %'**
+  String get discountPercent;
+
   /// No description provided for @saleLabel.
   ///
   /// In en, this message translates to:

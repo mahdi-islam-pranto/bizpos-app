@@ -1096,6 +1096,9 @@ class AppL10nEn extends AppL10n {
   String get costLabel => 'Cost';
 
   @override
+  String get discountPercent => 'Discount %';
+
+  @override
   String get saleLabel => 'Sale';
 
   @override

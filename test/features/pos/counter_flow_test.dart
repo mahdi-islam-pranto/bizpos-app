@@ -2,6 +2,7 @@ import 'package:bizpos_app/core/network/api_client.dart';
 import 'package:bizpos_app/core/session/session_controller.dart';
 import 'package:bizpos_app/core/theme/app_theme.dart';
 import 'package:bizpos_app/core/theme/theme_variant.dart';
+import 'package:bizpos_app/features/pos/data/pos_repository.dart';
 import 'package:bizpos_app/features/pos/ui/pos_screen.dart';
 import 'package:bizpos_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -71,10 +72,37 @@ void main() {
     // start-up `/me` refresh causes, and the counter was left on a spinner it
     // could not retry — no products, no sale.
     expect(backend.hit, contains('GET /api/v1/pos/search'));
-    // The whole shelf, not the API's default window of thirty: the endpoint
-    // has no paging, so a small limit is the only thing hiding the rest.
-    expect(backend.lastQuery['limit'], greaterThan(30));
+    // One page, not the whole shelf: the counter opens as soon as a window
+    // arrives, and the rest is only fetched by somebody who scrolls to it.
+    expect(backend.searchLimits, [PosRepository.shelfPage]);
     expect(find.text(PosBackend.product['name']! as String), findsOneWidget);
+  });
+
+  testWidgets('the next page loads when the shelf is scrolled to its end', (
+    tester,
+  ) async {
+    // More rows than one page, so there is something the first window cannot
+    // show and a footer to scroll to.
+    backend.shelfSize = 80;
+    await pumpCounter(tester);
+
+    expect(backend.searchLimits, [PosRepository.shelfPage]);
+    expect(find.text('Shelf Row 40 10mg'), findsNothing);
+
+    await tester.scrollUntilVisible(
+      find.text('Shelf Row 40 10mg'),
+      400,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pumpAndSettle();
+
+    // The endpoint has no offset, so the second page is the same request with
+    // a longer window — and the rows it adds land in the list.
+    expect(backend.searchLimits, [
+      PosRepository.shelfPage,
+      PosRepository.shelfPage * 2,
+    ]);
+    expect(find.text('Shelf Row 40 10mg'), findsOneWidget);
   });
 
   testWidgets('tapping a product fills the cart bar', (tester) async {
@@ -224,5 +252,32 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.textContaining('10%'), findsOneWidget);
+  });
+
+  testWidgets('the line editor shows the discount percentage as it is typed', (
+    tester,
+  ) async {
+    await pumpCounter(tester, permissions: Roles.owner);
+    await tester.tap(find.text(PosBackend.product['name']! as String));
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('1 item'));
+    await tester.pumpAndSettle();
+    // The cart row's name is the edit handle.
+    await tester.tap(find.text(PosBackend.product['name']! as String).last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Discount %'), findsOneWidget);
+    // Nothing typed yet: the sale is at the shop's own price.
+    expect(find.text('0%'), findsOneWidget);
+
+    // Half of the 154.22 selling price is a 50% discount, before applying.
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Unit price'),
+      '77.11',
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('50%'), findsOneWidget);
   });
 }

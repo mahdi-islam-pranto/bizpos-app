@@ -708,6 +708,17 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
     final discountTooHigh =
         maxOff != null && discount != null && Exact.of(discount) > maxOff;
 
+    // The live percentage beside the cost. With the discount box on screen it
+    // follows the boxes as they are typed — an empty box means nothing given
+    // away, not the figure the line had before. Without the box, only a line
+    // that already carries a discount (an invoice being edited) has one worth
+    // showing, and that one comes from the line itself.
+    final offPercent = widget.mayDiscount
+        ? line.discountPercent(price: price, discount: discount ?? 0)
+        : line.lineDiscount != null
+        ? line.discountPercent()
+        : null;
+
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -721,6 +732,7 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
                   showMrp: !line.item.isPackage,
                   salePrice: line.item.salePrice,
                   cost: cost,
+                  discountPercent: offPercent,
                   money: money,
                 ),
                 const SizedBox(height: Insets.s16),
@@ -789,13 +801,18 @@ class _EditLineSheetState extends ConsumerState<_EditLineSheet> {
   }
 }
 
-/// MRP, selling price and, when the role may see it, cost — side by side.
+/// MRP, selling price, cost and the live discount percentage.
+///
+/// Two to a row: four figures side by side squeeze each other into ellipses on
+/// a 360 dp phone, and the ones a cashier reads at a glance are the price and
+/// the room there is to give.
 class _PriceFacts extends StatelessWidget {
   const _PriceFacts({
     required this.mrp,
     required this.showMrp,
     required this.salePrice,
     required this.cost,
+    required this.discountPercent,
     required this.money,
   });
 
@@ -805,6 +822,11 @@ class _PriceFacts extends StatelessWidget {
   final bool showMrp;
   final num salePrice;
   final num? cost;
+
+  /// Null when the role cannot discount, or when there is no selling price to
+  /// take a percentage of.
+  final Decimal? discountPercent;
+
   final Money money;
 
   @override
@@ -813,14 +835,14 @@ class _PriceFacts extends StatelessWidget {
     final palette = context.palette;
     final text = Theme.of(context).textTheme;
 
-    Widget fact(String label, num? value) => Expanded(
+    Widget fact(String label, String value) => Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: text.labelSmall?.copyWith(color: palette.muted)),
           const SizedBox(height: Insets.s4),
           Text(
-            value == null ? '—' : money.format(value),
+            value,
             style: text.titleMedium?.copyWith(
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
@@ -829,17 +851,38 @@ class _PriceFacts extends StatelessWidget {
       ),
     );
 
+    final facts = <Widget>[
+      if (showMrp)
+        fact(l10n.mrpLabel, mrp == null ? '—' : money.format(mrp!)),
+      fact(l10n.sellingPriceLabel, money.format(salePrice)),
+      if (cost != null) fact(l10n.costLabel, money.format(cost!)),
+      if (discountPercent != null)
+        fact(
+          l10n.discountPercent,
+          '${_rate(discountPercent!.toDouble())}%',
+        ),
+    ];
+
     return Container(
       padding: const EdgeInsets.all(Insets.s12),
       decoration: BoxDecoration(
         color: palette.surfaceAlt,
         borderRadius: BorderRadius.circular(Radii.row),
       ),
-      child: Row(
+      child: Column(
         children: [
-          if (showMrp) fact(l10n.mrpLabel, mrp),
-          fact(l10n.sellingPriceLabel, salePrice),
-          if (cost != null) fact(l10n.costLabel, cost),
+          for (var i = 0; i < facts.length; i += 2) ...[
+            if (i > 0) const SizedBox(height: Insets.s12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                facts[i],
+                // An odd count leaves the last fact on its own, still in the
+                // first column rather than stretched across the card.
+                if (i + 1 < facts.length) facts[i + 1],
+              ],
+            ),
+          ],
         ],
       ),
     );

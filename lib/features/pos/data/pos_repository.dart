@@ -12,14 +12,15 @@ import 'pos_models.dart';
 class PosRepository {
   PosRepository(this._client, this._cancel);
 
-  /// How many active products the till asks for.
+  /// How many products one page of the till's shelf asks for.
   ///
   /// `GET /pos/search` is a window, not a paged endpoint — there is no `page`
-  /// or `offset` to advance, only `limit`. Asking for 30 left the counter
-  /// showing a handful of a shop's shelf and no way to reach the rest, so the
-  /// app asks for the whole shelf and the (lazy) list scrolls it. A search
-  /// narrows this server-side before it comes back.
-  static const int shelfLimit = 2000;
+  /// or `offset` to advance, only `limit` — so "the next page" can only be
+  /// asked for by asking for a longer window. This is the size of the first
+  /// ask: enough to scroll for a while, small enough that opening the till
+  /// does not wait for the whole shop. [PosShelfController.loadMore] grows it a
+  /// page at a time.
+  static const int shelfPage = 40;
 
   final ApiClient _client;
 
@@ -39,10 +40,11 @@ class PosRepository {
   /// Products of this store with this branch's stock.
   ///
   /// For a scanner, an exact barcode match comes back first, so `data.first` is
-  /// the thing that was scanned.
+  /// the thing that was scanned. `query` narrows the window server-side, so a
+  /// search is not a filter over what happens to be loaded.
   Future<List<SellableItem>> search(
     String query, {
-    int limit = shelfLimit,
+    int limit = shelfPage,
   }) async {
     final response = await _client.get(
       ApiPaths.posSearch,
@@ -211,65 +213,11 @@ final posShiftReportProvider = FutureProvider.autoDispose<ShiftReport>((ref) {
   return ref.watch(posRepositoryProvider).shiftReport();
 });
 
-/// What the till is currently asking for: some text, in one of the two lists.
-///
-/// A value type rather than two arguments, so Riverpod can key a family on it
-/// and the same query does not refetch on every rebuild.
-class PosQuery {
-  const PosQuery({this.text = '', this.packages = false});
-
-  final String text;
-  final bool packages;
-
-  PosQuery withText(String value) => PosQuery(text: value, packages: packages);
-
-  PosQuery withPackages(bool value) => PosQuery(text: text, packages: value);
-
-  @override
-  bool operator ==(Object other) =>
-      other is PosQuery && other.text == text && other.packages == packages;
-
-  @override
-  int get hashCode => Object.hash(text, packages);
-
-  @override
-  String toString() => 'PosQuery("$text", packages: $packages)';
-}
-
-/// The till's product list.
-///
-/// **This is a provider rather than a fetch in `initState` on purpose.** The
-/// repository's cancel token is thrown away and cancelled whenever the session
-/// scope changes — including the `/me` refresh that runs a moment after
-/// start-up, which bumps the epoch without the store changing. A search started
-/// by hand in `initState` was cancelled by that refresh and never came back,
-/// leaving the counter staring at a spinner it could not retry: no products, no
-/// sale. Asking through a provider means Riverpod re-runs the search against
-/// the new repository the instant the scope moves, so the list heals itself.
-final posSearchProvider = FutureProvider.autoDispose
-    .family<List<SellableItem>, PosQuery>((ref, query) {
-      ref.watch(sessionScopeProvider);
-      final repository = ref.watch(posRepositoryProvider);
-      // Held briefly so flicking between Products and Packages, or backspacing a
-      // query, does not refetch what was on screen a second ago.
-      ref.keepAlive();
-      final timer = Timer(const Duration(seconds: 30), ref.invalidateSelf);
-      ref.onDispose(timer.cancel);
-
-      return query.packages
-          ? repository.sellablePackages(query.text.isEmpty ? null : query.text)
-          // An empty query still asks the server, which answers with the whole
-          // shelf (up to [PosRepository.shelfLimit]) — so the till opens
-          // showing every product rather than a blank or a short window.
-          : repository.search(query.text);
-    });
-
 /// `GET /customers/search`, for the counter's customer picker.
 ///
-/// A provider rather than a fetch held in the sheet's state, for the same
-/// reason as [posSearchProvider]: the repository's cancel token dies with the
-/// session scope, and a hand-rolled future that loses that race becomes a
-/// spinner nothing can clear.
+/// A provider rather than a fetch held in the sheet's state: the repository's
+/// cancel token dies with the session scope, and a hand-rolled future that
+/// loses that race becomes a spinner nothing can clear.
 final posCustomerSearchProvider = FutureProvider.autoDispose
     .family<List<PosCustomer>, String>((ref, query) {
       ref.watch(sessionScopeProvider);

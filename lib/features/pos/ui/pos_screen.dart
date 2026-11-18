@@ -20,6 +20,7 @@ import '../data/pos_models.dart';
 import '../data/pos_repository.dart';
 import '../state/cart.dart';
 import '../state/invoice_edit.dart';
+import '../state/shelf.dart';
 import 'cart_sheet.dart';
 import 'holds_sheet.dart';
 import 'payment_sheet.dart';
@@ -48,6 +49,10 @@ class _PosScreenState extends ConsumerState<PosScreen> {
   final _search = TextEditingController();
   final _searchFocus = FocusNode();
 
+  /// The shelf's own scroll position, watched so the next page starts loading
+  /// before the cashier hits the bottom.
+  final _shelfScroll = ScrollController();
+
   Timer? _debounce;
 
   /// The product that just went in, shown inside the cart bar for a moment.
@@ -59,17 +64,17 @@ class _PosScreenState extends ConsumerState<PosScreen> {
   String? _justAdded;
   Timer? _justAddedTimer;
 
-  /// What the list is showing. Held here and handed to [posSearchProvider],
-  /// which owns the fetching — so a store or branch switch, or the `/me`
-  /// refresh that bumps the scope epoch at start-up, re-runs the search instead
-  /// of cancelling it and leaving the counter with an empty list it cannot
-  /// retry.
-  PosQuery _query = const PosQuery();
+  @override
+  void initState() {
+    super.initState();
+    _shelfScroll.addListener(_maybeLoadMore);
+  }
 
   @override
   void dispose() {
     _debounce?.cancel();
     _justAddedTimer?.cancel();
+    _shelfScroll.dispose();
     _search.dispose();
     _searchFocus.dispose();
     super.dispose();
@@ -79,13 +84,40 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     _debounce?.cancel();
     _debounce = Timer(
       const Duration(milliseconds: 280),
-      () => _setQuery(_query.withText(value.trim())),
+      () => _setQuery(
+        ref.read(posQueryProvider).withText(value.trim()),
+      ),
     );
   }
 
   void _setQuery(PosQuery next) {
-    if (next == _query) return;
-    if (mounted) setState(() => _query = next);
+    if (next == ref.read(posQueryProvider)) return;
+    ref.read(posQueryProvider.notifier).set(next);
+    // A different question starts at the top of its own list, not halfway
+    // down the previous one.
+    if (_shelfScroll.hasClients) _shelfScroll.jumpTo(0);
+  }
+
+  /// Fetches the next page when the list is within a few rows of its end.
+  ///
+  /// The footer offers the same thing as a button, for a list too short to
+  /// scroll and for anyone who would rather tap than throw.
+  void _maybeLoadMore() {
+    if (!_shelfScroll.hasClients) return;
+    if (_shelfScroll.position.extentAfter > 400) return;
+    _loadMore();
+  }
+
+  void _loadMore() {
+    final shelf = ref.read(posShelfProvider).value;
+    if (shelf == null || !shelf.hasMore) return;
+    ref
+        .read(posShelfProvider.notifier)
+        .loadMore()
+        .catchError((Object error) {
+          // The list on screen is untouched; say why it stopped growing.
+          if (mounted) showApiError(context, error);
+        });
   }
 
   /// A scan is a search whose first result is the answer.
@@ -105,7 +137,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
 
     final List<SellableItem> found;
     try {
-      found = await ref.read(posSearchProvider(PosQuery(text: code)).future);
+      // The query just set above re-runs the shelf, so this waits on the same
+      // search the list is showing rather than starting a second one.
+      found = (await ref.read(posShelfProvider.future)).items;
     } catch (_) {
       // The list below is showing the same failure with its own retry; a second
       // complaint here would only cover it up.
@@ -132,7 +166,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
   /// What was searched for fills the form in: a string of digits is a barcode
   /// that was scanned, anything else is a name.
   Future<void> _newProduct() async {
-    final typed = _query.text.trim();
+    final typed = ref.read(posQueryProvider).text.trim();
     final looksLikeBarcode = RegExp(r'^\d{6,}$').hasMatch(typed);
     final created = await ProductFormSheet.showNew(
       context,
@@ -142,11 +176,11 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     if (created == null || !mounted) return;
 
     final lookFor = created.barcode ?? created.name;
-    ref.invalidate(posSearchProvider);
+    // Read straight from the repository rather than the shelf: the new product
+    // may fall outside the page the till is showing, and this waits for the one
+    // item it just created rather than a whole shelf it would throw away.
     try {
-      final found = await ref.read(
-        posSearchProvider(PosQuery(text: lookFor)).future,
-      );
+      final found = await ref.read(posRepositoryProvider).search(lookFor);
       if (!mounted) return;
       for (final item in found) {
         if (item.id == created.id) {
@@ -224,11 +258,11 @@ class _PosScreenState extends ConsumerState<PosScreen> {
     final lookups = ref.watch(posLookupsProvider);
     final cart = ref.watch(cartProvider);
     final editing = ref.watch(invoiceEditProvider);
-    // An edit takes product lines only, so the till stays on products.
-    final query = editing != null && _query.packages
-        ? _query.withPackages(false)
-        : _query;
-    final results = ref.watch(posSearchProvider(query));
+    // What the till is asking for. An edit takes product lines only, so the
+    // shelf narrows to products inside its controller without the chips having
+    // to pretend the tab moved.
+    final query = ref.watch(posQueryProvider);
+    final shelf = ref.watch(posShelfProvider);
 
     return Scaffold(
       appBar: ShellAppBar(
@@ -271,7 +305,9 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                 onChanged: _onQueryChanged,
                 onSubmitted: (value) {
                   _debounce?.cancel();
-                  _setQuery(_query.withText(value.trim()));
+                  _setQuery(
+                    ref.read(posQueryProvider).withText(value.trim()),
+                  );
                 },
                 trailing: IconButton(
                   tooltip: l10n.posScan,
@@ -291,64 +327,75 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                     children: [
                       ChoiceChip(
                         label: Text(l10n.posTabProducts),
-                        selected: !_query.packages,
+                        selected: !query.packages,
                         onSelected: (_) =>
-                            _setQuery(_query.withPackages(false)),
+                            _setQuery(query.withPackages(false)),
                       ),
                       const SizedBox(width: Insets.s8),
                       ChoiceChip(
                         label: Text(l10n.posTabPackages),
-                        selected: _query.packages,
-                        onSelected: (_) => _setQuery(_query.withPackages(true)),
+                        selected: query.packages,
+                        onSelected: (_) => _setQuery(query.withPackages(true)),
                       ),
                     ],
                   ),
                 ),
               ),
             Expanded(
-              child: AsyncView<List<SellableItem>>(
-                value: editing == null
-                    ? results
-                    : results.whenData(
-                        (items) => [for (final i in items) editing.withSold(i)],
-                      ),
-                onRetry: () => ref.invalidate(posSearchProvider(query)),
-                builder: (context, items) => items.isEmpty
-                    ? MessageState(
-                        title: query.text.isEmpty
-                            ? l10n.posStartTitle
-                            : l10n.posNoResults,
-                        body: query.text.isEmpty
-                            ? l10n.posStartBody
-                            : l10n.posNoResultsBody,
-                        icon: Icons.qr_code_scanner,
-                        // Nothing on the shelf by that name: write it down
-                        // here, with the customer still waiting, rather than
-                        // send the cashier to another screen.
-                        action: query.text.isEmpty || query.packages
-                            ? null
-                            : PermissionGate(
-                                perm: P.inventoryProductCreate,
-                                child: OutlinedButton.icon(
-                                  onPressed: _newProduct,
-                                  icon: const Icon(Icons.add),
-                                  label: Text(l10n.newProduct),
+              child: AsyncView<PosShelf>(
+                value: shelf,
+                onRetry: () => ref.invalidate(posShelfProvider),
+                builder: (context, shelf) {
+                  final items = shelf.items;
+                  return items.isEmpty
+                      ? MessageState(
+                          title: query.text.isEmpty
+                              ? l10n.posStartTitle
+                              : l10n.posNoResults,
+                          body: query.text.isEmpty
+                              ? l10n.posStartBody
+                              : l10n.posNoResultsBody,
+                          icon: Icons.qr_code_scanner,
+                          // Nothing on the shelf by that name: write it down
+                          // here, with the customer still waiting, rather than
+                          // send the cashier to another screen.
+                          action: query.text.isEmpty || query.packages
+                              ? null
+                              : PermissionGate(
+                                  perm: P.inventoryProductCreate,
+                                  child: OutlinedButton.icon(
+                                    onPressed: _newProduct,
+                                    icon: const Icon(Icons.add),
+                                    label: Text(l10n.newProduct),
+                                  ),
                                 ),
-                              ),
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: Insets.s8,
-                        ),
-                        itemCount: items.length,
-                        separatorBuilder: (_, _) =>
-                            const Divider(height: 1, indent: Insets.gutter),
-                        itemBuilder: (context, i) => _ProductRow(
-                          item: items[i],
-                          inCart: cart.lineFor(items[i])?.qty,
-                          onTap: () => _addToCart(items[i]),
-                        ),
-                      ),
+                        )
+                      : ListView.separated(
+                          controller: _shelfScroll,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: Insets.s8,
+                          ),
+                          // One row past the page for the footer: either a
+                          // spinner, or the way to ask for the rest when this
+                          // page is too short to scroll.
+                          itemCount: items.length + (shelf.hasMore ? 1 : 0),
+                          separatorBuilder: (_, _) =>
+                              const Divider(height: 1, indent: Insets.gutter),
+                          itemBuilder: (context, i) {
+                            if (i >= items.length) {
+                              return _ShelfFooter(onMore: _loadMore);
+                            }
+                            final item = editing == null
+                                ? items[i]
+                                : editing.withSold(items[i]);
+                            return _ProductRow(
+                              item: item,
+                              inCart: cart.lineFor(item)?.qty,
+                              onTap: () => _addToCart(item),
+                            );
+                          },
+                        );
+                },
               ),
             ),
           ],
@@ -357,6 +404,37 @@ class _PosScreenState extends ConsumerState<PosScreen> {
       bottomNavigationBar: lookups.maybeWhen(
         data: (data) => _CartBar(lookups: data, justAdded: _justAdded),
         orElse: () => null,
+      ),
+    );
+  }
+}
+
+/// The end of a page: a spinner while the next one is in flight, or the button
+/// that asks for it.
+///
+/// Both are offered because a page can be too short to scroll — a shop with
+/// sixty products on a tablet never reaches the bottom of the window, so there
+/// would be no scroll to trigger the next page.
+class _ShelfFooter extends ConsumerWidget {
+  const _ShelfFooter({required this.onMore});
+
+  final VoidCallback onMore;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    final busy = ref.watch(posShelfProvider.notifier).isLoadingMore;
+
+    return Padding(
+      padding: const EdgeInsets.all(Insets.s24),
+      child: Center(
+        child: busy
+            ? const SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : TextButton(onPressed: onMore, child: Text(l10n.loadMore)),
       ),
     );
   }

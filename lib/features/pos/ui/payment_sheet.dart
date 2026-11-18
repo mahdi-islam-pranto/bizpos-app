@@ -16,6 +16,7 @@ import '../data/pos_models.dart';
 import '../data/pos_repository.dart';
 import '../state/cart.dart';
 import '../state/invoice_edit.dart';
+import '../state/shelf.dart';
 import 'cart_sheet.dart' show SaleBlockedNotice;
 import 'checkout_done_sheet.dart';
 import 'customer_picker_sheet.dart';
@@ -361,6 +362,10 @@ void refreshAfterSale(WidgetRef ref) {
   }
   // The drawer figure and the held list both move with a sale.
   ref.invalidate(posLookupsProvider);
+  // Stock moved, so the shelf on screen is now counting yesterday's bottles.
+  // Re-read the window the counter is showing rather than leaving it stale
+  // until something else happens to refresh it.
+  ref.invalidate(posShelfProvider);
   ref.invalidate(salesListProvider);
   ref.invalidate(customersProvider);
   ref.invalidate(customerLedgerProvider);

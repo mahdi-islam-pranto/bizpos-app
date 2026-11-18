@@ -287,6 +287,45 @@ void main() {
       expect(CartLine(item: product(42), qty: 1).maxLineDiscount(), isNull);
     });
 
+    test('the discount percentage starts at zero until something is given away',
+        () {
+      final line = CartLine(item: product(42, price: 100), qty: 2);
+
+      expect(line.discountPercent()!.toDouble(), 0);
+    });
+
+    test('the discount percentage follows the unit price being typed', () {
+      final line = CartLine(item: product(42, price: 100), qty: 2);
+
+      expect(line.discountPercent(price: 90)!.toDouble(), 10);
+    });
+
+    test('the discount percentage follows the line discount being typed', () {
+      final line = CartLine(item: product(42, price: 100), qty: 2);
+
+      expect(line.discountPercent(discount: 20)!.toDouble(), 10);
+    });
+
+    test('the discount percentage counts both, off the shelf value', () {
+      // 2 × 100 on the shelf; 2 × 90 typed, less a further 10 off the line.
+      final line = CartLine(item: product(42, price: 100), qty: 2);
+
+      expect(line.discountPercent(price: 90, discount: 10)!.toDouble(), 15);
+    });
+
+    test('a price above the shelf is a rise, not a discount', () {
+      final line = CartLine(item: product(42, price: 100), qty: 1);
+
+      expect(line.discountPercent(price: 120)!.toDouble(), 0);
+    });
+
+    test('no percentage when there is no selling price', () {
+      expect(
+        CartLine(item: product(42, price: 0), qty: 1).discountPercent(),
+        isNull,
+      );
+    });
+
     test('the bill rate stops where the basket meets its cost', () {
       final cart = Cart(
         lines: [CartLine(item: product(42, price: 10, cost: 9), qty: 10)],

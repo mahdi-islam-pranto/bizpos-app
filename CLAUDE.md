@@ -449,9 +449,10 @@ The repository's `CancelToken` dies with the session scope, and the scope epoch
 is bumped by the `/me` refresh on foreground-resume and after any 403. A search
 started by hand in `initState` loses that race, comes back `CancelledException`,
 and `AsyncView` renders that as a spinner with no retry — a till with no
-products in it and no way to get any. `posSearchProvider` and
-`posCustomerSearchProvider` are keyed on a value-type query so Riverpod re-runs
-them against the new repository instead.
+products in it and no way to get any. `posQueryProvider` and
+`posShelfProvider` keep the till's question and the rows it answered with, so a
+query change re-runs the search against the new repository instead —
+`posCustomerSearchProvider` is a family keyed on its text for the same reason.
 
 ## Theme traps
 

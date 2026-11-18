@@ -376,6 +376,7 @@
   "productCount": "{count, plural, other{{count}টি পণ্য}}",
   "showingOf": "{total}টির মধ্যে {shown}টি",
   "costLabel": "ক্রয়মূল্য",
+  "discountPercent": "ছাড় %",
   "saleLabel": "বিক্রয়মূল্য",
   "wholesaleLabel": "পাইকারি",
   "mrpLabel": "এমআরপি",
