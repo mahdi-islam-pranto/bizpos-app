@@ -11,8 +11,9 @@ import 'printer_service.dart';
 /// Set in the platform sans (Roboto on Android) rather than monospace: the
 /// columns are laid out by rows, not by spaces, and Android's monospace face
 /// has a single weight, so its "bold" was a smear the thermal head barely
-/// told apart from the body. Body text is medium weight and bold is black
-/// weight, so both survive the one-bit threshold.
+/// told apart from the body. Body text is regular weight and emphasis is bold
+/// — enough for the one-bit threshold to keep them apart, without the slab of
+/// black that black-weight type became on paper.
 ///
 /// It is laid out at [paper]'s logical width and captured at the printer's dot
 /// width, so what the preview shows is, pixel for pixel, what the paper gets.
@@ -47,12 +48,16 @@ class ReceiptView extends StatelessWidget {
     final tag = locale == 'bn' ? 'bn_BD' : 'en_US';
     final base = paper == ReceiptPaper.mm58 ? 14.0 : 16.0;
 
+    // A touch lighter than before: medium body and black emphasis made the
+    // whole slip read as one dark block, especially once the one-bit threshold
+    // flattened every grey to black. Regular body and bold emphasis still tell
+    // apart on paper and are easier to read.
     TextStyle style({double scale = 1, bool bold = false}) => TextStyle(
       fontFamilyFallback: const ['Roboto', 'Noto Sans Bengali'],
       color: _ink,
       fontSize: base * scale,
       height: 1.25,
-      fontWeight: bold ? FontWeight.w900 : FontWeight.w500,
+      fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
 
@@ -62,8 +67,12 @@ class ReceiptView extends StatelessWidget {
     String fig(num v) => figure.format(v);
     String pct(num v) => '${NumberFormat('#0.##', tag).format(v)}%';
 
-    // The heading is the shop and its number, nothing more: no branch, no
-    // address.
+    // The heading is the shop, its address and its number: no branch name, and
+    // no customer details. The store's own address wins; a store that has none
+    // filled in falls back to the branch's, as the phone already does.
+    final storeAddress = (sale.store.address ?? '').trim();
+    final branchAddress = (sale.branch.address ?? '').trim();
+    final address = storeAddress.isNotEmpty ? storeAddress : branchAddress;
     final phone = sale.store.phone ?? sale.branch.phone;
     final at = sale.saleDate?.toLocal();
     final lineOff = sale.lineDiscount ?? 0;
@@ -96,11 +105,19 @@ class ReceiptView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: style(scale: 1.4, bold: true),
             ),
+            // Directly under the name, the way a sign reads: where the shop is,
+            // then how to reach it. Neither is emphasised — the name is.
+            if (address.isNotEmpty)
+              Text(
+                address,
+                textAlign: TextAlign.center,
+                style: style(scale: 0.95),
+              ),
             if ((phone ?? '').isNotEmpty)
               Text(
                 phone!,
                 textAlign: TextAlign.center,
-                style: style(bold: true),
+                style: style(scale: 0.95),
               ),
             if (sale.status.isCancelled) ...[
               const SizedBox(height: 6),

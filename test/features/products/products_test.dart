@@ -117,106 +117,75 @@ void main() {
       expect(find.text('Add a product'), findsNothing);
     });
 
-    testWidgets('the low filter travels as lowOnly=1', (tester) async {
+    testWidgets('the low filter is the server list, emptiest first',
+        (tester) async {
+      backend.productPages = _bandShelf();
       await pump(tester, const ProductsScreen());
       backend.hit.clear();
 
-      await tester.ensureVisible(find.text('Low stock (50)'));
+      await tester.ensureVisible(find.text('Low stock (3)'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Low stock (50)'));
+      await tester.tap(find.text('Low stock (3)'));
       await tester.pumpAndSettle();
 
+      // Both bands are the API's own lists: the filter and the order are the
+      // server's, so only the parameter travels and nothing is re-sorted here.
       expect(backend.lastQuery['lowOnly'], 1);
-    });
+      expect(backend.lastQuery.containsKey('highOnly'), isFalse);
+      expect(_names(tester), ['Zulu Empty 10mg', 'Mike One 10mg']);
 
-    testWidgets('both bands show their count from the stats', (tester) async {
-      await pump(tester, const ProductsScreen());
-
-      // 1607 products, 50 of them low.
-      expect(find.text('Low stock (50)'), findsOneWidget);
-      expect(find.text('High stock (1557)'), findsOneWidget);
-    });
-
-    testWidgets('the high filter keeps reading pages until it finds some',
-        (tester) async {
-      await pump(tester, const ProductsScreen());
-
-      await tester.ensureVisible(find.text('High stock (1557)'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('High stock (1557)'));
-      await tester.pumpAndSettle();
-
-      expect(tester.takeException(), isNull);
-      // There is no high filter on the API: nothing goes over the wire...
-      expect(backend.lastQuery.containsKey('lowOnly'), isFalse);
-      // ...and page one's only product (5 on a minimum of 10) is low, so the
-      // list goes on to page two rather than standing empty.
-      expect(find.text('3 F 500(20 Pcs) 500 mg'), findsNothing);
-      expect(find.text('Second Page Syrup 100ml'), findsOneWidget);
-    });
-
-    testWidgets('the high filter puts the fullest shelf at the top',
-        (tester) async {
-      Map<String, dynamic> item(
-        int id,
-        String name,
-        num stock,
-        num minimum,
-      ) => {
-        ...PosBackend.shelfItem,
-        'id': id,
-        'name': name,
-        'stock': stock,
-        'minimumStock': minimum,
-      };
-
-      backend.productPages = [
-        // Alternating high and low, so the band has to be filled across server
-        // pages and then ordered by what is actually on the shelf.
-        [
-          item(11, 'Ten Left 10mg', 10, 2),
-          item(12, 'Low On Page One 10mg', 1, 5),
-        ],
-        [
-          item(21, 'Twenty Left 10mg', 20, 2),
-          item(22, 'Low On Page Two 10mg', 0, 5),
-        ],
-        [
-          item(31, 'Thirty Left 10mg', 30, 2),
-          item(32, 'Low On Page Three 10mg', 0, 5),
-        ],
-      ];
-
-      await pump(tester, const ProductsScreen());
-      await tester.ensureVisible(find.text('High stock (1557)'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('High stock (1557)'));
-      await tester.pumpAndSettle();
-
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(ProductsScreen)),
-      );
-      List<String> order() => [
-        for (final product
-            in container.read(productsListProvider).value!.items)
-          product.name,
-      ];
-
-      // The twenty came from page two and belongs above the ten from page one.
-      expect(order(), ['Twenty Left 10mg', 'Ten Left 10mg']);
-
-      // A later page can hold more stock still; the whole list is re-sorted,
-      // not each page on its own.
       await tester.ensureVisible(find.text('Load more'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Load more'));
       await tester.pumpAndSettle();
 
-      expect(order(), [
-        'Thirty Left 10mg',
-        'Twenty Left 10mg',
-        'Ten Left 10mg',
+      // Least stock first, across the page break: 0, 1, then 3.
+      expect(_names(tester), [
+        'Zulu Empty 10mg',
+        'Mike One 10mg',
+        'Alpha Three 10mg',
       ]);
+    });
+
+    testWidgets('the high filter is the server list, fullest first',
+        (tester) async {
+      backend.productPages = _bandShelf();
+      await pump(tester, const ProductsScreen());
+      backend.hit.clear();
+
+      await tester.ensureVisible(find.text('High stock (3)'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('High stock (3)'));
+      await tester.pumpAndSettle();
+
+      expect(backend.lastQuery['highOnly'], 1);
+      expect(backend.lastQuery.containsKey('lowOnly'), isFalse);
+
+      // Most stock first — 40, then 30. Alphabetical would have been Alpha,
+      // Mike, Zulu, which is the order that looked wrong before.
+      expect(_names(tester), ['Alpha Forty 10mg', 'Zulu Thirty 10mg']);
+
+      await tester.ensureVisible(find.text('Load more'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Load more'));
+      await tester.pumpAndSettle();
+
+      expect(_names(tester), [
+        'Alpha Forty 10mg',
+        'Zulu Thirty 10mg',
+        'Mike Twenty 10mg',
+      ]);
+    });
+
+    testWidgets('the chips count each band, not everything that is not low',
+        (tester) async {
+      backend.productPages = _bandShelf();
+      await pump(tester, const ProductsScreen());
+
+      // Eight products: three low, two normal, three high. `total − lowCount`
+      // would have said five high; the list's own `meta` says three.
+      expect(find.text('Low stock (3)'), findsOneWidget);
+      expect(find.text('High stock (3)'), findsOneWidget);
     });
   });
 
@@ -493,4 +462,37 @@ void main() {
       expect(find.text('Load more'), findsNothing);
     });
   });
+}
+
+/// A shelf with all three bands on it: three low, two normal, three high.
+///
+/// The shop's numbers in the fake backend are 5 and 15, so 0, 1 and 3 are low,
+/// 9 and 10 are normal, and 20, 30 and 40 are high. The names deliberately
+/// disagree with the stock, so a list ordered by name and a list ordered by
+/// stock cannot be mistaken for one another.
+List<List<Map<String, dynamic>>> _bandShelf() {
+  Map<String, dynamic> item(int id, String name, num stock) => {
+    ...PosBackend.shelfItem,
+    'id': id,
+    'name': name,
+    'stock': stock,
+  };
+
+  return [
+    [item(11, 'Zulu Empty 10mg', 0), item(12, 'Mike One 10mg', 1)],
+    [item(13, 'Alpha Three 10mg', 3), item(21, 'Nine Left 10mg', 9)],
+    [item(22, 'Ten Left 10mg', 10), item(31, 'Alpha Forty 10mg', 40)],
+    [item(32, 'Zulu Thirty 10mg', 30), item(33, 'Mike Twenty 10mg', 20)],
+  ];
+}
+
+/// The names in the list's own state, in the order the screen shows them.
+List<String> _names(WidgetTester tester) {
+  final container = ProviderScope.containerOf(
+    tester.element(find.byType(ProductsScreen)),
+  );
+  return [
+    for (final product in container.read(productsListProvider).value!.items)
+      product.name,
+  ];
 }

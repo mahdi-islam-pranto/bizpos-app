@@ -98,7 +98,7 @@ and a profile screen. Phase 1 is the counter: POS with camera scanning, cart,
 customer picker, split payment, loyalty redemption, cash drawer and held carts;
 invoices with returns, due collection and void; customers with ledger and
 points. Phase 2 so far is `lib/features/products/`: the paginated product list
-with `lowOnly` and the `trashed=1` list, product detail with movement and price
+with `lowOnly`/`highOnly` and the `trashed=1` list, product detail with movement and price
 history, manual create / edit / soft-delete / restore, `PATCH
 /products/{id}/prices` and `POST /products/{id}/adjust`; `lib/features/packages/`
 (bundles CRUD with availability and date window); `lib/features/catalogue/`
@@ -108,10 +108,13 @@ catalogue's prices and MRP, suggest with a live `/catalog/check` verdict and the
 `lib/features/purchases/` (bill list, goods-in at `/purchase/new` with supplier
 search or a new `supplierName`, batch/expiry lines, bill `discountPercent`,
 paid-from account, and bill photos). The product list has **Low / High stock** chips
-(`StockLevel`): low is the server's `lowOnly=1`, high has no endpoint and is
-filtered client-side (`stock > 0 && !isLow`); both keep reading pages until
-one is full, and the counts are `lowCount` and `total − lowCount` off
-`/products/stats`. Phases 3 and 4 add money, team and
+(`StockLevel`): both are the server's own lists — low is `lowOnly=1` (under the
+shop's low number, least stock first) and high is `highOnly=1` (at or over its
+high number, most stock first) — so the app sends the flag, shows pages as they
+arrive, and never re-filters or re-sorts. The shop's numbers are
+`meta.lowBelow`/`meta.highFrom`, each row's `stockLevel`/`outOfStock` say where
+it sits, and the chip counts come from `meta.lowCount`/`meta.highCount` (not
+`total − lowCount`: there are normal products between the bands). Phases 3 and 4 add money, team and
 platform; printing comes last.
 
 Phase 2 details that are easy to break:

@@ -57,6 +57,8 @@ class Product {
     this.stock,
     this.isActive = true,
     this.trackBatch = false,
+    this.stockLevel,
+    this.outOfStock,
     this.deletedAt,
     this.addedBy,
     this.changedBy,
@@ -101,6 +103,17 @@ class Product {
   final bool isActive;
   final bool trackBatch;
 
+  /// The shop's band for this row, as the server worked it out: `low` (under
+  /// the shop's low number, zero included), `high` (at or over its high number)
+  /// or `normal`. Null on replies from before the field existed.
+  ///
+  /// The shop's numbers are settings, not the product's [minimumStock], so the
+  /// app cannot derive this correctly and should not try when it is told.
+  final String? stockLevel;
+
+  /// Whether the shelf is empty. Null when the reply did not say.
+  final bool? outOfStock;
+
   /// Set only on the `trashed=1` list. A soft delete: the product leaves every
   /// stock figure and the till, and `POST /products/{id}/restore` puts it back.
   final DateTime? deletedAt;
@@ -110,10 +123,12 @@ class Product {
 
   bool get isDeleted => deletedAt != null;
 
-  bool get isLow =>
-      stock != null && minimumStock != null && stock! <= minimumStock!;
+  bool get isLow => switch (stockLevel) {
+    final level? => level == 'low',
+    null => stock != null && minimumStock != null && stock! <= minimumStock!,
+  };
 
-  bool get isOut => stock != null && stock! <= 0;
+  bool get isOut => outOfStock ?? (stock != null && stock! <= 0);
 
   /// What the shop makes on one, or null when the cost is hidden.
   num? get margin => purchasePrice == null ? null : salePrice - purchasePrice!;
@@ -137,6 +152,8 @@ class Product {
     stock: _numOrNull(json['stock']),
     isActive: json['isActive'] == null || _bool(json['isActive']),
     trackBatch: _bool(json['trackBatch']),
+    stockLevel: _strOrNull(json['stockLevel']),
+    outOfStock: json['outOfStock'] == null ? null : _bool(json['outOfStock']),
     deletedAt: AppDates.parse(json['deletedAt']),
     addedBy: _strOrNull(json['addedBy']),
     changedBy: _strOrNull(json['changedBy']),

@@ -9,22 +9,15 @@ import 'product_models.dart';
 
 /// Which stock band the list is narrowed to.
 ///
-/// [low] is at or under the product's minimum (the server's `lowOnly=1`);
-/// [high] is everything comfortably above it. The API has no high filter, so
-/// that one is applied here, over the pages as they arrive.
+/// Both are the server's own lists now: `lowOnly=1` is everything under the
+/// shop's low number, least stock first, and `highOnly=1` everything at or over
+/// its high number, most stock first. The numbers are shop settings, not the
+/// product's `minimumStock`, so the app must not try to work the bands out
+/// itself — it would disagree with the counts on the chips.
 enum StockLevel {
   all,
   low,
-  high;
-
-  /// Whether [product] belongs in this band. Null stock (a role without
-  /// `inventory.stock.view`) belongs only to [all].
-  bool admits(Product product) => switch (this) {
-    StockLevel.all => true,
-    StockLevel.low => product.isLow,
-    StockLevel.high =>
-      product.stock != null && product.stock! > 0 && !product.isLow,
-  };
+  high,
 }
 
 /// Which slice of the shelves the list is showing.
@@ -42,6 +35,7 @@ class ProductFilter {
   final StockLevel level;
 
   bool get lowOnly => level == StockLevel.low;
+  bool get highOnly => level == StockLevel.high;
 
   /// `trashed=1` lists the soft-deleted products **instead of** the live ones.
   /// It is a different list, not a filter on this one, which is why the screen
@@ -95,6 +89,7 @@ class ProductsRepository {
       query: {
         'q': filter.text,
         if (filter.lowOnly) 'lowOnly': 1,
+        if (filter.highOnly) 'highOnly': 1,
         if (filter.trashed) 'trashed': 1,
         'page': page,
         'perPage': perPage,
@@ -342,42 +337,20 @@ class ProductsListController extends AsyncNotifier<Paged<Product>> {
     return _fetch(ref.watch(productsRepositoryProvider), filter, null);
   }
 
-  /// A page of the list — or, with a stock band on, as many server pages as
-  /// it takes to fill one.
+  /// One page of the list.
   ///
-  /// Both bands narrow a page *after* it is cut (`lowOnly` "filters the
-  /// current page only", and high is done here), so a single page can come
-  /// back with two rows or none while hundreds more match further on. A list
-  /// that short never scrolls, and so never asks for the rest.
+  /// Both stock bands are the server's own lists (`lowOnly` / `highOnly`): they
+  /// are filtered *and* ordered there, least or most stock first, and `meta`
+  /// counts only the rows that match. So a page is a page — nothing to widen,
+  /// re-filter or re-sort here, and the order on screen is the server's.
   Future<Paged<Product>> _fetch(
     ProductsRepository repo,
     ProductFilter filter,
     Paged<Product>? after,
-  ) async {
-    const maxPagesPerFill = 12;
-    var next = await repo.list(
-      filter: filter,
-      page: after == null ? 1 : after.nextPage,
-    );
-    if (filter.level == StockLevel.all) return next;
-
-    final found = next.items.where(filter.level.admits).toList();
-    var fetched = 1;
-    while (found.length < next.perPage &&
-        next.hasMore &&
-        fetched < maxPagesPerFill) {
-      next = await repo.list(filter: filter, page: next.nextPage);
-      found.addAll(next.items.where(filter.level.admits));
-      fetched++;
-    }
-    return Paged(
-      items: _ordered(found, filter.level),
-      total: next.total,
-      page: next.page,
-      perPage: next.perPage,
-      meta: next.meta,
-    );
-  }
+  ) => repo.list(
+    filter: filter,
+    page: after == null ? 1 : after.nextPage,
+  );
 
   Future<void> loadMore() async {
     final current = state.value;
@@ -398,11 +371,10 @@ class ProductsListController extends AsyncNotifier<Paged<Product>> {
 
       state = AsyncValue.data(
         Paged(
-          // Re-sorting the whole accumulated list matters for the high band:
-          // the next server page can hold more stock than the first, and the
-          // heaviest shelf should stay at the top rather than only be heaviest
-          // within its own page.
-          items: _ordered([...current.items, ...next.items], filter.level),
+          // Appended, in the order the server sent them: the band's ordering
+          // holds across pages, so a later page never belongs above an earlier
+          // one.
+          items: [...current.items, ...next.items],
           total: next.total,
           page: next.page,
           perPage: next.perPage,
@@ -424,23 +396,6 @@ final productsListProvider =
     AsyncNotifierProvider<ProductsListController, Paged<Product>>(
       ProductsListController.new,
     );
-
-/// The order the list is shown in.
-///
-/// Only the high band is reordered: it means "the fullest shelves first", so
-/// the product with the most stock is the one at the top. The server order is
-/// kept as the tie-breaker, because two products with the same count are the
-/// same answer and should not shuffle between rebuilds.
-List<Product> _ordered(List<Product> items, StockLevel level) {
-  if (level != StockLevel.high) return items;
-
-  final indexed = items.indexed.toList()
-    ..sort((a, b) {
-      final byStock = (b.$2.stock ?? 0).compareTo(a.$2.stock ?? 0);
-      return byStock != 0 ? byStock : a.$1.compareTo(b.$1);
-    });
-  return [for (final entry in indexed) entry.$2];
-}
 
 final productStatsProvider = FutureProvider<ProductStats>((ref) {
   ref.watch(sessionScopeProvider);

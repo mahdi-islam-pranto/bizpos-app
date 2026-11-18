@@ -56,10 +56,14 @@ void main() {
     'seller': 'Abdur Rahman',
     'store': {
       'name': 'Shamim Pharmacy',
+      'address': '12 Mirpur Road, Dhaka 1216',
       'phone': '01711000009',
       'currency': 'BDT',
     },
-    'branch': {'name': 'Shamim Pharmacy'},
+    'branch': {
+      'name': 'Shamim Pharmacy',
+      'address': '9 Old Market, Dhaka',
+    },
     'items': [
       {
         'id': 1,
@@ -154,6 +158,19 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('Shamim Pharmacy'), findsOneWidget);
+    // The pharmacy's address sits under its name, before the phone, and the
+    // store's own address wins over the branch's.
+    final address = find.text('12 Mirpur Road, Dhaka 1216');
+    expect(address, findsOneWidget);
+    expect(find.text('9 Old Market, Dhaka'), findsNothing);
+    expect(
+      tester.getTopLeft(address).dy,
+      greaterThan(tester.getTopLeft(find.text('Shamim Pharmacy')).dy),
+    );
+    expect(
+      tester.getTopLeft(address).dy,
+      lessThan(tester.getTopLeft(find.text('01711000009')).dy),
+    );
     expect(find.text('INV-2026-001567'), findsOneWidget);
     expect(find.text('Abdur Rahman'), findsOneWidget);
     expect(find.text('4 × 288.50'), findsOneWidget);
@@ -169,6 +186,19 @@ void main() {
     expect(find.text('DUE ON THIS BILL'), findsNothing);
     expect(find.text('TOTAL DUE'), findsNothing);
     expect(find.text('Thank you, please come again'), findsOneWidget);
+  });
+
+  testWidgets('the slip is set lighter than one dark slab of ink', (
+    tester,
+  ) async {
+    await pump(tester, FakePrinter());
+
+    // Body figures are regular, not medium; emphasis is bold, not black. Both
+    // still take the one-bit threshold, without the printed slip reading as a
+    // solid block.
+    TextStyle? weightOf(String s) => tester.widget<Text>(find.text(s)).style;
+    expect(weightOf('CASH')?.fontWeight, FontWeight.w400);
+    expect(weightOf('TOTAL')?.fontWeight, FontWeight.w700);
   });
 
   testWidgets('a bill on the khata names the customer and the dues', (

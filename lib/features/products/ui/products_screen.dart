@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router/shell_nav.dart';
 import '../../../core/format/money.dart';
+import '../../../core/network/envelope.dart';
 import '../../../core/network/paged.dart';
 import '../../../core/permissions/permission_gate.dart';
 import '../../../core/permissions/permissions.dart';
@@ -136,10 +137,6 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                       if (i >= page.items.length) {
                         return _Footer(
                           page: page,
-                          bandTotal: _bandTotal(
-                            filter,
-                            ref.watch(productStatsProvider).value,
-                          ),
                           onMore: () => ref
                               .read(productsListProvider.notifier)
                               .loadMore(),
@@ -158,24 +155,21 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
   }
 }
 
-/// How many products sit in the filter's stock band, from
-/// `GET /products/stats`, or null when there is no band, a search narrows it
-/// further, or the stats have not come (or may not be read).
+/// How many products sit in each stock band, for the chips.
 ///
-/// High is "everything not low": `total − lowCount`.
-int? _bandTotal(ProductFilter filter, ProductStats? stats) {
-  if (stats == null || (filter.text ?? '').isNotEmpty || filter.trashed) {
-    return null;
-  }
-  return switch (filter.level) {
-    StockLevel.all => null,
-    StockLevel.low => stats.lowCount,
-    StockLevel.high => _highCount(stats),
-  };
-}
-
-int _highCount(ProductStats stats) =>
-    (stats.total - stats.lowCount).clamp(0, stats.total);
+/// The counts come from the list's own `meta` (`lowCount`, `highCount`), which
+/// counts only rows in that band. They are not derived from
+/// `GET /products/stats`: `total − lowCount` used to stand in for "high", and
+/// that only worked while every product was either low or high — now there are
+/// normal ones in between.
+///
+/// The low count still falls back to the stats figure, because that endpoint
+/// has always carried `lowCount` and it is the same number. High has no such
+/// fallback, so its chip simply shows no count when the reply does not say.
+({int? low, int? high}) _bandCounts(Meta meta, ProductStats? stats) => (
+  low: meta.intValue('lowCount') ?? stats?.lowCount,
+  high: meta.intValue('highCount'),
+);
 
 /// High and low stock and the deleted list, plus the figures from
 /// `GET /products/stats`.
@@ -194,6 +188,8 @@ class _Filters extends ConsumerWidget {
     final money = ref.watch(moneyProvider);
     final controller = ref.read(productFilterProvider.notifier);
     final stats = ref.watch(productStatsProvider).value;
+    final list = ref.watch(productsListProvider).value;
+    final counts = _bandCounts(list?.meta ?? const Meta.empty(), stats);
 
     return SizedBox(
       height: 44,
@@ -203,9 +199,9 @@ class _Filters extends ConsumerWidget {
         children: [
           FilterChip(
             label: Text(
-              stats == null
+              counts.low == null
                   ? l10n.productsLowOnly
-                  : l10n.productsLowCount(stats.lowCount),
+                  : l10n.productsLowCount(counts.low!),
             ),
             avatar: Icon(
               Icons.trending_down,
@@ -218,9 +214,9 @@ class _Filters extends ConsumerWidget {
           const SizedBox(width: Insets.s8),
           FilterChip(
             label: Text(
-              stats == null
+              counts.high == null
                   ? l10n.productsHighOnly
-                  : l10n.productsHighCount(_highCount(stats)),
+                  : l10n.productsHighCount(counts.high!),
             ),
             avatar: Icon(
               Icons.trending_up,
@@ -309,14 +305,10 @@ class _Empty extends StatelessWidget {
 /// whenever there is more would spin for ever on a first page too short to
 /// scroll, which is exactly the case where somebody needs the button.
 class _Footer extends ConsumerWidget {
-  const _Footer({required this.page, required this.onMore, this.bandTotal});
+  const _Footer({required this.page, required this.onMore});
 
   final Paged<Product> page;
   final VoidCallback onMore;
-
-  /// The size of the stock band being shown, when known. With a band on,
-  /// `page.total` counts every product, not the ones that match.
-  final int? bandTotal;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -332,7 +324,7 @@ class _Footer extends ConsumerWidget {
             Text(
               l10n.showingOf(
                 page.items.length.toString(),
-                (bandTotal ?? page.total).toString(),
+                page.total.toString(),
               ),
               style: Theme.of(context).textTheme.bodySmall
                   ?.copyWith(color: palette.muted),
@@ -371,7 +363,9 @@ class _ProductRow extends ConsumerWidget {
     final (stockLabel, stockTone) = switch (stock) {
       // Null is a role without `inventory.stock.view`, not an empty shelf.
       null => (null, palette.muted),
-      final s when s <= 0 => (l10n.outOfStock, palette.danger),
+      // The row's own `outOfStock` when the reply carries it; the figure
+      // otherwise.
+      final s when product.isOut => (l10n.outOfStock, palette.danger),
       // Low still says how many: "low" alone sends the reader to the detail
       // page for the one figure they wanted.
       final s when product.isLow => (

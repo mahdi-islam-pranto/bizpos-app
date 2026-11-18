@@ -419,9 +419,48 @@ class PosBackend implements HttpClientAdapter {
         status = 201;
         body = {'data': {'id': 99, 'name': createBody!['name'], 'catalogueId': 7}};
       } else {
-        final trashed = options.queryParameters['trashed'] != null;
-        final page = int.tryParse('${options.queryParameters['page']}') ?? 1;
+        final query = options.queryParameters;
+        final trashed = query['trashed'] != null;
+        final page = int.tryParse('${query['page']}') ?? 1;
         final pages = productPages;
+
+        // The shop's own two numbers, the ones `meta.lowBelow` / `meta.highFrom`
+        // carry: under the first is low, at or over the second is high, and
+        // anything between them is normal.
+        const lowBelow = 5;
+        const highFrom = 15;
+
+        Map<String, dynamic> levelled(Map<String, dynamic> item) {
+          final stock = item['stock'] as num? ?? 0;
+          return {
+            ...item,
+            'stockLevel': stock < lowBelow
+                ? 'low'
+                : stock >= highFrom
+                ? 'high'
+                : 'normal',
+            'outOfStock': stock <= 0,
+          };
+        }
+
+        final band = query['lowOnly'] != null
+            ? 'low'
+            : query['highOnly'] != null
+            ? 'high'
+            : query['stockLevel'] ?? query['level'] ?? query['filter'];
+        final wanted = band == 'low' || band == 'high' ? band : null;
+
+        // Everything the shop stocks, one row per product, whatever the pages
+        // it was recorded in — the band counts and sorts are over the lot.
+        final catalogue = [
+          for (final row in pages ?? [
+            [shelfItem],
+            [secondPageItem],
+          ])
+            for (final item in row) levelled(item),
+        ];
+        int countOf(String level) =>
+            catalogue.where((row) => row['stockLevel'] == level).length;
 
         final List<Map<String, dynamic>> rows;
         final int total;
@@ -430,18 +469,39 @@ class PosBackend implements HttpClientAdapter {
           rows = [deletedItem];
           total = 1;
           perPage = 1;
-        } else if (pages != null) {
-          rows = page >= 1 && page <= pages.length
-              ? pages[page - 1]
-              : const <Map<String, dynamic>>[];
-          total = pages.fold(0, (sum, rows) => sum + rows.length);
-          perPage = rows.isEmpty ? 0 : rows.length;
+        } else if (wanted == null) {
+          // The plain A→Z list keeps its recorded pages as they are, one row a
+          // page by default, so the scrolling tests have a second page.
+          if (pages != null) {
+            rows = page >= 1 && page <= pages.length
+                ? [for (final item in pages[page - 1]) levelled(item)]
+                : const <Map<String, dynamic>>[];
+            total = pages.fold(0, (sum, row) => sum + row.length);
+            perPage = rows.isEmpty ? 0 : rows.length;
+          } else {
+            rows = page == 1 ? [shelfItem] : [secondPageItem];
+            total = 2;
+            perPage = 1;
+          }
         } else {
-          // Two pages of one, so the "load more" path is exercised rather than
-          // asserted away by a total that always fits on the first page.
-          rows = page == 1 ? [shelfItem] : [secondPageItem];
-          total = 2;
-          perPage = 1;
+          // A real filter and a real sort: high is fullest first, low is
+          // emptiest first, ties by name. Two rows a page, so a test has to
+          // turn the page to see the whole band.
+          final matching = [
+            for (final row in catalogue)
+              if (row['stockLevel'] == wanted) row,
+          ]..sort((a, b) {
+              final byStock = ((a['stock'] as num?) ?? 0).compareTo(
+                (b['stock'] as num?) ?? 0,
+              );
+              if (byStock != 0) return wanted == 'high' ? -byStock : byStock;
+              return '${a['name']}'.compareTo('${b['name']}');
+            });
+          const bandPerPage = 2;
+          rows = matching.skip((page - 1) * bandPerPage).take(bandPerPage)
+              .toList();
+          total = matching.length;
+          perPage = bandPerPage;
         }
 
         body = {
@@ -452,6 +512,11 @@ class PosBackend implements HttpClientAdapter {
             'perPage': perPage,
             'showCost': !hideCost,
             'trashedCount': 1,
+            'filter': wanted,
+            'lowCount': countOf('low'),
+            'highCount': countOf('high'),
+            'lowBelow': lowBelow,
+            'highFrom': highFrom,
           },
         };
       }

@@ -430,8 +430,9 @@ are per branch, so reload the screens.
 { "locale": "en", "theme": "midnight" }
 ```
 
-`locale` is `bn` or `en`. `theme` is `daylight`, `midnight`, `workspace`,
-`paper` or `contrast`. Both are optional and saved on the account.
+`locale` is `bn` or `en`. `theme` is `daylight`, `midnight`, `workspace` or
+`paper` (`contrast` was removed; an account still set to it opens in
+`daylight`). Both are optional and saved on the account.
 
 ### `GET /auth/devices` and `DELETE /auth/devices/{id}`
 
@@ -473,6 +474,19 @@ from `/me`.
 ✅ = has it by default. Super Admin has every permission and is left out of the
 table.
 
+**Every role's permissions can be changed per store** (Settings → Roles, or
+`PATCH /settings/roles/{id}`, `settings.role.manage`). Editing a system role
+(Manager, Cashier, Stock Keeper, Accountant, Auditor) changes it for **this
+store only**: the store gets its own version of it, its members move onto it,
+and other stores keep the system role as it was. Store Owner and Super Admin
+cannot be edited (`422 locked`). `DELETE` on that version resets the role to
+default and moves its members back.
+
+`sales.invoice.edit` is the owner's by default and nobody else's. To let a
+cashier edit invoices in one store: Settings → Roles → Cashier → tick **Edit an
+invoice** under Sales & Returns → Save. From then on `meta.mayEdit` is true for
+them and `GET/POST /sales/{id}/edit` answer.
+
 Abbreviations: **OW** Owner · **MG** Manager · **CA** Cashier · **SK** Stock
 Keeper · **AC** Accountant · **AU** Auditor
 
@@ -504,6 +518,7 @@ Keeper · **AC** Accountant · **AU** Auditor
 | `sales.invoice.view_all` — everyone's invoices | ✅ | ✅ | ✅ | | ✅ | ✅ |
 | `sales.return.create` — accept a return | ✅ | ✅ | ✅ | | | |
 | `sales.payment.collect` — collect a due | ✅ | ✅ | ✅ | | ✅ | |
+| `sales.invoice.edit` — edit an invoice | ✅ | | | | | |
 | **Customers** | | | | | | |
 | `customers.customer.view` | ✅ | ✅ | ✅ | | ✅ | ✅ |
 | `customers.customer.create` | ✅ | ✅ | ✅ | | | |
@@ -600,6 +615,10 @@ column, cannot change anyone's role, and no deletes that the API offers today.
 points), hold and resume carts, quick-add a customer by phone, view **own**
 invoices and reprint, collect a customer's due. Sees stock quantities but no
 costs. Cannot change prices or give discounts: the server ignores those fields.
+Customers in full — the list, search, ledger, **collect due** and **add due**
+(§5.3b) — and the **low stock** and **high stock** lists (§5.3c), without the
+Products screen. Edits an invoice only once the role is given
+`sales.invoice.edit` (§3).
 
 **Stock Keeper (স্টক কিপার).** An inventory app. Products with cost, price
 changes, stock adjustment and damage, stock history, low stock and expiry,
@@ -761,6 +780,72 @@ payment screen is involved.
 2. `POST /sales/{id}/payments` `{"amount": 500, "method": "bkash", "accountId": 2}`.
    More than the due fails: `422 over_payment`.
 
+### 5.3b Customers: collect due, add due (Cashier, Manager, Owner)
+
+The Customers screen's **Collect due / Add due** sheet. Every call below is
+open to the cashier.
+
+1. **List / find**: `GET /customers?q=` (up to 100, with `due`) or
+   `GET /customers/search?q=0171` (2+ characters, up to 8).
+2. **What they owe**: the row's `due` is the **total owed** — invoices plus
+   the previous due. The sheet's "incl. ৳… previous due" line is the row's
+   `openingBalance`.
+3. **History**: `GET /customers/{id}/ledger` — last 100 lines, `meta.totalDue`.
+4. **Collect due**: `POST /customers/{id}/collect`
+
+   ```json
+   { "amount": 446649.02, "discount": 0, "discountReason": "rounded off",
+     "accountId": 1, "method": "cash" }
+   ```
+
+   `amount` is what was received. `discount` (needs
+   `pos.sale.give_discount`) needs a `discountReason` of 3+ characters.
+   `accountId` is the "To account" box (from `lookups.accounts` or
+   `GET /accounts`) — send it, or the money lands in no account's balance.
+   The web form starts it on the cash drawer. Settles the oldest first:
+   previous due, then invoice by invoice. Reply
+   `{collected, discounted, outstanding}` — `outstanding` is the sheet's
+   "Still owed". `422` when amount + discount pass what is owed.
+5. **Add due**: `POST /customers/{id}/add-due` `{"amount": 500, "remark": "Old khata"}`
+   — `remark` required, 3–200 characters. `201 {id, added, outstanding}`.
+
+### 5.3c Low stock and high stock (Cashier, Stock Keeper, Manager, Owner)
+
+The **Low stock (< 5)** and **High stock (≥ 15)** buttons. The two numbers
+are the shop's own (`meta.lowBelow`, `meta.highFrom`), set in Settings or
+from the box beside the button on the web.
+
+- `GET /products?lowOnly=1` — **from 0 up to just under the low number**,
+  least stock first: 0 at the top, then 1, 2, … up to the last low one.
+- `GET /products?highOnly=1` — **at or over the high number**, most stock
+  first.
+- Only active products. Products with the same stock are in name order.
+- The same lists by name: `stockLevel=low|high` (also `level=`, `filter=`).
+  `lowOnly`/`highOnly` take `1` or `true`. **`meta.filter`** says which list
+  came back — `low`, `high`, or `null` for the plain A→Z list. If the app shows
+  the button selected but `meta.filter` is `null`, the parameter was not sent.
+- Both take `q`, `page`, `perPage`. `meta.lowCount` and `meta.highCount` are
+  how many products are on each side, for the buttons' badges.
+- Changing the numbers: `PATCH /products/stock-levels`
+  `{"lowBelow": 5, "highFrom": 15}` (`meta.mayEditLevels` says whether this
+  user may).
+- Cost: when `meta.showCost` is `false` (a cashier), `purchasePrice` is `0` —
+  hide the Cost line rather than print "Cost ৳0".
+- **Every row** also carries:
+  - `stockLevel`: `low` (under `lowBelow`, 0 included), `high` (`highFrom` or
+    more) or `normal`;
+  - `outOfStock`: `true` when `stock` is 0 or less.
+
+  ```json
+  { "id": 12, "name": "Napa 500mg", "stock": 0, "stockLevel": "low", "outOfStock": true, … }
+  { "id": 31, "name": "Seclo 20",   "stock": 59, "stockLevel": "high", "outOfStock": false, … }
+  ```
+- Permission: `inventory.stock.view` is enough **for these two lists**, so a
+  cashier gets them without the Products screen. `GET /products` with
+  neither still needs `inventory.product.view` (`403` otherwise).
+- Without `inventory.product.view_cost` (the cashier) `purchasePrice` is `0`
+  and `profitPercent` is `null`: stock and selling price only.
+
 ### 5.4 Goods in / purchase (Stock Keeper, Manager, Owner)
 
 1. **The party**: `GET /suppliers/search?q=rah` while the user types — it
@@ -802,6 +887,16 @@ payment screen is involved.
    or nothing to pay is `422 purchase`. `payments[]` on the bill marks the
    advance part with `fromAdvance: true`.
 
+3b. **Paying the supplier, not one bill**: `POST /suppliers/{id}/pay`
+   (`purchase.payment.create`), same body. The sum goes on the supplier's
+   bills **oldest first** — the advance part first, then the cash — each
+   paid exactly as `POST /purchases/{id}/pay` would. A bill still waiting
+   for quantities is skipped. More than is owed is `422 purchase` (paying
+   ahead is an advance: `POST /suppliers/{id}/advance`). Reply:
+   `{paidCash, paidFromAdvance, bills[] {id, refNo, cash, advance}, due}` —
+   `due` is what is still owed to the supplier. `GET /suppliers/{id}/log`
+   gives `owing[]` (oldest first) to show which bills a sum will settle.
+
    Correcting a paid bill (`PATCH /purchases/{id}`) keeps its payments; its
    new total cannot be less than what has been paid, and its supplier cannot
    change. Deleting it gives the cash back to the account and the advance back
@@ -814,8 +909,14 @@ payment screen is involved.
    It needs `purchase.supplier.manage`; without it, send a `supplierId` and
    the reply is `403 supplier_create_denied`.
 
-   **`discountPercent`** (0–100) is a rate on the whole bill. The server works
-   out the taka and returns both: `subtotal`, `discount`, `total`. Send
+   **`discountPercent`** (0–100) is a rate on the whole bill, taken off the
+   goods' **MRP** total (Σ qty × product MRP; a product with no MRP counts at
+   its unit cost). With a rate above 0 the bill is worked out on MRP:
+   `subtotal` = MRP total, `total` = MRP total − discount (+ VAT). With no
+   rate, `subtotal` is Σ qty × unit cost as before. Unit cost still sets the
+   stock's cost. The server works out the taka and returns `subtotal`,
+   `discount`, `total`. `/purchases/products` and
+   the bill's `items[]` carry each product's `mrp` so an app can show the same. Send
    `discount` instead to give the figure directly; when both arrive the rate
    wins. The reply carries `supplierId`, whichever way the party arrived.
 4. **The bill as a photograph** — what a shopkeeper actually has when the paper
@@ -945,8 +1046,10 @@ super admin approves ──► added to the shared catalogue for every store
   transactions, categories, `quick` tiles, and today's and this month's expense
   totals.
 - One-tap expense from a quick tile: `POST /expenses` `{"categoryId": 5}`. The
-  amount comes from the type's `defaultAmount`, and the account defaults to the
-  cash drawer.
+  amount comes from the type's `defaultAmount`.
+- **`accountId` is optional.** Left out, the expense is counted as an expense
+  only and no account's balance moves. Sent, the amount comes out of that
+  account (`422 account_not_found` if it does not exist).
 - Normal: `POST /expenses` `{"categoryId": 5, "amount": 350, "accountId": 1, "note": "Tea"}`
   or `{"categoryName": "Van rent", "amount": 1200}`, which creates the type.
   `date` (`YYYY-MM-DD`) records money that left on an earlier day.
@@ -963,7 +1066,12 @@ super admin approves ──► added to the shared catalogue for every store
   `employeeName`, `salaryMonth` and `isSalary`.
 - A quick tile cannot post a salary in one tap — there is nobody's name on a
   button — so open the form with the type already chosen instead.
-- Mistake: `DELETE /expenses/{id}`. The money goes back into the account.
+- Mistake: `DELETE /expenses/{id}`. The money goes back into the account, if
+  it had one.
+- Delete an account: `DELETE /accounts/{id}` — store owner only. Its
+  transactions are deleted with it; sales, purchases and expenses keep their
+  figures. The default account (the cash drawer) gives
+  `422 default_account`. Each account in `GET /accounts` carries `txCount`.
 - Bank deposit: `POST /accounts/transfer` `{"fromAccountId": 1, "toAccountId": 3, "amount": 20000}`.
 
 ### 5.8 Owner's dashboard and reports
@@ -981,7 +1089,7 @@ trimmed and `range.capped` says so. Needs `report.sales.view`.
 | Section | What it answers |
 |---|---|
 | `headline` | `revenue, invoices, averageSale, discountGiven, dueRaised, returned, expenses, grossProfit, netProfit` — profit only with `report.profit.view` |
-| `capital` | Where the money is standing **right now**, not between dates: `stock` at cost (`stockAtPrice`, `stockProducts`, `stockUnits`), `receivable` (`customersOwing`), `advances` paid to suppliers (`advanceSuppliers`), `inAccounts` split into `cash` (the drawer: cash accounts) and `otherAccounts`, `payable` (`suppliersOwed`), `invested` (everything the shop owns) and `net` — the **business capital**: stock + receivable + advances + accounts − payable. Each account by name in `accounts[]`. `turnover.today`, `turnover.week` (last 7 days, today included) and `turnover.month` are fixed windows, whatever `range` is: `{from, days, sales (net of returns), invoices, perDay, collected, dueRaised, returned, purchased, expenses, profit, cogs}` (`profit`/`cogs` null without `report.profit.view`). `turnover.stockDays`: how many days the stock lasts at the last 7 days' pace, or null |
+| `capital` | Where the money is standing **right now**, not between dates: `stock` at cost (`stockAtPrice`, `stockProducts`, `stockUnits`), `receivable` (`customersOwing`), `advances` paid to suppliers (`advanceSuppliers`), `inAccounts` split into `cash` (the drawer: cash accounts) and `otherAccounts`, `payable` (`suppliersOwed`), `invested` (everything the shop owns) and `net` — the **business capital**: stock + receivable + advances + accounts − payable. Each account by name in `accounts[]`. **`flow`** shows the capital as give and take: `opening` (the accounts' opening balances), `lines[] {key, amount}` — signed money in (+) and out (−) by kind: `sales` (received on sales), `dueCollected`, `refunds`, `suppliers` (paid to suppliers), `advances` (advance paid), `expenses`, `other` — and `difference` (balances changed outside the books, normally 0). `opening + Σ lines + difference = inAccounts`; then `inAccounts + stock + receivable + advances − payable = net`. Same `flow` on `GET /accounts/overview`'s `capital`. `turnover.today`, `turnover.week` (last 7 days, today included) and `turnover.month` are fixed windows, whatever `range` is: `{from, days, sales (net of returns), invoices, perDay, collected, dueRaised, returned, purchased, expenses, profit, cogs}` (`profit`/`cogs` null without `report.profit.view`). `turnover.stockDays`: how many days the stock lasts at the last 7 days' pace, or null |
 | `daily` | One row per day: `sales`, `invoices`, `expenses` — the trend line |
 | `payments` | How the bills written in this window were settled, by method |
 | `collections` | Money that **arrived** in this window, whatever it settled: `total`, `onSales`, `onDues`, `onPreviousDue`, `byMethod`. Not the same question as `payments` |
@@ -1403,6 +1511,11 @@ name — the same five ways in everywhere a product is searched for, so typing a
 company name brings up that company's products. An exact barcode still sorts
 first, because a scanner should never make a cashier choose.
 
+**`q` empty (the screen just opened): the best sellers.** Only products with
+stock in this branch (`stock > 0`), the most units sold in the last 30 days
+first, then the rest by name. Out-of-stock products are left off this default
+list — typing a name still finds them.
+
 ```json
 { "data": [ {
   "id": 42, "name": "Napa 500mg", "barcode": "8941100500015", "unit": "pc", "brand": "Beximco",
@@ -1525,10 +1638,32 @@ total**: show the `total` from the response. `201`:
 ```
 
 `paymentStatus` is `paid`, `partial` or `unpaid`. Refusals are `422` with code
-`insufficient_stock` ("Not enough stock for Napa 500mg (4 left)") or `sale`
-(for example "A due amount needs a named customer", "Credit sales are turned off
-for this store", "Walk-in customers cannot buy on credit", a credit limit
-exceeded, "Points need a named customer").
+`insufficient_stock` or `sale` (for example "A due amount needs a named
+customer", "Credit sales are turned off for this store", "Walk-in customers
+cannot buy on credit", a credit limit exceeded, "Points need a named customer").
+
+**No order is created short of stock.** The whole cart is checked first, and
+the refusal names **every** product that is short, not just the first — fix
+them all, then send again. Nothing is written: no invoice, no stock move, no
+money. The same applies to `POST /sales/{id}/edit`.
+
+```json
+{
+  "error": {
+    "message": "Not enough stock for: Napa 500mg (14 left, 19 wanted), Seclo 20 (10 left, 11 wanted)",
+    "code": "insufficient_stock",
+    "items": [
+      { "storeProductId": 4, "name": "Napa 500mg", "requested": 19, "available": 14 },
+      { "storeProductId": 5, "name": "Seclo 20",   "requested": 11, "available": 10 }
+    ]
+  }
+}
+```
+
+`requested` is the total of that product across the cart (loose and inside
+packages together). Mark those lines in the cart from `items`. Rarely, when
+another counter sells the last one at the same moment, `items` holds just that
+one product and its `requested` may be `null`.
 
 **Nothing goes out below what it cost.** A sale is refused with `sale` when a
 line's price, after its own discount, is under the product's `purchasePrice`
@@ -1666,7 +1801,16 @@ An invoice from before this split carries `discount` only.
 
 #### `POST /sales/{id}/returns` — `sales.return.create`
 
-`items[] {saleItemId, qty}`, `reason?` → `201 {id, returnNo, total}`.
+`items[] {saleItemId, qty}`, `reason?` → `201 {id, returnNo, total, settledOther}`.
+
+Where the money goes: first off what is still owed on this bill; then, when
+the customer still owes the shop elsewhere (previous due, older invoices —
+oldest first), off that — `settledOther` says how much; only what is left is
+handed back as cash. Show `settledOther` to the cashier so nobody opens the
+drawer for it. On `GET /sales/{id}`, each of `returns[]` carries `cashBack`,
+`offDue` and `settledOther`, and `outstanding` (the slip's total due) is
+already reduced by it. The older invoices it paid get a payment with
+`method: "exchange"` (no account; left out of takings).
 
 #### `POST /sales/{id}/payments` — `sales.payment.collect`
 
@@ -1701,12 +1845,14 @@ their stock came back when they were returned. Cancelling twice is `422`.
 `GET /sales/{id}` carries `meta.mayVoid`, which is true only for a completed
 invoice when the caller holds the permission.
 
-#### `GET /sales/{id}/edit` · `POST /sales/{id}/edit` — store owner or super admin
+#### `GET /sales/{id}/edit` · `POST /sales/{id}/edit` — store owner, super admin, or `sales.invoice.edit`
 
 Correcting an invoice: its lines, prices, discounts, customer or payment.
-Anyone else gets `403 forbidden`. `GET /sales/{id}` carries `meta.mayEdit`, and
-`meta.editBlocked` (a reason, or null) for an owner looking at an invoice that
-cannot be edited.
+The store owner and a super admin always may; anyone else only when their role
+holds `sales.invoice.edit` (§3). Otherwise `403 forbidden`. `GET /sales/{id}`
+carries `meta.mayEdit` — show the Edit button only when it is true — and
+`meta.editBlocked` (a reason, or null) for someone allowed to edit, looking at
+an invoice that cannot be.
 
 `GET` returns the invoice as a till cart: `{id, invoiceNo, saleDate, lines[],
 sold, customer, orderDiscountPercent, note, paid, method, accountId,
@@ -1745,7 +1891,7 @@ To offer **Edit** on an invoice, read `meta.mayEdit` from `GET /sales/{id}`;
 | POST | `/customers/quick` | `customers.customer.create` | `name`, `phone` | `id, name, phone, created` (`201` new, `200` existing phone) |
 | POST | `/customers` | `customers.customer.create` | `name`, `phone?`, `email?`, `address?`, `creditLimit?`, `openingBalance?` | `201 {id, openingBalance}` |
 | PATCH | `/customers/{id}` | `customers.customer.update` | same as above | `{id, openingBalance}` |
-| GET | `/customers/{id}/ledger` | `customers.ledger.view` | | last 100: `id, refType, debit, credit, balance, note, date` |
+| GET | `/customers/{id}/ledger` | `customers.ledger.view` | | last 100: `id, refType, debit, credit, balance, note, date, by` (`by`: who wrote the line, or null), `deletable`; `meta.totalPaid` (every credit on the ledger) and `meta.totalDue` (what they owe now) |
 | GET | `/customers/{id}/points` | `customers.points.view` | | `balance, worth, config, ledger[]` |
 | POST | `/customers/{id}/points` | `customers.points.adjust` | `points` (signed, not 0), `note` | `{balance}`; `422 negative` |
 | POST | `/customers/{id}/collect` | `sales.payment.collect` (+ `pos.sale.give_discount` for a discount) | `amount`, `discount?`, `discountReason` (required, 3+ chars, with a discount), `accountId?`, `method?` | `{collected, discounted, outstanding}`. Settles everything the customer owes, oldest first — the previous due, then invoice by invoice — and writes a `due_discount` ledger line naming the reason. `422` when the two together pass what is owed |
@@ -1782,10 +1928,11 @@ its own.
 
 ### Products and stock
 
-#### `GET /products` — `inventory.product.view`
+#### `GET /products` — `inventory.product.view` (or `inventory.stock.view` with `lowOnly`/`highOnly`)
 
-Query: `q` (name, barcode, SKU, company/brand, generic name), `lowOnly=1`, `trashed=1`, `page`,
-`perPage`.
+Query: `q` (name, barcode, SKU, company/brand, generic name), `lowOnly=1`,
+`highOnly=1`, `trashed=1`, `page`, `perPage`. See §5.3c for the low and high
+stock lists.
 
 ```json
 {
@@ -1798,7 +1945,9 @@ Query: `q` (name, barcode, SKU, company/brand, generic name), `lowOnly=1`, `tras
 }
 ```
 
-`lowOnly` filters the current page only. `trashed=1` lists the deleted ones
+`lowOnly` / `highOnly` filter in the query (under the low number / at or over the
+high number), so `meta.total` and the pages count only those rows; see §5.3c.
+`trashed=1` lists the deleted ones
 instead of the live ones; `meta.trashedCount` says how many there are either way.
 
 | Method | Path | Perm | Body | Returns |
@@ -1949,6 +2098,7 @@ Suggestion `status`: `pending` → `endorsed` (on sale in this store) →
 | GET | `/suppliers/advances?supplierId=` | `purchase.bill.view` | `supplierId?` narrows the log to one supplier | `{suppliers[] {id, name, company, phone, balance, advanced, used}, log[] {id, date, supplierId, supplier, type: paid\|used, amount, purchaseId, purchaseRef, note}, held}`. Every supplier who holds an advance or ever had one, with what is left. The log has every advance paid and every purchase that used one, newest first, up to 300 |
 | POST | `/purchases` | `purchase.bill.create` | see [5.4](#54-goods-in--purchase-stock-keeper-manager-owner) | `201 {id, refNo, subtotal, discount, total, paid, due, supplierId}` |
 | POST | `/purchases/{id}/pay` | `purchase.payment.create` | `amount?`, `accountId?`, `advanceAmount?` | `{id, refNo, total, paid, due, supplierId, paidCash, paidFromAdvance}`; see 5.4 step 3a |
+| POST | `/suppliers/{id}/pay` | `purchase.payment.create` | `amount?`, `accountId?`, `advanceAmount?` | `{paidCash, paidFromAdvance, bills[], due}` — one sum over the supplier's bills, oldest first; see 5.4 step 3b |
 | POST | `/purchases/{id}/photos` | `purchase.bill.create` | **multipart**, `photos[]` × 1–5 | `201 [{id, url, name}]`; `meta.accepted, offered, remaining`; `422 photo_limit` |
 | DELETE | `/purchases/{id}/photos/{photoId}` | `purchase.bill.update` | | `{deleted}` |
 | POST | `/suppliers` | `purchase.supplier.manage` | `name`, `company?`, `phone?`, `address?` | `201 {id}` |
@@ -1985,7 +2135,9 @@ role with only `expense.create` needs its own simple form.
 | GET | `/dashboard` | `report.sales.view` | `range` (`today`, `yesterday`, `7d`, `15d`, `1m`, `2m`, `custom` + `from`/`to`) | the whole owner's screen in one call — see [5.8](#58-owners-dashboard-and-reports) |
 | GET | `/reports/sales` | `report.sales.view` | `days` (default 30) | `daily[] {date, total, count}`, `topProducts[15] {id, name, qty, revenue, profit}`, `byUser[] {name, total, count}`, `byMethod[] {method, total}`, `showProfit` |
 | GET | `/reports/profit` | `report.profit.view` | `days` (default 30) | `revenue, cost, returnTotal, grossProfit, expenses, netProfit, margin` (%) |
+| GET | `/reports/progress` | `report.sales.view` | `range` (`7d`, `30d`, `month`, `lastmonth`, `6m`, `12m`, `custom` with `from`/`to`), `branch?`, `group?` (`day` \| `month`; left out, day for up to 62 days, else month) | `{range, group, rows[], totals, showProfit, showCapital}`. Each row `{key, from, to, sales, invoices, collected, dueRaised, returned, purchased, expenses, grossProfit, netProfit, capital {net, stock, receivable, advances, accounts, payable} \| null, change {…same keys…, capital}}` — `change` is the % against the period before (null when there is nothing to compare with). Sales are net of returns; capital is the whole shop's at the end of the period, worked back from today's figures (past stock at today's cost). By day, days with no invoice and no purchase are left out and `change` is against the previous day that had one. With `accounts.account.view` each row also carries `cash {opening, saleIn, dueIn, otherIn, expenses, purchasePaid, advancePaid, returned, otherOut, totalIn, totalOut, closing}` — the cash drawer (cash accounts) for the period; `opening + in − out = closing`, and the newest closing is the drawer's balance now. `totals` sums the flows and gives `capitalFrom, capitalTo, capitalChange, capitalChangePct`. Profit is null without `report.profit.view`, capital without `accounts.account.view` |
 | GET | `/reports/stock` | `report.stock.view` | | `stockValue, totalUnits, low[], expiring[], dead[20]` (no sale in 90 days) |
+| GET | `/reports/low-stock?highOnly=1&q=` | `report.stock.view` | | The same endpoint and row shape, from the other end: everything **at or over** the shop's high number (Settings → "High stock from", 15 until set), **most stock first**. Also `stockLevel=high` (or `level=`, `filter=`). The reply's `level` is `high` (`low` without the parameter) and `threshold` / each row's `minimum` are the high number |
 | GET | `/reports/low-stock?q=` | `report.stock.view` | | The reorder list for this branch, emptiest first: `{threshold, count, outOfStock, items[] {id, name, barcode, brand, unit, quantity, minimum, price, cost}}`. "Low" is fewer than `threshold` (Settings → "Low stock below", 5 when the shop has not set one). `cost` is `null` without `inventory.product.view_cost` |
 | GET | `/reports/dues` | `report.due.view` | | up to 100: `id, name, phone, due, creditLimit, ageDays` |
 
@@ -2016,7 +2168,10 @@ and gives it back. A mobile app with its own navigation can ignore both.
 | PATCH | `/settings/members/{userId}/password` | `settings.user.manage` | `password` (6–100), `passwordConfirmation` | `ok`; `422 self` (use `/me/password`); `404 not_found`; `403 forbidden_user` when the account is the owner, a super admin, or also on another store — only the platform can reset those. Ends that account's sign-ins |
 | PATCH | `/settings/members/{userId}/email` | `settings.user.manage` | `email` | `ok`, `email`; same refusals as the password row above; 422 if the address is taken |
 | PATCH | `/settings/members/{userId}/role` | `settings.role.manage` | `roleId` | `ok`; `422 self`, `403 forbidden_role` |
-| GET | `/settings/roles/{id}` | `settings.role.manage` | | `id, name, label, isLocked, permissions[]` |
+| GET | `/settings/roles/{id}` | `settings.role.manage` | | `id, name, label, labelBn, storeId, isLocked, basedOn, editable, permissions[]` |
+| POST | `/settings/roles` | `settings.role.manage` | `label`, `labelBn?`, `permissions[]`, `copyFrom?`, `moveMembers?` | `201 {id}` — a new role of this store's own |
+| PATCH | `/settings/roles/{id}` | `settings.role.manage` | `label`, `labelBn?`, `permissions[]` | `{ok}`. A **system role** id makes or updates **this store's version** of it (`{ok, id, created: true}` the first time; this store's members move onto it). `422 locked` for Store Owner / Super Admin; `422 self` if you would lose `settings.role.manage` |
+| DELETE | `/settings/roles/{id}` | `settings.role.manage` | | A store's version of a system role: **reset to default** (`{ok, reset: true}`, members move back). A role of the store's own: store owner only, and only once nobody holds it (`422 in_use`) |
 | GET | `/settings/activity` | `settings.activity.view` | `q?, subject?, event?, userId?, days?` (1–365, default 30) | up to 200: `id, event, subjectType, subjectId, subjectLabel, changes[] {field, from, to}, createdAt, user, ip`; `meta.subjects, events, days` |
 
 `members[]` item: `storeUserId, status (active|suspended), id, name, email,
